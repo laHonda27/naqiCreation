@@ -4,7 +4,7 @@
       "id": "1",
       "title": "Panneau Mariage Élégant",
       "description": "Panneau de bienvenue personnalisé pour votre mariage avec design élégant.",
-      "price": 9000,
+      "price": 90,
       "image": "https://images.pexels.com/photos/1824684/pexels-photo-1824684.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
       "category": "mariage",
       "featured": true,
@@ -54,7 +54,8 @@
           "Support en bois inclus",
           "Emballage sécurisé pour la livraison"
         ]
-      }
+      },
+      "date": "2025-05-17"
     },
     {
       "id": "2",
