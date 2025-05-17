@@ -131,6 +131,25 @@ exports.handler = async (event, context) => {
   }
   
   try {
+    // Récupérer le token pour le débogage (masqué partiellement)
+    const token = getGitHubToken();
+    const tokenDebug = token ? `${token.substring(0, 4)}...${token.substring(token.length - 4)}` : 'Non défini';
+    
+    // Informations de configuration pour le débogage
+    const configInfo = {
+      repoOwner: REPO_OWNER,
+      repoName: REPO_NAME,
+      dataPath: DATA_PATH,
+      tokenAvailable: !!token,
+      tokenPreview: tokenDebug,
+      environment: process.env.NODE_ENV || 'non défini'
+    };
+    
+    // Si l'action est 'debug', renvoyer les informations de configuration
+    if (event.queryStringParameters && event.queryStringParameters.debug === 'true') {
+      return respond(200, { success: true, debug: configInfo });
+    }
+    
     // Initialiser le client GitHub
     const github = getGitHubClient();
     
@@ -138,42 +157,64 @@ exports.handler = async (event, context) => {
     const body = JSON.parse(event.body || '{}');
     const { action, path, content, message } = body;
     
+    // Ajouter les informations de débogage à toutes les réponses
+    const addDebugInfo = (result) => {
+      return { ...result, debug: configInfo };
+    };
+    
     switch (action) {
       case 'list':
         // Lister les fichiers JSON
         const listResult = await listFilesFromGitHub(github, path || '');
-        return respond(listResult.success ? 200 : 500, listResult);
+        return respond(listResult.success ? 200 : 500, addDebugInfo(listResult));
         
       case 'get':
         // Récupérer un fichier
         if (!path) {
-          return respond(400, { success: false, error: 'Chemin du fichier manquant' });
+          return respond(400, addDebugInfo({ success: false, error: 'Chemin du fichier manquant' }));
         }
         
         const getResult = await getFileFromGitHub(github, path);
-        return respond(getResult.success ? 200 : 500, getResult);
+        return respond(getResult.success ? 200 : 500, addDebugInfo(getResult));
         
       case 'update':
         // Mettre à jour un fichier
         if (!path) {
-          return respond(400, { success: false, error: 'Chemin du fichier manquant' });
+          return respond(400, addDebugInfo({ success: false, error: 'Chemin du fichier manquant' }));
         }
         
         if (content === undefined) {
-          return respond(400, { success: false, error: 'Contenu du fichier manquant' });
+          return respond(400, addDebugInfo({ success: false, error: 'Contenu du fichier manquant' }));
         }
         
         const updateResult = await updateFileOnGitHub(github, path, content, message);
-        return respond(updateResult.success ? 200 : 500, updateResult);
+        return respond(updateResult.success ? 200 : 500, addDebugInfo(updateResult));
         
       default:
-        return respond(400, { success: false, error: 'Action non reconnue' });
+        return respond(400, addDebugInfo({ success: false, error: 'Action non reconnue' }));
     }
   } catch (error) {
     console.error('Erreur lors du traitement de la requête:', error);
+    
+    // Récupérer le token pour le débogage (masqué partiellement)
+    const token = getGitHubToken();
+    const tokenDebug = token ? `${token.substring(0, 4)}...${token.substring(token.length - 4)}` : 'Non défini';
+    
+    // Informations de configuration pour le débogage
+    const configInfo = {
+      repoOwner: REPO_OWNER,
+      repoName: REPO_NAME,
+      dataPath: DATA_PATH,
+      tokenAvailable: !!token,
+      tokenPreview: tokenDebug,
+      environment: process.env.NODE_ENV || 'non défini',
+      errorStack: error.stack
+    };
+    
     return respond(500, { 
       success: false, 
-      error: error.message || 'Erreur interne du serveur'
+      error: error.message || 'Erreur interne du serveur',
+      debug: configInfo
     });
   }
 };
