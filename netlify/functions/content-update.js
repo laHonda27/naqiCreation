@@ -4,7 +4,7 @@ const { Base64 } = require('js-base64');
 // Configuration
 const REPO_OWNER = 'laHonda27'; // Propriétaire du dépôt
 const REPO_NAME = 'naqiCreation'; // Nom du dépôt principal du projet
-const DATA_PATH = 'datajson'; // Chemin vers les fichiers de données dans le dépôt
+const DATA_PATH = 'public/data'; // Chemin vers les fichiers de données dans le dépôt
 
 // Fonction utilitaire pour répondre avec les bons headers CORS
 const respond = (statusCode, body) => {
