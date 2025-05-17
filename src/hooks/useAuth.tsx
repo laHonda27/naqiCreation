@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext, useContext, useCallback } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
   useEffect(() => {
-    // Check if user is already logged in
+    // Vérifier si l'utilisateur est déjà connecté
     const checkAuth = () => {
       const token = localStorage.getItem('auth_token');
       setIsAuthenticated(!!token);
@@ -29,32 +29,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
   
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = useCallback(async (username: string, password: string): Promise<boolean> => {
     try {
-      // In a real app, this would be an API call
-      // For demo purposes, hardcode the credentials
-      const validUsername = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
-      const validPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
+      console.log('Tentative de connexion en cours...');
       
-      if (username === validUsername && password === validPassword) {
-        // Create a simple token for demo purposes
-        const demoToken = `demo_${Date.now()}`;
-        localStorage.setItem('auth_token', demoToken);
+      // Vérification basique des champs
+      if (!username || !password) {
+        console.log('Nom d\'utilisateur ou mot de passe vide');
+        return false;
+      }
+
+      // Création d'un objet de débogage
+      const debugInfo = {
+        usernameReceived: username,
+        passwordReceived: password,
+        usernameTrimmed: username.trim(),
+        passwordTrimmed: password.trim(),
+        isUsernameMatch: username.trim() === 'admin',
+        isPasswordMatch: password.trim() === 'admin123'
+      };
+      
+      console.log('Détails de la tentative de connexion:', debugInfo);
+
+      // Vérification des identifiants
+      if (username.trim() === 'admin' && password.trim() === 'admin123') {
+        console.log('Identifiants valides, connexion en cours...');
+        const token = 'naqi_auth_' + Date.now();
+        localStorage.setItem('auth_token', token);
         setIsAuthenticated(true);
+        console.log('Connexion réussie !');
         return true;
       }
       
+      console.log('Échec de la connexion: identifiants incorrects');
       return false;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Erreur lors de la connexion:', error);
       return false;
     }
-  };
+  }, []);
   
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('auth_token');
     setIsAuthenticated(false);
-  };
+  }, []);
   
   return (
     <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>

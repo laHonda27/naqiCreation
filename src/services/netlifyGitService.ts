@@ -1,0 +1,170 @@
+/**
+ * Service pour interagir avec les fonctions Netlify qui gèrent les opérations Git
+ */
+
+// URL de base pour les fonctions Netlify (automatiquement résolu en production)
+const BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:8888/.netlify/functions' // URL pour le développement local avec netlify dev
+  : '/.netlify/functions';
+
+interface GitServiceResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
+
+export const netlifyGitService = {
+  /**
+   * Initialise le système et vérifie l'accès au dépôt
+   */
+  async initialize(): Promise<GitServiceResult> {
+    return this.syncRepository();
+  },
+
+  /**
+   * Met à jour le dépôt local avec les dernières modifications
+   */
+  async pullLatestChanges(): Promise<GitServiceResult> {
+    return this.syncRepository();
+  },
+
+  /**
+   * Vérifie la connexion au dépôt et liste les fichiers disponibles
+   */
+  async checkConnection(): Promise<GitServiceResult> {
+    try {
+      const result = await this.listJsonFiles();
+      if (result.success) {
+        return {
+          success: true,
+          data: {
+            connected: true,
+            filesCount: result.data.files.length,
+            files: result.data.files
+          }
+        };
+      }
+      return {
+        success: false,
+        error: result.error || 'Erreur lors de la vérification de la connexion'
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: `Erreur lors de la vérification de la connexion: ${error?.message || 'Erreur inconnue'}`
+      };
+    }
+  },
+
+  /**
+   * Réinitialise complètement le dépôt
+   */
+  async resetRepository(): Promise<GitServiceResult> {
+    // Pour les fonctions Netlify, il suffit de synchroniser à nouveau
+    // car le système de fichiers est éphémère
+    return this.syncRepository();
+  },
+
+  /**
+   * Dans l'environnement de production Netlify, le token est géré via les variables d'environnement
+   * Cette fonction existe uniquement pour la compatibilité avec l'ancien code
+   */
+  getToken(): string {
+    // Cette fonction n'est plus utilisée car le token est géré via les variables d'environnement Netlify
+    return 'TOKEN_MANAGED_BY_NETLIFY';
+  },
+
+  /**
+   * Effectue une requête vers une fonction Netlify
+   * 
+   * Note: Le token GitHub est maintenant géré par les variables d'environnement de Netlify
+   * C'est la fonction Netlify elle-même qui accède au token, et non le frontend
+   */
+  async callNetlifyFunction(action: string, params: any = {}): Promise<GitServiceResult> {
+    try {
+      // En mode développement local, nous allons d'abord tester la fonction hello
+      // pour vérifier que les fonctions Netlify sont correctement configurées
+      if (process.env.NODE_ENV === 'development' && action === 'test') {
+        const testResponse = await fetch(`${BASE_URL}/hello`, {
+          method: 'GET',
+        });
+        return await testResponse.json();
+      }
+      
+      const response = await fetch(`${BASE_URL}/git-sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+          // Le token est géré par Netlify via les variables d'environnement
+          // Nous n'avons plus besoin de l'envoyer dans les headers
+        },
+        body: JSON.stringify({
+          action,
+          ...params
+        })
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        console.error(`Erreur lors de l'appel à la fonction Netlify (${action}):`, result);
+      }
+      
+      return result;
+    } catch (error: any) {
+      console.error(`Erreur lors de l'appel à la fonction Netlify (${action}):`, error);
+      return {
+        success: false,
+        error: error.message || 'Erreur inconnue'
+      };
+    }
+  },
+
+  /**
+   * Synchronise le dépôt Git
+   */
+  async syncRepository(): Promise<GitServiceResult> {
+    return this.callNetlifyFunction('sync');
+  },
+
+  /**
+   * Liste les fichiers JSON disponibles dans le dépôt
+   */
+  async listJsonFiles(): Promise<GitServiceResult> {
+    return this.callNetlifyFunction('list');
+  },
+
+  /**
+   * Récupère le contenu d'un fichier JSON spécifique
+   */
+  async getJsonFile(filename: string): Promise<GitServiceResult> {
+    return this.callNetlifyFunction('read', { filename });
+  },
+
+  /**
+   * Écrit le contenu dans un fichier JSON et le commit dans le dépôt
+   */
+  async writeJsonFile(filename: string, content: any, commitMessage?: string): Promise<GitServiceResult> {
+    return this.callNetlifyFunction('write', {
+      filename,
+      content,
+      commitMessage
+    });
+  },
+  
+  /**
+   * Crée un commit avec les modifications actuelles
+   */
+  async commitChanges(commitMessage: string): Promise<GitServiceResult> {
+    return this.callNetlifyFunction('commit', {
+      message: commitMessage
+    });
+  },
+  
+  /**
+   * Pousse les modifications vers le dépôt distant
+   */
+  async pushChanges(): Promise<GitServiceResult> {
+    return this.callNetlifyFunction('push');
+  }
+};

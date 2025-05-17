@@ -1,11 +1,16 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
 
 const AdminHeader: React.FC = () => {
-  const { logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Fonction de déconnexion simplifiée
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    navigate('/admin/login');
+  };
   
   return (
     <header className="bg-taupe-900 text-white py-4">
@@ -48,7 +53,7 @@ const AdminHeader: React.FC = () => {
             Catégories
           </Link>
           <button 
-            onClick={logout}
+            onClick={handleLogout}
             className="flex items-center text-rose-200 hover:text-rose-100 transition-colors"
           >
             <LogOut size={18} className="mr-2" />

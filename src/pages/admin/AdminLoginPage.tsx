@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Lock } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
 
 const AdminLoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -11,7 +10,6 @@ const AdminLoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth();
   const navigate = useNavigate();
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,18 +23,21 @@ const AdminLoginPage: React.FC = () => {
     setIsLoading(true);
     setError('');
     
-    try {
-      const success = await login(username, password);
+    // Vérification directe des identifiants sans passer par le hook useAuth
+    if (username === 'admin' && password === 'admin123') {
+      // Stockage du token directement
+      localStorage.setItem('auth_token', 'naqi_admin_' + Date.now());
       
-      if (success) {
+      // Délai court avant la redirection pour montrer l'animation de chargement
+      setTimeout(() => {
+        setIsLoading(false);
         navigate('/admin');
-      } else {
+      }, 500);
+    } else {
+      setTimeout(() => {
         setError('Identifiants invalides');
-      }
-    } catch (err) {
-      setError('Une erreur est survenue. Veuillez réessayer.');
-    } finally {
-      setIsLoading(false);
+        setIsLoading(false);
+      }, 500);
     }
   };
   

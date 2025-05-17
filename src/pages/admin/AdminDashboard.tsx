@@ -5,6 +5,7 @@ import AdminHeader from '../../components/admin/AdminHeader';
 import TestimonialsManager from '../../components/admin/TestimonialsManager';
 import CreationsManager from '../../components/admin/CreationsManager';
 import CategoriesManager from '../../components/admin/CategoriesManager';
+import GitSyncPanel from '../../components/admin/GitSyncPanel';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -28,6 +29,7 @@ const AdminDashboard: React.FC = () => {
                 <TabsTrigger value="testimonials">Témoignages</TabsTrigger>
                 <TabsTrigger value="creations">Créations</TabsTrigger>
                 <TabsTrigger value="categories">Catégories</TabsTrigger>
+                <TabsTrigger value="sync">Synchronisation</TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview" className="pt-6">
@@ -89,6 +91,22 @@ const AdminDashboard: React.FC = () => {
               
               <TabsContent value="categories" className="pt-6">
                 <CategoriesManager />
+              </TabsContent>
+              
+              <TabsContent value="sync" className="pt-6">
+                <GitSyncPanel />
+                <div className="mt-6 p-4 bg-beige-50 rounded-lg border border-beige-200">
+                  <h3 className="text-lg font-semibold mb-2">À propos de la synchronisation Git</h3>
+                  <p className="text-taupe-800 mb-2">
+                    Cette fonctionnalité permet de synchroniser le contenu du site avec les données stockées dans le dépôt Git.
+                  </p>
+                  <p className="text-taupe-800 mb-2">
+                    Les modifications apportées aux fichiers JSON dans le dépôt Git seront automatiquement reflétées sur le site après synchronisation.
+                  </p>
+                  <p className="text-sm text-taupe-600">
+                    Note: Assurez-vous que les fichiers JSON dans le dépôt Git sont correctement formatés pour éviter les erreurs.
+                  </p>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
