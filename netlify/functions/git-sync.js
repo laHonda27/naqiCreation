@@ -28,8 +28,6 @@ const respond = (statusCode, body) => {
 // Fonction pour cloner ou mettre à jour le dépôt
 async function getRepository(token) {
   try {
-    const git = simpleGit();
-    
     // Créer le répertoire si nécessaire
     try {
       await fs.mkdir(LOCAL_DIR, { recursive: true });
@@ -45,23 +43,24 @@ async function getRepository(token) {
     } catch (err) {
       // Le dépôt n'existe pas encore
     }
-
-    // Configurer les options d'authentification
-    const authOptions = {
-      username: GIT_USERNAME,
-      password: token
-    };
+    
+    // Créer l'URL avec le token intégré
+    const repoUrlWithAuth = REPO_URL.replace('https://', `https://${GIT_USERNAME}:${token}@`);
+    
+    // Initialiser Git avec le répertoire de travail
+    const git = simpleGit({ baseDir: repoExists ? LOCAL_DIR : process.cwd() });
 
     if (repoExists) {
       // Mettre à jour le dépôt existant
       console.log('Mise à jour du dépôt existant...');
-      await git.cwd(LOCAL_DIR);
       await git.addConfig('user.name', 'Naqi Admin');
       await git.addConfig('user.email', 'admin@naqicreation.com');
       
       // Réinitialiser le dépôt si nécessaire
       try {
-        await git.fetch(['--all'], authOptions);
+        // Utiliser l'URL avec authentification pour le fetch
+        await git.remote(['set-url', 'origin', repoUrlWithAuth]);
+        await git.fetch(['--all']);
         await git.reset(['--hard', 'origin/main']);
       } catch (fetchError) {
         console.error('Erreur lors du fetch/reset:', fetchError);
@@ -71,14 +70,13 @@ async function getRepository(token) {
       // Cloner le dépôt
       console.log('Clonage du dépôt...');
       try {
-        await git.clone(REPO_URL, LOCAL_DIR, [
-          '--depth', '1', 
-          '--single-branch'
-        ], authOptions);
+        // Utiliser l'URL avec authentification pour le clonage
+        await git.clone(repoUrlWithAuth, LOCAL_DIR);
         
-        await git.cwd(LOCAL_DIR);
-        await git.addConfig('user.name', 'Naqi Admin');
-        await git.addConfig('user.email', 'admin@naqicreation.com');
+        // Après le clonage, configurer le dépôt
+        const localGit = simpleGit({ baseDir: LOCAL_DIR });
+        await localGit.addConfig('user.name', 'Naqi Admin');
+        await localGit.addConfig('user.email', 'admin@naqicreation.com');
       } catch (cloneError) {
         console.error('Erreur lors du clonage:', cloneError);
         throw new Error('Impossible de cloner le dépôt: ' + cloneError.message);
@@ -121,33 +119,140 @@ async function readJsonFile(filename) {
 // Fonction pour écrire un fichier JSON et le commiter
 async function writeJsonFile(filename, content, commitMessage, token) {
   try {
-    const git = simpleGit(LOCAL_DIR);
     const filePath = path.join(LOCAL_DIR, DATA_DIR, filename);
-    
-    // Écrire le fichier
     await fs.writeFile(filePath, JSON.stringify(content, null, 2), 'utf8');
     
-    // Configurer les options d'authentification
-    const authOptions = {
-      username: GIT_USERNAME,
-      password: token
-    };
+    // Commiter les changements
+    const git = simpleGit({ baseDir: LOCAL_DIR });
     
-    // Ajouter, commiter et pousser les modifications
-    await git.add(path.join(DATA_DIR, filename));
+    // Créer l'URL avec le token intégré
+    const repoUrlWithAuth = REPO_URL.replace('https://', `https://${GIT_USERNAME}:${token}@`);
+    
+    // Configurer le remote avec l'URL authentifiée
+    await git.remote(['set-url', 'origin', repoUrlWithAuth]);
+    
+    // Ajouter et commiter le fichier
+    await git.add(filePath);
     await git.commit(commitMessage || `Mise à jour de ${filename}`);
     
-    try {
-      await git.push('origin', 'main', authOptions);
-    } catch (pushError) {
-      console.error('Erreur lors du push:', pushError);
-      throw new Error('Impossible de pousser les modifications: ' + pushError.message);
-    }
+    // Pousser les modifications
+    await git.push('origin', 'main');
     
     return { success: true };
   } catch (error) {
-    console.error(`Erreur lors de l'écriture du fichier ${filename}:`, error);
+    console.error('Erreur lors de l\'écriture du fichier:', error);
     return { success: false, error: error.message };
+  }
+}
+
+// Fonction pour télécharger un fichier d'icône dans le dépôt
+async function uploadIconFile(filename, content, commitMessage, token) {
+  try {
+    // Vérifier que le contenu est une chaîne base64
+    if (!content.startsWith('data:image')) {
+      return { success: false, error: 'Format de contenu invalide' };
+    }
+    
+    // Extraire le type MIME et le contenu base64
+    const matches = content.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return { success: false, error: 'Format de contenu base64 invalide' };
+    }
+    
+    const mimeType = matches[1];
+    const base64Data = matches[2];
+    const buffer = Buffer.from(base64Data, 'base64');
+    
+    // Déterminer l'extension du fichier en fonction du type MIME
+    let extension = '';
+    switch (mimeType) {
+      case 'image/png':
+        extension = '.png';
+        break;
+      case 'image/jpeg':
+      case 'image/jpg':
+        extension = '.jpg';
+        break;
+      case 'image/svg+xml':
+        extension = '.svg';
+        break;
+      case 'image/x-icon':
+      case 'image/vnd.microsoft.icon':
+        extension = '.ico';
+        break;
+      default:
+        extension = '.png'; // Par défaut
+    }
+    
+    // Déterminer le type d'image (logo ou favicon) en fonction du nom de fichier
+    const isLogo = filename.includes('logo');
+    const isFavicon = filename.includes('favicon');
+    
+    // Créer un nom de fichier plus descriptif
+    let formattedFilename = '';
+    let subFolder = 'autres';
+    
+    if (isLogo) {
+      formattedFilename = `site-logo-${Date.now()}${extension}`;
+      subFolder = 'logos';
+    } else if (isFavicon) {
+      formattedFilename = `site-favicon-${Date.now()}${extension}`;
+      subFolder = 'favicons';
+    } else {
+      formattedFilename = `${filename}-${Date.now()}${extension}`;
+    }
+    
+    // Créer le nom de fichier complet avec sous-dossier
+    const fullFilename = `${DATA_DIR}/images/${subFolder}/${formattedFilename}`;
+    const fullPath = path.join(LOCAL_DIR, fullFilename);
+    
+    // Créer le dossier images et le sous-dossier s'ils n'existent pas
+    const imagesBaseDir = path.join(LOCAL_DIR, DATA_DIR, 'images');
+    const imagesSubDir = path.join(LOCAL_DIR, DATA_DIR, 'images', subFolder);
+    
+    try {
+      await fs.mkdir(imagesBaseDir, { recursive: true });
+      await fs.mkdir(imagesSubDir, { recursive: true });
+    } catch (err) {
+      console.log('Dossier images déjà existant ou erreur lors de la création:', err);
+    }
+    
+    // Écrire le fichier
+    await fs.writeFile(fullPath, buffer);
+    
+    // Ajouter le fichier au Git
+    const git = simpleGit({ baseDir: LOCAL_DIR });
+    await git.add(fullPath);
+    
+    // Commiter le fichier
+    await git.commit(commitMessage || `Ajout de l'icône ${filename}`);
+    
+    console.log(`Fichier ${fullFilename} ajouté et commité avec succès`);
+    
+    // Créer l'URL avec le token intégré
+    const repoUrlWithAuth = REPO_URL.replace('https://', `https://${GIT_USERNAME}:${token}@`);
+    
+    // Configurer le remote avec l'URL authentifiée
+    await git.remote(['set-url', 'origin', repoUrlWithAuth]);
+    
+    // Pousser les modifications
+    await git.push('origin', 'main');
+    
+    console.log(`Modifications poussées vers le dépôt distant`);
+    
+    return {
+      success: true,
+      data: {
+        filename: fullFilename,
+        url: `/${fullFilename}`
+      }
+    };
+  } catch (error) {
+    console.error('Erreur lors du téléchargement du fichier:', error);
+    return {
+      success: false,
+      error: `Erreur lors du téléchargement du fichier: ${error.message || 'Erreur inconnue'}`
+    };
   }
 }
 
@@ -218,18 +323,29 @@ exports.handler = async (event, context) => {
         );
         return respond(writeResult.success ? 200 : 500, writeResult);
         
+      case 'upload':
+        if (!params.filename || !params.content) {
+          return respond(400, { success: false, error: 'Nom de fichier ou contenu manquant' });
+        }
+        // Synchroniser d'abord pour être sûr d'avoir les dernières versions
+        await getRepository(token);
+        const uploadResult = await uploadIconFile(
+          params.filename,
+          params.content,
+          params.commitMessage,
+          token
+        );
+        return respond(uploadResult.success ? 200 : 500, uploadResult);
+        
       case 'commit':
         if (!params.message) {
           return respond(400, { success: false, error: 'Message de commit manquant' });
         }
         try {
-          const git = simpleGit(LOCAL_DIR);
+          const git = simpleGit({ baseDir: LOCAL_DIR });
           
-          // Configurer les options d'authentification
-          const authOptions = {
-            username: GIT_USERNAME,
-            password: token
-          };
+          // Créer l'URL avec le token intégré
+          const repoUrlWithAuth = REPO_URL.replace('https://', `https://${GIT_USERNAME}:${token}@`);
           
           // Vérifier s'il y a des changements à commiter
           const status = await git.status();
@@ -258,16 +374,16 @@ exports.handler = async (event, context) => {
         
       case 'push':
         try {
-          const git = simpleGit(LOCAL_DIR);
+          const git = simpleGit({ baseDir: LOCAL_DIR });
           
-          // Configurer les options d'authentification
-          const authOptions = {
-            username: GIT_USERNAME,
-            password: token
-          };
+          // Créer l'URL avec le token intégré
+          const repoUrlWithAuth = REPO_URL.replace('https://', `https://${GIT_USERNAME}:${token}@`);
+          
+          // Configurer le remote avec l'URL authentifiée
+          await git.remote(['set-url', 'origin', repoUrlWithAuth]);
           
           // Pousser les modifications
-          await git.push('origin', 'main', authOptions);
+          await git.push('origin', 'main');
           
           return respond(200, { 
             success: true, 

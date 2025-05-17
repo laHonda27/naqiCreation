@@ -166,5 +166,20 @@ export const netlifyGitService = {
    */
   async pushChanges(): Promise<GitServiceResult> {
     return this.callNetlifyFunction('push');
+  },
+  
+  /**
+   * Met à jour un fichier JSON et le synchronise avec le dépôt
+   */
+  async updateFile(filename: string, content: any): Promise<GitServiceResult> {
+    // Écrire le fichier JSON
+    const writeResult = await this.writeJsonFile(filename, content, `Mise à jour de ${filename}`);
+    
+    if (!writeResult.success) {
+      return writeResult;
+    }
+    
+    // Synchroniser les modifications avec le dépôt distant
+    return this.syncRepository();
   }
 };

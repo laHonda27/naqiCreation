@@ -1,4 +1,4 @@
-import React from 'react';
+// Composant principal de l'application
 import { Routes, Route } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import Layout from './components/layout/Layout';
@@ -11,14 +11,14 @@ import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import SiteHead from './components/common/SiteHead';
 
 function App() {
   return (
     <>
+      <SiteHead />
       <Helmet>
         <meta name="theme-color" content="#f3ece0" />
-        <meta property="og:title" content="Naqi Création | Panneaux Personnalisés pour Événements" />
-        <meta property="og:description" content="Créations sur mesure pour mariages, fiançailles et événements. Des panneaux personnalisés pour rendre vos moments inoubliables." />
         <meta property="og:image" content="/images/og-image.jpg" />
       </Helmet>
       

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { netlifyGitService } from '../../services/netlifyGitService';
-
-interface LogoProps {
-  className?: string;
-}
 
 interface SiteSettings {
   logo?: {
@@ -18,7 +15,7 @@ interface SiteSettings {
   siteDescription?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ className = "h-12 w-auto" }) => {
+const SiteHead: React.FC = () => {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -39,26 +36,30 @@ const Logo: React.FC<LogoProps> = ({ className = "h-12 w-auto" }) => {
     loadSettings();
   }, []);
   
-  // Si un logo personnalisé est configuré, l'utiliser
-  if (!loading && settings?.logo?.useCustomLogo && settings.logo.customLogoUrl) {
+  if (loading) {
     return (
-      <div className={className}>
-        <img 
-          src={settings.logo.customLogoUrl} 
-          alt={settings.siteTitle || "Naqi Création"} 
-          className="h-full w-auto"
-        />
-      </div>
+      <Helmet>
+        <title>Naqi Création - Panneaux personnalisés</title>
+        <meta name="description" content="Créations personnalisées pour tous vos événements" />
+        <link rel="icon" href="/favicon.ico" />
+      </Helmet>
     );
   }
   
-  // Sinon, utiliser le logo par défaut (texte)
   return (
-    <div className={`text-taupe-800 font-display italic ${className}`}>
-      <h1 className="text-2xl font-semibold">{settings?.siteTitle?.split(' - ')[0] || "Naqi Création"}</h1>
-      <p className="text-xs tracking-wide uppercase">Panneaux personnalisés</p>
-    </div>
+    <Helmet>
+      <title>{settings?.siteTitle || "Naqi Création - Panneaux personnalisés"}</title>
+      <meta 
+        name="description" 
+        content={settings?.siteDescription || "Créations personnalisées pour tous vos événements"} 
+      />
+      {settings?.favicon?.useCustomFavicon && settings.favicon.customFaviconUrl ? (
+        <link rel="icon" href={settings.favicon.customFaviconUrl} />
+      ) : (
+        <link rel="icon" href="/favicon.ico" />
+      )}
+    </Helmet>
   );
 };
 
-export default Logo;
+export default SiteHead;

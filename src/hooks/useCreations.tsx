@@ -102,10 +102,22 @@ export function useCreations() {
       };
       
       const updatedCreations = [...creations, newCreation];
-      setCreations(updatedCreations);
-      return true;
-    } catch (err) {
-      setError('Erreur lors de l\'ajout de la création');
+      
+      // Mettre à jour le fichier JSON
+      const result = await contentUpdateService.updateFile(
+        'creations.json',
+        { creations: updatedCreations },
+        'Ajout d\'une nouvelle création'
+      );
+      
+      if (result.success) {
+        setCreations(updatedCreations);
+        return true;
+      } else {
+        throw new Error(result.error || 'Erreur lors de la mise à jour du fichier');
+      }
+    } catch (err: any) {
+      setError('Erreur lors de l\'ajout de la création: ' + (err.message || 'Erreur inconnue'));
       return false;
     }
   };
@@ -117,10 +129,21 @@ export function useCreations() {
         creation.id === id ? { ...creation, ...updatedCreation } : creation
       );
       
-      setCreations(updatedCreations);
-      return true;
-    } catch (err) {
-      setError('Erreur lors de la mise à jour de la création');
+      // Mettre à jour le fichier JSON
+      const result = await contentUpdateService.updateFile(
+        'creations.json',
+        { creations: updatedCreations },
+        `Mise à jour de la création: ${id}`
+      );
+      
+      if (result.success) {
+        setCreations(updatedCreations);
+        return true;
+      } else {
+        throw new Error(result.error || 'Erreur lors de la mise à jour du fichier');
+      }
+    } catch (err: any) {
+      setError('Erreur lors de la mise à jour de la création: ' + (err.message || 'Erreur inconnue'));
       return false;
     }
   };
@@ -129,10 +152,22 @@ export function useCreations() {
   const deleteCreation = async (id: string) => {
     try {
       const updatedCreations = creations.filter(creation => creation.id !== id);
-      setCreations(updatedCreations);
-      return true;
-    } catch (err) {
-      setError('Erreur lors de la suppression de la création');
+      
+      // Mettre à jour le fichier JSON
+      const result = await contentUpdateService.updateFile(
+        'creations.json',
+        { creations: updatedCreations },
+        `Suppression de la création: ${id}`
+      );
+      
+      if (result.success) {
+        setCreations(updatedCreations);
+        return true;
+      } else {
+        throw new Error(result.error || 'Erreur lors de la mise à jour du fichier');
+      }
+    } catch (err: any) {
+      setError('Erreur lors de la suppression de la création: ' + (err.message || 'Erreur inconnue'));
       return false;
     }
   };
@@ -146,10 +181,22 @@ export function useCreations() {
       };
       
       const updatedCategories = [...categories, newCategory];
-      setCategories(updatedCategories);
-      return true;
-    } catch (err) {
-      setError('Erreur lors de l\'ajout de la catégorie');
+      
+      // Mettre à jour le fichier JSON
+      const result = await contentUpdateService.updateFile(
+        'categories.json',
+        { categories: updatedCategories },
+        `Ajout d'une nouvelle catégorie: ${newCategory.name}`
+      );
+      
+      if (result.success) {
+        setCategories(updatedCategories);
+        return true;
+      } else {
+        throw new Error(result.error || 'Erreur lors de la mise à jour du fichier');
+      }
+    } catch (err: any) {
+      setError('Erreur lors de l\'ajout de la catégorie: ' + (err.message || 'Erreur inconnue'));
       return false;
     }
   };
@@ -161,18 +208,45 @@ export function useCreations() {
         category.id === id ? { ...category, ...updatedCategory } : category
       );
       
+      let updatedCreationsWithCategory = [...creations];
+      
       // Si l'ID de la catégorie a été modifié, mettre à jour toutes les créations qui utilisent cette catégorie
       if (updatedCategory.id && updatedCategory.id !== id) {
-        const updatedCreationsWithCategory = creations.map(creation =>
+        updatedCreationsWithCategory = creations.map(creation =>
           creation.category === id ? { ...creation, category: updatedCategory.id! } : creation
         );
-        setCreations(updatedCreationsWithCategory);
       }
       
-      setCategories(updatedCategories);
-      return true;
-    } catch (err) {
-      setError('Erreur lors de la mise à jour de la catégorie');
+      // Mettre à jour le fichier JSON des catégories
+      const categoriesResult = await contentUpdateService.updateFile(
+        'categories.json',
+        { categories: updatedCategories },
+        `Mise à jour de la catégorie: ${id}`
+      );
+      
+      // Si l'ID a changé, mettre à jour également le fichier des créations
+      if (updatedCategory.id && updatedCategory.id !== id) {
+        const creationsResult = await contentUpdateService.updateFile(
+          'creations.json',
+          { creations: updatedCreationsWithCategory },
+          `Mise à jour des créations pour la catégorie: ${id} -> ${updatedCategory.id}`
+        );
+        
+        if (creationsResult.success) {
+          setCreations(updatedCreationsWithCategory);
+        } else {
+          throw new Error(creationsResult.error || 'Erreur lors de la mise à jour des créations');
+        }
+      }
+      
+      if (categoriesResult.success) {
+        setCategories(updatedCategories);
+        return true;
+      } else {
+        throw new Error(categoriesResult.error || 'Erreur lors de la mise à jour du fichier');
+      }
+    } catch (err: any) {
+      setError('Erreur lors de la mise à jour de la catégorie: ' + (err.message || 'Erreur inconnue'));
       return false;
     }
   };
@@ -192,11 +266,33 @@ export function useCreations() {
       );
       
       const updatedCategories = categories.filter(category => category.id !== id);
-      setCreations(updatedCreations);
-      setCategories(updatedCategories);
-      return true;
-    } catch (err) {
-      setError('Erreur lors de la suppression de la catégorie');
+      
+      // Mettre à jour le fichier JSON des catégories
+      const categoriesResult = await contentUpdateService.updateFile(
+        'categories.json',
+        { categories: updatedCategories },
+        `Suppression de la catégorie: ${id}`
+      );
+      
+      // Mettre à jour le fichier JSON des créations
+      const creationsResult = await contentUpdateService.updateFile(
+        'creations.json',
+        { creations: updatedCreations },
+        `Mise à jour des créations après suppression de la catégorie: ${id}`
+      );
+      
+      if (categoriesResult.success && creationsResult.success) {
+        setCreations(updatedCreations);
+        setCategories(updatedCategories);
+        return true;
+      } else {
+        throw new Error(
+          (categoriesResult.error || '') + ' ' + (creationsResult.error || '') || 
+          'Erreur lors de la mise à jour des fichiers'
+        );
+      }
+    } catch (err: any) {
+      setError('Erreur lors de la suppression de la catégorie: ' + (err.message || 'Erreur inconnue'));
       return false;
     }
   };
