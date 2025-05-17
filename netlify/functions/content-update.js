@@ -1,6 +1,6 @@
-// Import direct des modules ES
-import { Octokit } from '@octokit/rest';
-import { Base64 } from 'js-base64';
+// Imports CommonJS
+const { Octokit } = require('@octokit/rest');
+const { Base64 } = require('js-base64');
 
 // Configuration
 const REPO_OWNER = 'laHonda27'; // Propriétaire du dépôt
@@ -125,7 +125,7 @@ const updateFileOnGitHub = async (github, path, content, message) => {
 };
 
 // Handler pour les requêtes API
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   
   // Gestion des requêtes OPTIONS pour CORS
   if (event.httpMethod === 'OPTIONS') {
