@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply font-sans text-taupe-800 bg-beige-50;
+  }
+  
+  /* Fixed circular dependency by using direct CSS instead of @apply */
+  body.overflow-hidden {
+    overflow: hidden;
+    height: 100vh;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-taupe-900;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+  
+  .btn {
+    @apply px-6 py-3 rounded-md transition-all duration-300 font-medium text-center inline-block;
+  }
+  
+  .btn-primary {
+    @apply btn bg-rose-400 text-white hover:bg-rose-500;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-beige-200 text-taupe-800 hover:bg-beige-300;
+  }
+  
+  .btn-outline {
+    @apply btn border-2 border-beige-300 text-taupe-800 hover:bg-beige-100;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 border border-beige-200 rounded-md bg-white text-taupe-800 focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all duration-200;
+  }
+  
+  .section-title {
+    @apply text-3xl md:text-4xl font-display mb-3 text-taupe-900;
+  }
+  
+  .section-subtitle {
+    @apply text-lg text-taupe-600 mb-10 max-w-3xl;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg overflow-hidden shadow-soft transition-all duration-300 hover:shadow-medium;
+  }
+  
+  .divider {
+    @apply w-16 h-1 bg-rose-300 my-4;
+  }
+  
+  /* Gallery styles */
+  .gallery-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+  
+  .fullscreen-overlay {
+    @apply fixed inset-0 bg-taupe-900/90 z-50 flex items-center justify-center;
+  }
+}
+
+/* Animation delay utilities */
+.delay-75 {
+  animation-delay: 75ms;
+}
+
+.delay-150 {
+  animation-delay: 150ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-beige-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-beige-300 rounded-full hover:bg-beige-400 transition-all duration-200;
+}
