@@ -1,13 +1,32 @@
 {
   "categories": [
-    { "id": "all", "name": "Tous" },
-    { "id": "mariage", "name": "Mariageeee" },
-    { "id": "fiancailles", "name": "Fiançailles" },
-    { "id": "bapteme", "name": "Baptême" },
-    { "id": "anniversaire", "name": "Anniversaire" },
-    { "id": "babyshower", "name": "Baby Shower" },
-    { "id": "evjf", "name": "coucou" }
+    {
+      "id": "all",
+      "name": "Tous"
+    },
+    {
+      "id": "mariage",
+      "name": "niawe"
+    },
+    {
+      "id": "fiancailles",
+      "name": "Fiançailles"
+    },
+    {
+      "id": "bapteme",
+      "name": "Baptême"
+    },
+    {
+      "id": "anniversaire",
+      "name": "Anniversaire"
+    },
+    {
+      "id": "babyshower",
+      "name": "Baby Shower"
+    },
+    {
+      "id": "evjf",
+      "name": "coucou"
+    }
   ]
 }
-
-
