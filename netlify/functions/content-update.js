@@ -1,17 +1,6 @@
-// Utiliser des variables globales pour stocker les modules importés dynamiquement
-let Octokit;
-let Base64;
-
-// Fonction pour charger les modules de manière asynchrone
-async function loadModules() {
-  // Import dynamique d'Octokit
-  const octokit = await import('@octokit/rest');
-  Octokit = octokit.Octokit;
-  
-  // Import dynamique de js-base64
-  const base64 = await import('js-base64');
-  Base64 = base64.Base64;
-}
+// Import direct des modules ES
+import { Octokit } from '@octokit/rest';
+import { Base64 } from 'js-base64';
 
 // Configuration
 const REPO_OWNER = 'laHonda27'; // Propriétaire du dépôt
@@ -136,18 +125,7 @@ const updateFileOnGitHub = async (github, path, content, message) => {
 };
 
 // Handler pour les requêtes API
-exports.handler = async (event, context) => {
-  // Charger les modules de manière asynchrone
-  try {
-    await loadModules();
-  } catch (error) {
-    console.error('Erreur lors du chargement des modules:', error);
-    return respond(500, { 
-      success: false, 
-      error: 'Erreur lors du chargement des modules: ' + error.message,
-      stack: error.stack
-    });
-  }
+export const handler = async (event, context) => {
   
   // Gestion des requêtes OPTIONS pour CORS
   if (event.httpMethod === 'OPTIONS') {
