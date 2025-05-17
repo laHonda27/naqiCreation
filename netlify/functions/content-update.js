@@ -1,6 +1,6 @@
-// Imports CommonJS
-const { Octokit } = require('@octokit/rest');
-const { Base64 } = require('js-base64');
+// Import de fetch pour les environnements Node.js
+const fetch = require('node-fetch');
+const { Buffer } = require('buffer');
 
 // Configuration
 const REPO_OWNER = 'laHonda27'; // Propriétaire du dépôt
@@ -21,7 +21,17 @@ const respond = (statusCode, body) => {
   };
 };
 
-// Récupère le token GitHub depuis les variables d'environnement
+// Fonction pour encoder en Base64
+function encodeBase64(str) {
+  return Buffer.from(str).toString('base64');
+}
+
+// Fonction pour décoder du Base64
+function decodeBase64(str) {
+  return Buffer.from(str, 'base64').toString('utf-8');
+}
+
+// Fonction pour récupérer le token GitHub depuis les variables d'environnement
 const getGitHubToken = () => {
   const token = process.env.GITHUB_TOKEN;
   
@@ -32,30 +42,39 @@ const getGitHubToken = () => {
   return token;
 };
 
-// Initialise l'API GitHub
-const getGitHubClient = () => {
+// Crée les en-têtes pour les requêtes GitHub
+const getGitHubHeaders = () => {
   const token = getGitHubToken();
   
   if (!token) {
     throw new Error('Token GitHub non configuré dans les variables d\'environnement Netlify');
   }
   
-  return new Octokit({
-    auth: token
-  });
+  return {
+    'Authorization': `token ${token}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json'
+  };
 };
 
 // Récupère un fichier depuis GitHub
-const getFileFromGitHub = async (github, path) => {
+const getFileFromGitHub = async (path) => {
   try {
-    const response = await github.repos.getContent({
-      owner: REPO_OWNER,
-      repo: REPO_NAME,
-      path: `${DATA_PATH}/${path}`
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_PATH}/${path}`;
+    console.log(`Récupération du fichier depuis: ${url}`);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getGitHubHeaders()
     });
     
-    const content = Base64.decode(response.data.content);
-    const sha = response.data.sha;
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    const content = decodeBase64(data.content);
+    const sha = data.sha;
     
     return { content, sha, success: true };
   } catch (error) {
@@ -68,16 +87,24 @@ const getFileFromGitHub = async (github, path) => {
 };
 
 // Liste les fichiers dans un répertoire GitHub
-const listFilesFromGitHub = async (github, path = '') => {
+const listFilesFromGitHub = async (path = '') => {
   try {
-    const response = await github.repos.getContent({
-      owner: REPO_OWNER,
-      repo: REPO_NAME,
-      path: path ? `${DATA_PATH}/${path}` : DATA_PATH
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path ? `${DATA_PATH}/${path}` : DATA_PATH}`;
+    console.log(`Listage des fichiers depuis: ${url}`);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getGitHubHeaders()
     });
     
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
     // Filtrer pour ne garder que les fichiers JSON
-    const files = response.data
+    const files = data
       .filter(item => item.type === 'file' && item.name.endsWith('.json'))
       .map(item => item.name);
     
@@ -92,28 +119,42 @@ const listFilesFromGitHub = async (github, path = '') => {
 };
 
 // Met à jour un fichier sur GitHub
-const updateFileOnGitHub = async (github, path, content, message) => {
+const updateFileOnGitHub = async (path, content, message) => {
   try {
     // D'abord récupérer le SHA du fichier existant
-    const fileInfo = await getFileFromGitHub(github, path);
+    const fileInfo = await getFileFromGitHub(path);
     
     if (!fileInfo.success) {
       return fileInfo; // Propager l'erreur
     }
     
-    // Mettre à jour le fichier
-    const response = await github.repos.createOrUpdateFileContents({
-      owner: REPO_OWNER,
-      repo: REPO_NAME,
-      path: `${DATA_PATH}/${path}`,
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_PATH}/${path}`;
+    console.log(`Mise à jour du fichier: ${url}`);
+    
+    // Préparer le corps de la requête
+    const requestBody = {
       message: message || `Mise à jour de ${path}`,
-      content: Base64.encode(content),
+      content: encodeBase64(content),
       sha: fileInfo.sha
+    };
+    
+    // Mettre à jour le fichier
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: getGitHubHeaders(),
+      body: JSON.stringify(requestBody)
     });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erreur HTTP: ${response.status} - ${errorText}`);
+    }
+    
+    const data = await response.json();
     
     return { 
       success: true, 
-      commit: response.data.commit
+      commit: data.commit
     };
   } catch (error) {
     console.error(`Erreur lors de la mise à jour du fichier ${path}:`, error);
@@ -126,7 +167,6 @@ const updateFileOnGitHub = async (github, path, content, message) => {
 
 // Handler pour les requêtes API
 exports.handler = async (event, context) => {
-  
   // Gestion des requêtes OPTIONS pour CORS
   if (event.httpMethod === 'OPTIONS') {
     return respond(200, {});
@@ -152,9 +192,6 @@ exports.handler = async (event, context) => {
       return respond(200, { success: true, debug: configInfo });
     }
     
-    // Initialiser le client GitHub
-    const github = getGitHubClient();
-    
     // Analyser le corps de la requête
     const body = JSON.parse(event.body || '{}');
     const { action, path, content, message } = body;
@@ -167,7 +204,7 @@ exports.handler = async (event, context) => {
     switch (action) {
       case 'list':
         // Lister les fichiers JSON
-        const listResult = await listFilesFromGitHub(github, path || '');
+        const listResult = await listFilesFromGitHub(path || '');
         return respond(listResult.success ? 200 : 500, addDebugInfo(listResult));
         
       case 'get':
@@ -176,7 +213,7 @@ exports.handler = async (event, context) => {
           return respond(400, addDebugInfo({ success: false, error: 'Chemin du fichier manquant' }));
         }
         
-        const getResult = await getFileFromGitHub(github, path);
+        const getResult = await getFileFromGitHub(path);
         return respond(getResult.success ? 200 : 500, addDebugInfo(getResult));
         
       case 'update':
@@ -189,7 +226,7 @@ exports.handler = async (event, context) => {
           return respond(400, addDebugInfo({ success: false, error: 'Contenu du fichier manquant' }));
         }
         
-        const updateResult = await updateFileOnGitHub(github, path, content, message);
+        const updateResult = await updateFileOnGitHub(path, content, message);
         return respond(updateResult.success ? 200 : 500, addDebugInfo(updateResult));
         
       default:

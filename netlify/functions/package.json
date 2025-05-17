@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Fonctions Netlify pour NaqiCreation",
   "dependencies": {
-    "@octokit/rest": "18.12.0",
-    "js-base64": "3.7.5"
+    "node-fetch": "2.6.7"
   }
 }
