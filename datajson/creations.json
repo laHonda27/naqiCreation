@@ -1,13 +1,4 @@
 {
-  "categories": [
-    { "id": "all", "name": "Tous" },
-    { "id": "mariage", "name": "Mariageeee" },
-    { "id": "fiancailles", "name": "Fiançailles" },
-    { "id": "bapteme", "name": "Baptême" },
-    { "id": "anniversaire", "name": "Anniversaire" },
-    { "id": "babyshower", "name": "Baby Shower" },
-    { "id": "evjf", "name": "EVJF" }
-  ],
   "creations": [
     {
       "id": "1",
