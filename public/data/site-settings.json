@@ -7,6 +7,10 @@
     "useCustomFavicon": false,
     "customFaviconUrl": ""
   },
-  "siteTitle": "Naqi Création - Panneaux personnalisés",
-  "siteDescription": "Créations personnalisées pour tous vos événements"
+  "siteTitle": "Naqi Création - Panneaux personnalisésSS",
+  "siteDescription": "Créations personnalisées pour tous vos événements",
+  "colors": {
+    "primary": "#e11d48",
+    "secondary": "#78716c"
+  }
 }
