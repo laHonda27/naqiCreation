@@ -165,17 +165,19 @@ export const netlifyGitService = {
    * Récupère le contenu d'un fichier JSON spécifique
    */
   async getJsonFile(filename: string): Promise<GitServiceResult> {
-    return this.callNetlifyFunction('read', { filename });
+    console.log(`Tentative de récupération du fichier JSON: ${filename}`);
+    return this.callNetlifyFunction('read', { path: filename });
   },
 
   /**
    * Écrit le contenu dans un fichier JSON et le commit dans le dépôt
    */
   async writeJsonFile(filename: string, content: any, commitMessage?: string): Promise<GitServiceResult> {
-    return this.callNetlifyFunction('write', {
-      filename,
+    console.log(`Écriture du fichier JSON: ${filename} avec message: ${commitMessage}`);
+    return this.callNetlifyFunction('update', {
+      path: filename, // Utiliser 'path' au lieu de 'filename' pour être cohérent avec l'API
       content,
-      commitMessage
+      message: commitMessage // Utiliser 'message' au lieu de 'commitMessage' pour être cohérent avec l'API
     });
   },
   
