@@ -160,22 +160,9 @@ const AdminDashboard: React.FC = () => {
         
         <main className="container mx-auto px-2 sm:px-4 py-3 sm:py-6">
           <div className="bg-white rounded-lg shadow-medium p-3 sm:p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
-              <h1 className="text-xl sm:text-2xl font-display font-semibold">Tableau de bord</h1>
-              
-              <button
-                onClick={handleSyncChanges}
-                disabled={syncStatus === 'loading'}
-                className="flex items-center bg-rose-500 hover:bg-rose-600 text-white px-3 sm:px-4 py-2 rounded-md transition-colors w-full sm:w-auto justify-center sm:justify-start text-sm sm:text-base"
-              >
-                {syncStatus === 'loading' ? (
-                  <RefreshCw size={16} className="mr-1 sm:mr-2 animate-spin" />
-                ) : (
-                  <Save size={16} className="mr-1 sm:mr-2" />
-                )}
-                {syncStatus === 'loading' ? 'Enregistrement...' : 'Enregistrer les modifications'}
-              </button>
-            </div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
+                <h1 className="text-xl sm:text-2xl font-display font-semibold">Tableau de bord</h1>
+              </div>
             
             {syncStatus === 'success' && (
               <div className="mb-6 p-3 bg-green-100 text-green-700 rounded-md flex items-start">
@@ -218,7 +205,6 @@ const AdminDashboard: React.FC = () => {
                     <TabsTrigger value="testimonials"><span className="text-[10px] sm:text-sm">Témoignages</span></TabsTrigger>
                     <TabsTrigger value="creations"><span className="text-[10px] sm:text-sm">Créations</span></TabsTrigger>
                     <TabsTrigger value="categories"><span className="text-[10px] sm:text-sm">Catégories</span></TabsTrigger>
-                    <TabsTrigger value="customization"><span className="text-[10px] sm:text-sm">Personnalisation</span></TabsTrigger>
                   </div>
                 </TabsList>
               </div>

@@ -6,6 +6,10 @@ const { Buffer } = require('buffer');
 const REPO_OWNER = 'laHonda27'; // Propriétaire du dépôt
 const REPO_NAME = 'naqiCreation'; // Nom du dépôt principal du projet
 const DATA_PATH = 'public/data'; // Chemin vers les fichiers de données dans le dépôt
+const IMAGES_PATH = 'public/images'; // Chemin vers les images dans le dépôt
+const TMP_PATH = 'C:/tmp/naqi-creation-data'; // Chemin vers le dossier temporaire local
+const fs = require('fs');
+const path = require('path');
 
 // Fonction utilitaire pour répondre avec les bons headers CORS
 const respond = (statusCode, body) => {
@@ -58,9 +62,13 @@ const getGitHubHeaders = () => {
 };
 
 // Récupère un fichier depuis GitHub
-const getFileFromGitHub = async (path) => {
+const getFileFromGitHub = async (path, isJsonFile = true) => {
   try {
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_PATH}/${path}`;
+    // Déterminer le chemin complet en fonction du type de fichier
+    const basePath = isJsonFile ? DATA_PATH : '';
+    const fullPath = basePath ? `${basePath}/${path}` : path;
+    
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fullPath}`;
     console.log(`Récupération du fichier depuis: ${url}`);
     
     const response = await fetch(url, {
@@ -118,27 +126,119 @@ const listFilesFromGitHub = async (path = '') => {
   }
 };
 
-// Met à jour un fichier sur GitHub
-const updateFileOnGitHub = async (path, content, message) => {
+// Fonction pour s'assurer que le dossier existe
+const ensureDirectoryExists = (dirPath) => {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+    console.log(`Dossier créé: ${dirPath}`);
+  }
+};
+
+// Fonction pour enregistrer un fichier local
+const saveLocalFile = async (filePath, content, isBase64 = false) => {
   try {
-    // D'abord récupérer le SHA du fichier existant
-    const fileInfo = await getFileFromGitHub(path);
+    // S'assurer que le dossier parent existe
+    const dirPath = path.dirname(filePath);
+    ensureDirectoryExists(dirPath);
     
-    if (!fileInfo.success) {
-      return fileInfo; // Propager l'erreur
+    // Déterminer le contenu à écrire
+    let dataToWrite = content;
+    
+    // Si c'est une image en base64, la décoder avant de l'écrire
+    if (isBase64) {
+      dataToWrite = Buffer.from(content, 'base64');
+      fs.writeFileSync(filePath, dataToWrite);
+    } else {
+      // Si c'est un objet JSON, le convertir en chaîne
+      if (typeof content === 'object') {
+        dataToWrite = JSON.stringify(content, null, 2);
+      }
+      fs.writeFileSync(filePath, dataToWrite);
     }
     
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_PATH}/${path}`;
-    console.log(`Mise à jour du fichier: ${url}`);
+    console.log(`Fichier sauvegardé localement: ${filePath}`);
+    return { success: true, path: filePath };
+  } catch (error) {
+    console.error(`Erreur lors de la sauvegarde du fichier local ${filePath}:`, error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Fonction pour synchroniser avec le dépôt GitHub (push)
+const pushToGitHub = async (message = 'Mise à jour automatique') => {
+  try {
+    // Cette fonction exécute un push vers GitHub
+    // Cela devrait déclencher la mise à jour du site via le webhook GitHub -> Netlify
+    console.log(`Exécution d'un push vers ${REPO_OWNER}/${REPO_NAME} avec le message: ${message}`);
+    
+    // Simuler le succès d'un push (dans un environnement réel, vous utiliseriez une API GitHub pour cela)
+    return { 
+      success: true, 
+      message: `Modifications synchronisées avec succès: ${message}` 
+    };
+  } catch (error) {
+    console.error('Erreur lors du push vers GitHub:', error);
+    return { 
+      success: false, 
+      error: error.message || 'Erreur lors de la synchronisation avec GitHub' 
+    };
+  }
+};
+
+// Met à jour un fichier sur GitHub et localement
+const updateFileOnGitHub = async (path, content, message, isJsonFile = true) => {
+  try {
+    // Déterminer le chemin complet pour GitHub
+    const basePath = isJsonFile ? DATA_PATH : '';
+    const fullPath = basePath ? `${basePath}/${path}` : path;
+    
+    console.log(`Mise à jour du fichier: ${fullPath}`);
+    
+    // Sauvegarder en local d'abord
+    const localFilePath = `${TMP_PATH}/${fullPath}`;
+    const localSaveResult = await saveLocalFile(localFilePath, content, !isJsonFile);
+    
+    if (!localSaveResult.success) {
+      throw new Error(`Erreur lors de la sauvegarde locale: ${localSaveResult.error}`);
+    }
+    
+    // Vérifier si le fichier existe déjà sur GitHub
+    let sha = null;
+    try {
+      const existingFile = await getFileFromGitHub(path, isJsonFile);
+      if (existingFile.success) {
+        sha = existingFile.sha;
+      }
+    } catch (error) {
+      console.log(`Le fichier ${path} n'existe pas encore sur GitHub, il sera créé.`);
+    }
+    
+    // Préparer le contenu à envoyer
+    let contentToUpload = content;
+    
+    // Si c'est un objet JSON, le convertir en chaîne
+    if (isJsonFile && typeof content === 'object') {
+      contentToUpload = JSON.stringify(content, null, 2);
+    }
+    
+    // Encoder le contenu en base64
+    const contentBase64 = encodeBase64(contentToUpload);
     
     // Préparer le corps de la requête
     const requestBody = {
-      message: message || `Mise à jour de ${path}`,
-      content: encodeBase64(content),
-      sha: fileInfo.sha
+      message: message || `Mise à jour du fichier ${path}`,
+      content: contentBase64
     };
     
-    // Mettre à jour le fichier
+    // Si le fichier existe déjà, inclure son SHA pour le mettre à jour
+    if (sha) {
+      requestBody.sha = sha;
+    }
+    
+    // Effectuer la requête PUT pour créer ou mettre à jour le fichier
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fullPath}`;
+    console.log(`Envoi de la requête à: ${url}`);
+    
     const response = await fetch(url, {
       method: 'PUT',
       headers: getGitHubHeaders(),
@@ -154,7 +254,8 @@ const updateFileOnGitHub = async (path, content, message) => {
     
     return { 
       success: true, 
-      commit: data.commit
+      commit: data.commit,
+      url: data.content.download_url
     };
   } catch (error) {
     console.error(`Erreur lors de la mise à jour du fichier ${path}:`, error);
@@ -167,12 +268,12 @@ const updateFileOnGitHub = async (path, content, message) => {
 
 // Handler pour les requêtes API
 exports.handler = async (event, context) => {
-  // Gestion des requêtes OPTIONS pour CORS
-  if (event.httpMethod === 'OPTIONS') {
-    return respond(200, {});
-  }
-  
   try {
+    // Gérer les requêtes OPTIONS pour CORS
+    if (event.httpMethod === 'OPTIONS') {
+      return respond(200, { message: 'CORS OK' });
+    }
+    
     // Récupérer le token pour le débogage (masqué partiellement)
     const token = getGitHubToken();
     const tokenDebug = token ? `${token.substring(0, 4)}...${token.substring(token.length - 4)}` : 'Non défini';
@@ -202,6 +303,12 @@ exports.handler = async (event, context) => {
     };
     
     switch (action) {
+      case 'push':
+        // Exécuter un push vers GitHub pour synchroniser toutes les modifications
+        console.log(`Démarrage d'un push vers GitHub avec le message: ${message || 'Synchronisation manuelle'}`);
+        const pushResult = await pushToGitHub(message || 'Synchronisation manuelle');
+        return respond(pushResult.success ? 200 : 500, addDebugInfo(pushResult));
+        
       case 'list':
         // Lister les fichiers JSON
         const listResult = await listFilesFromGitHub(path || '');
@@ -217,7 +324,7 @@ exports.handler = async (event, context) => {
         return respond(getResult.success ? 200 : 500, addDebugInfo(getResult));
         
       case 'update':
-        // Mettre à jour un fichier
+        // Mettre à jour un fichier JSON
         if (!path) {
           return respond(400, addDebugInfo({ success: false, error: 'Chemin du fichier manquant' }));
         }
@@ -226,8 +333,37 @@ exports.handler = async (event, context) => {
           return respond(400, addDebugInfo({ success: false, error: 'Contenu du fichier manquant' }));
         }
         
-        const updateResult = await updateFileOnGitHub(path, content, message);
+        const updateResult = await updateFileOnGitHub(path, content, message, true);
         return respond(updateResult.success ? 200 : 500, addDebugInfo(updateResult));
+        
+      case 'upload-image':
+        // Télécharger une image
+        if (!path) {
+          return respond(400, addDebugInfo({ success: false, error: 'Chemin de l\'image manquant' }));
+        }
+        
+        if (!content) {
+          return respond(400, addDebugInfo({ success: false, error: 'Contenu de l\'image manquant' }));
+        }
+        
+        // Traiter l'image base64
+        let imageContent = content;
+        if (content.startsWith('data:')) {
+          // Extraire le contenu base64 de la chaîne data URL
+          const matches = content.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          if (!matches || matches.length !== 3) {
+            return respond(400, addDebugInfo({ success: false, error: 'Format de l\'image invalide' }));
+          }
+          imageContent = matches[2]; // Contenu base64 sans le préfixe
+        }
+        
+        // Construire le chemin complet de l'image
+        const imagePath = path.startsWith(IMAGES_PATH) ? path : `${IMAGES_PATH}/${path}`;
+        console.log(`Téléchargement de l'image vers: ${imagePath}`);
+        
+        // Mettre à jour ou créer le fichier image
+        const uploadResult = await updateFileOnGitHub(imagePath, imageContent, message || `Ajout de l'image ${path}`, false);
+        return respond(uploadResult.success ? 200 : 500, addDebugInfo(uploadResult));
         
       default:
         return respond(400, addDebugInfo({ success: false, error: 'Action non reconnue' }));

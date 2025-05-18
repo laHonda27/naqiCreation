@@ -2,6 +2,8 @@
  * Service pour gérer les mises à jour de contenu via la fonction serverless Netlify
  */
 
+import { netlifyGitService } from './netlifyGitService';
+
 // Type pour les résultats des opérations
 export interface ContentUpdateResult {
   success: boolean;
@@ -117,7 +119,19 @@ const contentUpdateService = {
         throw new Error(`Erreur lors de la mise à jour du fichier ${path} (${response.status})`);
       }
       
-      return await response.json();
+      const result = await response.json();
+      
+      // Déclencher automatiquement une synchronisation avec le dépôt Git
+      try {
+        console.log('Synchronisation automatique avec le dépôt Git après mise à jour...');
+        await netlifyGitService.syncRepository();
+        console.log('Synchronisation réussie');
+      } catch (syncError: any) {
+        console.error('Erreur lors de la synchronisation automatique:', syncError);
+        // Ne pas échouer l'opération principale si la synchronisation échoue
+      }
+      
+      return result;
     } catch (error: any) {
       console.error(`Erreur lors de la mise à jour du fichier ${path}:`, error);
       return {

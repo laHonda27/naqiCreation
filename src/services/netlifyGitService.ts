@@ -91,7 +91,34 @@ export const netlifyGitService = {
         return await testResponse.json();
       }
       
-      const response = await fetch(`${BASE_URL}/git-sync`, {
+      // Déterminer quelle fonction Netlify appeler en fonction de l'action
+      let functionName = 'content-update';
+      let actionName = action;
+      
+      // Mapper les anciennes actions vers les nouvelles
+      switch (action) {
+        case 'sync':
+          // Pour sync, on veut déclencher un push pour s'assurer que toutes les modifications sont sauvegardées
+          actionName = 'push';
+          break;
+        case 'push':
+          // Pour forcer un push explicite
+          actionName = 'push';
+          break;
+        case 'read':
+          actionName = 'get';
+          break;
+        case 'write':
+          actionName = 'update';
+          break;
+        case 'upload':
+          actionName = 'upload-image';
+          break;
+      }
+      
+      console.log(`Appel de la fonction ${functionName} avec l'action ${actionName}`, params);
+      
+      const response = await fetch(`${BASE_URL}/${functionName}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -99,7 +126,7 @@ export const netlifyGitService = {
           // Nous n'avons plus besoin de l'envoyer dans les headers
         },
         body: JSON.stringify({
-          action,
+          action: actionName,
           ...params
         })
       });

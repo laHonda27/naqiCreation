@@ -23,6 +23,7 @@ interface SiteSettings {
 }
 
 const SiteCustomizationManager: React.FC = () => {
+  // État principal pour les paramètres du site
   const [settings, setSettings] = useState<SiteSettings>({
     logo: {
       useCustomLogo: false,
@@ -36,6 +37,7 @@ const SiteCustomizationManager: React.FC = () => {
     siteDescription: 'Créations personnalisées pour tous vos événements'
   });
   
+  // États pour la gestion de l'interface utilisateur
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -43,6 +45,10 @@ const SiteCustomizationManager: React.FC = () => {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  
+  // États séparés pour les cases à cocher (pour éviter les problèmes de synchronisation)
+  const [useCustomLogo, setUseCustomLogo] = useState(false);
+  const [useCustomFavicon, setUseCustomFavicon] = useState(false);
   
   // Charger les paramètres du site
   useEffect(() => {
@@ -52,6 +58,10 @@ const SiteCustomizationManager: React.FC = () => {
         const result = await netlifyGitService.getJsonFile('site-settings.json');
         if (result.success && result.data) {
           setSettings(result.data);
+          
+          // Initialiser les états séparés pour les cases à cocher
+          setUseCustomLogo(result.data.logo.useCustomLogo || false);
+          setUseCustomFavicon(result.data.favicon.useCustomFavicon || false);
           
           if (result.data.logo.useCustomLogo && result.data.logo.customLogoUrl) {
             setLogoPreview(result.data.logo.customLogoUrl);
@@ -71,6 +81,39 @@ const SiteCustomizationManager: React.FC = () => {
     
     loadSettings();
   }, []);
+  
+  // Synchroniser les états des cases à cocher avec l'état principal
+  useEffect(() => {
+    setSettings(prev => ({
+      ...prev,
+      logo: {
+        ...prev.logo,
+        useCustomLogo: useCustomLogo
+      }
+    }));
+    
+    // Si on décoche, réinitialiser le logo
+    if (!useCustomLogo) {
+      setLogoPreview(null);
+      setLogoFile(null);
+    }
+  }, [useCustomLogo]);
+  
+  useEffect(() => {
+    setSettings(prev => ({
+      ...prev,
+      favicon: {
+        ...prev.favicon,
+        useCustomFavicon: useCustomFavicon
+      }
+    }));
+    
+    // Si on décoche, réinitialiser le favicon
+    if (!useCustomFavicon) {
+      setFaviconPreview(null);
+      setFaviconFile(null);
+    }
+  }, [useCustomFavicon]);
   
   // Gérer le changement de logo
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -191,7 +234,7 @@ const SiteCustomizationManager: React.FC = () => {
     }
     window.saveTimeout = setTimeout(() => {
       saveSettings();
-    }, 1000);
+    }, 2000); // Délai plus long pour laisser le temps de manipuler l'interface
   };
   
   // Enregistrer les paramètres
@@ -203,17 +246,19 @@ const SiteCustomizationManager: React.FC = () => {
       // Télécharger les fichiers si nécessaire
       if (logoFile) {
         // Générer un nom de fichier unique pour le logo
-        const logoFilename = `logo-${Date.now()}`;
+        const logoFilename = `logos/site-logo-${Date.now()}.png`;
         
-        // Télécharger le fichier logo vers le serveur
+        console.log('Début du téléchargement du logo:', logoFilename);
+        // Télécharger le fichier logo vers le serveur avec la nouvelle fonction
         const uploadLogoResult = await netlifyGitService.callNetlifyFunction('upload', {
-          filename: logoFilename,
+          path: logoFilename,
           content: logoPreview,
-          commitMessage: 'Ajout du logo personnalisé'
+          message: 'Ajout du logo personnalisé'
         });
         
         if (uploadLogoResult.success && uploadLogoResult.data) {
           console.log('Logo téléchargé avec succès:', uploadLogoResult.data);
+          
           // Mettre à jour les paramètres avec l'URL du logo téléchargé
           updatedSettings = {
             ...updatedSettings,
@@ -230,17 +275,19 @@ const SiteCustomizationManager: React.FC = () => {
       
       if (faviconFile) {
         // Générer un nom de fichier unique pour le favicon
-        const faviconFilename = `favicon-${Date.now()}`;
+        const faviconFilename = `favicons/site-favicon-${Date.now()}.png`;
         
-        // Télécharger le fichier favicon vers le serveur
+        console.log('Début du téléchargement du favicon:', faviconFilename);
+        // Télécharger le fichier favicon vers le serveur avec la nouvelle fonction
         const uploadFaviconResult = await netlifyGitService.callNetlifyFunction('upload', {
-          filename: faviconFilename,
+          path: faviconFilename,
           content: faviconPreview,
-          commitMessage: 'Ajout du favicon personnalisé'
+          message: 'Ajout du favicon personnalisé'
         });
         
         if (uploadFaviconResult.success && uploadFaviconResult.data) {
           console.log('Favicon téléchargé avec succès:', uploadFaviconResult.data);
+          
           // Mettre à jour les paramètres avec l'URL du favicon téléchargé
           updatedSettings = {
             ...updatedSettings,
@@ -268,11 +315,6 @@ const SiteCustomizationManager: React.FC = () => {
           await netlifyGitService.writeJsonFile('index.json', indexData, 'Ajout de site-settings.json à l\'index');
         }
       }
-      
-      // Synchroniser toutes les modifications avec le dépôt Git
-      console.log('Synchronisation avec le dépôt Git...');
-      const syncResult = await netlifyGitService.syncRepository();
-      console.log('Résultat de la synchronisation:', syncResult);
       
       // Mettre à jour l'état local avec les nouveaux paramètres
       setSettings(updatedSettings);
@@ -338,16 +380,10 @@ const SiteCustomizationManager: React.FC = () => {
               <input
                 type="checkbox"
                 id="useCustomLogo"
-                checked={settings.logo.useCustomLogo}
+                checked={useCustomLogo}
                 onChange={(e) => {
-                  setSettings(prev => ({
-                    ...prev,
-                    logo: {
-                      ...prev.logo,
-                      useCustomLogo: e.target.checked
-                    }
-                  }));
-                  saveSettingsDebounced();
+                  setUseCustomLogo(e.target.checked);
+                  // La sauvegarde sera déclenchée par l'effet useEffect
                 }}
                 className="h-4 w-4 text-rose-500 rounded border-beige-300 focus:ring-rose-500"
               />
@@ -358,7 +394,7 @@ const SiteCustomizationManager: React.FC = () => {
             
             {settings.logo.useCustomLogo && (
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-beige-300 rounded-lg p-4 text-center">
+                <div className="border-2 border-dashed border-beige-300 rounded-lg p-4 text-center relative">
                   {logoPreview ? (
                     <div className="relative inline-block">
                       <img 
@@ -375,7 +411,7 @@ const SiteCustomizationManager: React.FC = () => {
                       </button>
                     </div>
                   ) : (
-                    <div>
+                    <label htmlFor="logoUpload" className="block cursor-pointer">
                       <Upload size={24} className="mx-auto text-taupe-400 mb-2" />
                       <p className="text-sm text-taupe-500 mb-2">
                         Glissez-déposez votre logo ou cliquez pour sélectionner
@@ -383,7 +419,7 @@ const SiteCustomizationManager: React.FC = () => {
                       <p className="text-xs text-taupe-400">
                         Format: PNG, JPG, SVG | Taille max: 1MB
                       </p>
-                    </div>
+                    </label>
                   )}
                   
                   <input
@@ -391,7 +427,7 @@ const SiteCustomizationManager: React.FC = () => {
                     id="logoUpload"
                     accept="image/*"
                     onChange={handleLogoChange}
-                    className={`absolute inset-0 w-full h-full opacity-0 cursor-pointer ${logoPreview ? 'hidden' : ''}`}
+                    className="hidden"
                   />
                 </div>
                 
@@ -427,16 +463,10 @@ const SiteCustomizationManager: React.FC = () => {
               <input
                 type="checkbox"
                 id="useCustomFavicon"
-                checked={settings.favicon.useCustomFavicon}
+                checked={useCustomFavicon}
                 onChange={(e) => {
-                  setSettings(prev => ({
-                    ...prev,
-                    favicon: {
-                      ...prev.favicon,
-                      useCustomFavicon: e.target.checked
-                    }
-                  }));
-                  saveSettingsDebounced();
+                  setUseCustomFavicon(e.target.checked);
+                  // La sauvegarde sera déclenchée par l'effet useEffect
                 }}
                 className="h-4 w-4 text-rose-500 rounded border-beige-300 focus:ring-rose-500"
               />
@@ -447,7 +477,7 @@ const SiteCustomizationManager: React.FC = () => {
             
             {settings.favicon.useCustomFavicon && (
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-beige-300 rounded-lg p-4 text-center">
+                <div className="border-2 border-dashed border-beige-300 rounded-lg p-4 text-center relative">
                   {faviconPreview ? (
                     <div className="relative inline-block">
                       <img 
@@ -464,7 +494,7 @@ const SiteCustomizationManager: React.FC = () => {
                       </button>
                     </div>
                   ) : (
-                    <div>
+                    <label htmlFor="faviconUpload" className="block cursor-pointer">
                       <Upload size={24} className="mx-auto text-taupe-400 mb-2" />
                       <p className="text-sm text-taupe-500 mb-2">
                         Glissez-déposez votre favicon ou cliquez pour sélectionner
@@ -472,7 +502,7 @@ const SiteCustomizationManager: React.FC = () => {
                       <p className="text-xs text-taupe-400">
                         Format: PNG, ICO | Taille max: 500KB | Idéal: 32x32px
                       </p>
-                    </div>
+                    </label>
                   )}
                   
                   <input
@@ -480,7 +510,7 @@ const SiteCustomizationManager: React.FC = () => {
                     id="faviconUpload"
                     accept="image/*"
                     onChange={handleFaviconChange}
-                    className={`absolute inset-0 w-full h-full opacity-0 cursor-pointer ${faviconPreview ? 'hidden' : ''}`}
+                    className="hidden"
                   />
                 </div>
                 
