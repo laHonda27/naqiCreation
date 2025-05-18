@@ -1,6 +1,7 @@
 // Import de fetch pour les environnements Node.js
 const fetch = require('node-fetch');
 const { Buffer } = require('buffer');
+const cloudinary = require('cloudinary').v2;
 
 // Configuration
 const REPO_OWNER = 'laHonda27'; // Propriétaire du dépôt
@@ -10,6 +11,13 @@ const IMAGES_PATH = 'public/images'; // Chemin vers les images dans le dépôt
 const TMP_PATH = 'C:/tmp/naqi-creation-data'; // Chemin vers le dossier temporaire local
 const fs = require('fs');
 const path = require('path');
+
+// Configuration de Cloudinary
+cloudinary.config({
+  cloud_name: 'dqo2tnjaf',
+  api_key: '636621957433952',
+  api_secret: '_uHnHKUxm1qlUCMCXQ1-BPTdui8'
+});
 
 // Fonction utilitaire pour répondre avec les bons headers CORS
 const respond = (statusCode, body) => {
@@ -185,6 +193,53 @@ const pushToGitHub = async (message = 'Mise à jour automatique') => {
   }
 };
 
+// Fonction pour uploader une image vers Cloudinary
+const uploadToCloudinary = async (imageBase64, fileName) => {
+  try {
+    // Vérifier si l'image est au format dataURL et extraire le contenu base64 si nécessaire
+    let uploadStr = imageBase64;
+    if (imageBase64.startsWith('data:')) {
+      uploadStr = imageBase64; // Cloudinary accepte directement le format data:image
+    }
+
+    console.log(`Démarrage de l'upload de l'image ${fileName} vers Cloudinary...`);
+    
+    // Uploader l'image vers Cloudinary
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload(
+        uploadStr, 
+        { 
+          folder: 'naqi-creation',
+          public_id: fileName.replace(/\.[^/.]+$/, ""), // Utiliser le nom du fichier sans extension
+          resource_type: 'image',
+          overwrite: true
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+    });
+
+    console.log(`Image ${fileName} uploadée avec succès vers Cloudinary. URL: ${result.secure_url}`);
+    
+    return { 
+      success: true, 
+      imageUrl: result.secure_url,
+      publicId: result.public_id,
+      format: result.format,
+      width: result.width,
+      height: result.height
+    };
+  } catch (error) {
+    console.error(`Erreur lors de l'upload de l'image ${fileName} vers Cloudinary:`, error);
+    return { 
+      success: false, 
+      error: error.message || 'Erreur lors de l\'upload de l\'image vers Cloudinary'
+    };
+  }
+};
+
 // Met à jour un fichier sur GitHub et localement
 const updateFileOnGitHub = async (path, content, message, isJsonFile = true) => {
   try {
@@ -295,7 +350,7 @@ exports.handler = async (event, context) => {
     
     // Analyser le corps de la requête
     const body = JSON.parse(event.body || '{}');
-    const { action, path, content, message } = body;
+    const { action, path, content, message, fileName } = body;
     
     // Ajouter les informations de débogage à toutes les réponses
     const addDebugInfo = (result) => {
@@ -364,6 +419,20 @@ exports.handler = async (event, context) => {
         // Mettre à jour ou créer le fichier image
         const uploadResult = await updateFileOnGitHub(imagePath, imageContent, message || `Ajout de l'image ${path}`, false);
         return respond(uploadResult.success ? 200 : 500, addDebugInfo(uploadResult));
+      
+      case 'upload-image-cloudinary':
+        // Uploader une image vers Cloudinary
+        if (!content) {
+          return respond(400, addDebugInfo({ success: false, error: 'Contenu de l\'image manquant' }));
+        }
+        
+        if (!fileName) {
+          return respond(400, addDebugInfo({ success: false, error: 'Nom du fichier manquant' }));
+        }
+        
+        console.log(`Démarrage de l'upload vers Cloudinary pour ${fileName}`);
+        const cloudinaryResult = await uploadToCloudinary(content, fileName);
+        return respond(cloudinaryResult.success ? 200 : 500, addDebugInfo(cloudinaryResult));
         
       default:
         return respond(400, addDebugInfo({ success: false, error: 'Action non reconnue' }));

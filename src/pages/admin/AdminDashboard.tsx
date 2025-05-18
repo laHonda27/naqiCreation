@@ -1,128 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/admin/Tabs';
 import TestimonialsManager from '../../components/admin/TestimonialsManager';
 import CreationsManager from '../../components/admin/CreationsManager';
 import CategoriesManager from '../../components/admin/CategoriesManager';
 import SiteCustomizationManager from '../../components/admin/SiteCustomizationManager';
-import { Save, RefreshCw, AlertCircle, CheckCircle, Info, LogOut, Home } from 'lucide-react';
-import { netlifyGitService } from '../../services/netlifyGitService';
+import { AlertCircle, CheckCircle, Info, LogOut, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('creations');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [syncMessage, setSyncMessage] = useState<string>('');
-  const [stats, setStats] = useState({
-    testimonials: 0,
-    creations: 0,
-    categories: 0
-  });
-  const [lastUpdated, setLastUpdated] = useState<string>('');
-  const [recentActivities, setRecentActivities] = useState<{title: string; date: string}[]>([]);
   const [tabLoading, setTabLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  // Fonction pour synchroniser les modifications avec le dépôt Git
-  const handleSyncChanges = async () => {
-    try {
-      setSyncStatus('loading');
-      setSyncMessage('Enregistrement des modifications en cours...');
-      
-      // Synchroniser les modifications avec le dépôt Git
-      const result = await netlifyGitService.syncRepository();
-      
-      if (result.success) {
-        setSyncStatus('success');
-        setSyncMessage('Modifications enregistrées avec succès. Le site sera mis à jour dans quelques minutes.');
-        
-        // Recharger les statistiques
-        loadStats();
-        
-        // Réinitialiser le message après 10 secondes
-        setTimeout(() => {
-          setSyncStatus('idle');
-          setSyncMessage('');
-        }, 10000);
-      } else {
-        setSyncStatus('error');
-        setSyncMessage(`Erreur lors de l'enregistrement des modifications: ${result.error || 'Erreur inconnue'}`);
-      }
-    } catch (err: any) {
-      setSyncStatus('error');
-      setSyncMessage(`Erreur lors de l'enregistrement des modifications: ${err.message || 'Erreur inconnue'}`);
-    }
-  };
-  
   // Fonction pour se déconnecter
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     navigate('/admin/login');
   };
   
-  // Charger les statistiques
-  const loadStats = async () => {
-    try {
-      // Charger les données des témoignages
-      const testimonialsResult = await netlifyGitService.getJsonFile('customizations.json');
-      if (testimonialsResult.success && testimonialsResult.data) {
-        const testimonials = testimonialsResult.data.testimonials || [];
-        setStats(prev => ({ ...prev, testimonials: testimonials.length }));
-      }
-      
-      // Charger les données des créations
-      const creationsResult = await netlifyGitService.getJsonFile('creations.json');
-      if (creationsResult.success && creationsResult.data) {
-        const creations = creationsResult.data.creations || [];
-        setStats(prev => ({ ...prev, creations: creations.length }));
-        
-        // Créer des activités récentes basées sur les créations
-        const activities = creations.slice(0, 3).map((creation: any) => ({
-          title: `Création: ${creation.title}`,
-          date: new Date().toLocaleDateString('fr-FR')
-        }));
-        setRecentActivities(activities);
-      }
-      
-      // Charger les données des catégories
-      const categoriesResult = await netlifyGitService.getJsonFile('categories.json');
-      if (categoriesResult.success && categoriesResult.data) {
-        const categories = categoriesResult.data.categories || [];
-        setStats(prev => ({ ...prev, categories: categories.length - 1 })); // -1 pour exclure la catégorie "Tous"
-      }
-      
-      // Charger la date de dernière mise à jour
-      const indexResult = await netlifyGitService.getJsonFile('index.json');
-      if (indexResult.success && indexResult.data && indexResult.data.lastUpdated) {
-        const date = new Date(indexResult.data.lastUpdated);
-        setLastUpdated(date.toLocaleDateString('fr-FR', { 
-          day: 'numeric', 
-          month: 'long', 
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }));
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des statistiques:', error);
-    }
-  };
-  
-  // Charger les statistiques au chargement du composant
-  useEffect(() => {
-    loadStats();
-  }, []);
-  
   // Gérer le changement d'onglet avec un loader
   const handleTabChange = (value: string) => {
     setTabLoading(true);
     setActiveTab(value);
     
-    // Simuler un délai de chargement pour montrer le loader
+    // Simuler un temps de chargement pour une meilleure UX
     setTimeout(() => {
       setTabLoading(false);
-    }, 500);
+    }, 300);
   };
 
   return (
@@ -201,84 +109,12 @@ const AdminDashboard: React.FC = () => {
               <div className="mb-2">
                 <TabsList>
                   <div className="grid grid-cols-4 gap-1 w-full">
-                    <TabsTrigger value="overview"><span className="text-[10px] sm:text-sm">Vue d'ensemble</span></TabsTrigger>
-                    <TabsTrigger value="testimonials"><span className="text-[10px] sm:text-sm">Témoignages</span></TabsTrigger>
                     <TabsTrigger value="creations"><span className="text-[10px] sm:text-sm">Créations</span></TabsTrigger>
                     <TabsTrigger value="categories"><span className="text-[10px] sm:text-sm">Catégories</span></TabsTrigger>
+                    <TabsTrigger value="testimonials"><span className="text-[10px] sm:text-sm">Témoignages</span></TabsTrigger>
                   </div>
                 </TabsList>
               </div>
-              
-              <TabsContent value="overview" className="pt-6 relative">
-                {tabLoading && (
-                  <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
-                    <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6 mb-4 sm:mb-8">
-                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
-                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-1 sm:mb-2">Témoignages</h3>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-display">{stats.testimonials}</p>
-                  </div>
-                  
-                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
-                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-1 sm:mb-2">Créations</h3>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-display">{stats.creations}</p>
-                  </div>
-                  
-                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
-                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-1 sm:mb-2">Catégories</h3>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-display">{stats.categories}</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6 mb-3 sm:mb-6">
-                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
-                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-2 sm:mb-4">Activité récente</h3>
-                    
-                    {recentActivities.length > 0 ? (
-                      <div className="space-y-4">
-                        {recentActivities.map((activity, index) => (
-                          <div key={index} className="flex items-start">
-                            <div className="w-2 h-2 rounded-full bg-rose-400 mt-2 mr-3"></div>
-                            <div>
-                              <p className="text-taupe-800 text-xs sm:text-sm">{activity.title}</p>
-                              <p className="text-xs text-taupe-600">{activity.date}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-taupe-600 italic">Aucune activité récente</p>
-                    )}
-                  </div>
-                  
-                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
-                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-2 sm:mb-4">Informations</h3>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-xs sm:text-sm font-medium text-taupe-600">Dernière mise à jour</p>
-                        <p className="text-xs sm:text-sm text-taupe-800">{lastUpdated || 'Non disponible'}</p>
-                      </div>
-                      
-                      <div>
-                        <p className="text-xs sm:text-sm font-medium text-taupe-600">Prochaine étape</p>
-                        <p className="text-xs sm:text-sm text-taupe-800">Personnaliser vos témoignages</p>
-                      </div>
-                      
-                      <div className="pt-2">
-                        <button 
-                          onClick={handleSyncChanges}
-                          className="text-rose-500 hover:text-rose-600 text-xs sm:text-sm font-medium"
-                        >
-                          Rafraîchir les statistiques
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
               
               <TabsContent value="testimonials" className="pt-6 relative">
                 {tabLoading ? (
