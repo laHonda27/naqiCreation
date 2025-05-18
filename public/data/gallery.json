@@ -1,0 +1,74 @@
+{
+  "images": [
+    {
+      "id": "g1",
+      "src": "https://images.pexels.com/photos/1024981/pexels-photo-1024981.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Panneau de bienvenue mariage",
+      "category": "Mariage",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    },
+    {
+      "id": "g2",
+      "src": "https://images.pexels.com/photos/949223/pexels-photo-949223.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Panneau de direction",
+      "category": "Mariage",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    },
+    {
+      "id": "g3",
+      "src": "https://images.pexels.com/photos/3171815/pexels-photo-3171815.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Panneau personnalisé fiançailles",
+      "category": "Fiançailles",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    },
+    {
+      "id": "g4",
+      "src": "https://images.pexels.com/photos/2253833/pexels-photo-2253833.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Marque-place élégant",
+      "category": "Décoration de table",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    },
+    {
+      "id": "g5",
+      "src": "https://images.pexels.com/photos/1120575/pexels-photo-1120575.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Étiquettes de bouteille",
+      "category": "Personnalisation",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    },
+    {
+      "id": "g6",
+      "src": "https://images.pexels.com/photos/1128782/pexels-photo-1128782.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Panneau Baby Shower",
+      "category": "Baby Shower",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    },
+    {
+      "id": "g7",
+      "src": "https://images.pexels.com/photos/3171813/pexels-photo-3171813.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Plan de table mariage",
+      "category": "Mariage",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    },
+    {
+      "id": "g8",
+      "src": "https://images.pexels.com/photos/3419728/pexels-photo-3419728.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Cartons d'invitation",
+      "category": "Personnalisation",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    },
+    {
+      "id": "g9",
+      "src": "https://images.pexels.com/photos/2253837/pexels-photo-2253837.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "alt": "Menu personnalisé",
+      "category": "Décoration de table",
+      "dateAdded": "2025-05-18T22:00:00.000Z"
+    }
+  ],
+  "categories": [
+    "Mariage",
+    "Fiançailles",
+    "Baby Shower",
+    "Décoration de table",
+    "Personnalisation"
+  ]
+}

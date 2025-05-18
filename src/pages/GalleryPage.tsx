@@ -1,66 +1,11 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import Gallery from '../components/gallery/Gallery';
-
-// Gallery data
-const galleryImages = [
-  {
-    id: 'g1',
-    src: 'https://images.pexels.com/photos/1024981/pexels-photo-1024981.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Panneau de bienvenue mariage',
-    category: 'Mariage',
-  },
-  {
-    id: 'g2',
-    src: 'https://images.pexels.com/photos/949223/pexels-photo-949223.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Panneau de direction',
-    category: 'Mariage',
-  },
-  {
-    id: 'g3',
-    src: 'https://images.pexels.com/photos/3171815/pexels-photo-3171815.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Panneau personnalisé fiançailles',
-    category: 'Fiançailles',
-  },
-  {
-    id: 'g4',
-    src: 'https://images.pexels.com/photos/2253833/pexels-photo-2253833.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Marque-place élégant',
-    category: 'Décoration de table',
-  },
-  {
-    id: 'g5',
-    src: 'https://images.pexels.com/photos/1120575/pexels-photo-1120575.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Étiquettes de bouteille',
-    category: 'Personnalisation',
-  },
-  {
-    id: 'g6',
-    src: 'https://images.pexels.com/photos/1128782/pexels-photo-1128782.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Panneau Baby Shower',
-    category: 'Baby Shower',
-  },
-  {
-    id: 'g7',
-    src: 'https://images.pexels.com/photos/3171813/pexels-photo-3171813.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Plan de table mariage',
-    category: 'Mariage',
-  },
-  {
-    id: 'g8',
-    src: 'https://images.pexels.com/photos/3419728/pexels-photo-3419728.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Cartons d\'invitation',
-    category: 'Personnalisation',
-  },
-  {
-    id: 'g9',
-    src: 'https://images.pexels.com/photos/2253837/pexels-photo-2253837.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    alt: 'Menu personnalisé',
-    category: 'Décoration de table',
-  }
-];
+import { useGallery } from '../hooks/useGallery';
 
 const GalleryPage: React.FC = () => {
+  const { galleryData, loading } = useGallery();
+
   return (
     <>
       <Helmet>
@@ -88,16 +33,24 @@ const GalleryPage: React.FC = () => {
       {/* Gallery */}
       <section className="py-16">
         <div className="container-custom">
-          <Gallery images={galleryImages} />
-          
-          <div className="mt-16 text-center">
-            <p className="text-lg text-taupe-600 mb-6">
-              Vous aimez ce que vous voyez ? N'hésitez pas à nous contacter pour discuter de votre projet.
-            </p>
-            <a href="/contact" className="btn-primary">
-              Demander un devis
-            </a>
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <>
+              <Gallery images={galleryData.images} />
+              
+              <div className="mt-16 text-center">
+                <p className="text-lg text-taupe-600 mb-6">
+                  Vous aimez ce que vous voyez ? N'hésitez pas à nous contacter pour discuter de votre projet.
+                </p>
+                <a href="/contact" className="btn-primary">
+                  Demander un devis
+                </a>
+              </div>
+            </>
+          )}
         </div>
       </section>
     </>
