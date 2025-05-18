@@ -274,23 +274,11 @@ const ServicesPage: React.FC = () => {
                               {/* Main Creation Card */}
                               <div className="flex flex-col md:flex-row">
                                 <div className="md:w-1/3 h-64 md:h-auto">
-                                  {creation.image ? (
-                                    <img 
-                                      src={creation.image.startsWith('http') 
-                                        ? creation.image 
-                                        : `https://raw.githubusercontent.com/laHonda27/naqiCreation/main/public${creation.image}`} 
-                                      alt={creation.title} 
-                                      className="w-full h-full object-cover" 
-                                      onError={(e) => {
-                                        // Fallback en cas d'erreur de chargement de l'image
-                                        e.currentTarget.src = '/placeholder-image.jpg';
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-beige-100">
-                                      <span className="text-taupe-500">{creation.title}</span>
-                                    </div>
-                                  )}
+                                  <img 
+                                    src={creation.image} 
+                                    alt={creation.title} 
+                                    className="w-full h-full object-cover" 
+                                  />
                                 </div>
                                 <div className="md:w-2/3 p-6 flex flex-col">
                                   <div className="flex-grow">

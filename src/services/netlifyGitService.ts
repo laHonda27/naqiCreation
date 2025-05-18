@@ -208,31 +208,5 @@ export const netlifyGitService = {
     
     // Synchroniser les modifications avec le dépôt distant
     return this.syncRepository();
-  },
-
-  /**
-   * Télécharge une image vers le dépôt Git
-   * 
-   * @param path Chemin de l'image dans le dépôt
-   * @param base64Content Contenu de l'image en base64
-   * @param message Message de commit (optionnel)
-   */
-  async uploadImage(path: string, base64Content: string, message?: string): Promise<GitServiceResult> {
-    try {
-      // Appeler la fonction Netlify pour télécharger l'image
-      const result = await this.callNetlifyFunction('upload', {
-        path,
-        content: base64Content,
-        message: message || `Ajout de l'image ${path.split('/').pop()}`
-      });
-      
-      return result;
-    } catch (error: any) {
-      console.error("Erreur lors de l'upload de l'image:", error);
-      return { 
-        success: false, 
-        error: error.message || "Erreur lors de l'upload de l'image" 
-      };
-    }
   }
 };

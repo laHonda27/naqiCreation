@@ -7,10 +7,7 @@ const REPO_OWNER = 'laHonda27'; // Propriétaire du dépôt
 const REPO_NAME = 'naqiCreation'; // Nom du dépôt principal du projet
 const DATA_PATH = 'public/data'; // Chemin vers les fichiers de données dans le dépôt
 const IMAGES_PATH = 'public/images'; // Chemin vers les images dans le dépôt
-// Définition du chemin temporaire compatible avec l'environnement
-const TMP_PATH = process.env.NODE_ENV === 'production' 
-  ? '/tmp/naqi-creation-data'  // Chemin pour l'environnement Netlify (Linux)
-  : 'C:/tmp/naqi-creation-data'; // Chemin pour le développement local (Windows)
+const TMP_PATH = 'C:/tmp/naqi-creation-data'; // Chemin vers le dossier temporaire local
 const fs = require('fs');
 const path = require('path');
 
@@ -131,15 +128,9 @@ const listFilesFromGitHub = async (path = '') => {
 
 // Fonction pour s'assurer que le dossier existe
 const ensureDirectoryExists = (dirPath) => {
-  try {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-      console.log(`Dossier créé: ${dirPath}`);
-    }
-    return true;
-  } catch (error) {
-    console.error(`Erreur lors de la création du dossier ${dirPath}:`, error);
-    return false;
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+    console.log(`Dossier créé: ${dirPath}`);
   }
 };
 
@@ -148,23 +139,15 @@ const saveLocalFile = async (filePath, content, isBase64 = false) => {
   try {
     // S'assurer que le dossier parent existe
     const dirPath = path.dirname(filePath);
-    const dirCreated = ensureDirectoryExists(dirPath);
-    
-    if (!dirCreated) {
-      throw new Error(`Impossible de créer le dossier pour: ${filePath}`);
-    }
+    ensureDirectoryExists(dirPath);
     
     // Déterminer le contenu à écrire
     let dataToWrite = content;
     
     // Si c'est une image en base64, la décoder avant de l'écrire
     if (isBase64) {
-      try {
-        dataToWrite = Buffer.from(content, 'base64');
-        fs.writeFileSync(filePath, dataToWrite);
-      } catch (e) {
-        throw new Error(`Erreur lors du décodage ou de l'écriture de l'image: ${e.message}`);
-      }
+      dataToWrite = Buffer.from(content, 'base64');
+      fs.writeFileSync(filePath, dataToWrite);
     } else {
       // Si c'est un objet JSON, le convertir en chaîne
       if (typeof content === 'object') {
@@ -184,71 +167,14 @@ const saveLocalFile = async (filePath, content, isBase64 = false) => {
 // Fonction pour synchroniser avec le dépôt GitHub (push)
 const pushToGitHub = async (message = 'Mise à jour automatique') => {
   try {
-    // Vérifier l'accès au dépôt
+    // Cette fonction exécute un push vers GitHub
+    // Cela devrait déclencher la mise à jour du site via le webhook GitHub -> Netlify
     console.log(`Exécution d'un push vers ${REPO_OWNER}/${REPO_NAME} avec le message: ${message}`);
-    const repoUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
-    const repoResponse = await fetch(repoUrl, {
-      method: 'GET',
-      headers: getGitHubHeaders()
-    });
     
-    if (!repoResponse.ok) {
-      throw new Error(`Erreur d'accès au dépôt: ${repoResponse.status}`);
-    }
-    
-    // Pour notre cas d'usage, nous créons un commit de référence pour marquer un push
-    // Récupérer la référence de la branche principale
-    const defaultBranch = 'main';
-    const refUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/refs/heads/${defaultBranch}`;
-    const refResponse = await fetch(refUrl, {
-      method: 'GET',
-      headers: getGitHubHeaders()
-    });
-    
-    // Si la branche main n'existe pas, essayer master
-    let refData;
-    if (!refResponse.ok && refResponse.status === 404) {
-      const masterRefUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/refs/heads/master`;
-      const masterRefResponse = await fetch(masterRefUrl, {
-        method: 'GET',
-        headers: getGitHubHeaders()
-      });
-      
-      if (!masterRefResponse.ok) {
-        throw new Error(`Erreur d'accès aux références Git: ${masterRefResponse.status}`);
-      }
-      
-      refData = await masterRefResponse.json();
-    } else if (!refResponse.ok) {
-      throw new Error(`Erreur d'accès aux références Git: ${refResponse.status}`);
-    } else {
-      refData = await refResponse.json();
-    }
-    
-    const latestCommitSha = refData.object.sha;
-    
-    // Créer un fichier de marqueur pour indiquer le push
-    const timestamp = new Date().toISOString();
-    const markerPath = `${DATA_PATH}/sync-marker-${timestamp.replace(/[:.]/g, '-')}.json`;
-    const markerContent = {
-      timestamp,
-      message,
-      syncType: 'manual-push',
-      commitReference: latestCommitSha.substring(0, 8)
-    };
-    
-    const updateResult = await updateFileOnGitHub(
-      markerPath, 
-      markerContent, 
-      `[SYNC] ${message}`
-    );
-    
+    // Simuler le succès d'un push (dans un environnement réel, vous utiliseriez une API GitHub pour cela)
     return { 
-      success: updateResult.success, 
-      message: updateResult.success 
-        ? `Modifications synchronisées avec succès: ${message}` 
-        : `Échec de la synchronisation: ${updateResult.error}`,
-      commitInfo: updateResult.commit
+      success: true, 
+      message: `Modifications synchronisées avec succès: ${message}` 
     };
   } catch (error) {
     console.error('Erreur lors du push vers GitHub:', error);
@@ -343,12 +269,6 @@ const updateFileOnGitHub = async (path, content, message, isJsonFile = true) => 
 // Handler pour les requêtes API
 exports.handler = async (event, context) => {
   try {
-    // S'assurer que les répertoires temporaires principaux existent
-    ensureDirectoryExists(TMP_PATH);
-    ensureDirectoryExists(`${TMP_PATH}/${DATA_PATH}`);
-    ensureDirectoryExists(`${TMP_PATH}/${IMAGES_PATH}`);
-    console.log(`Répertoires temporaires initialisés: ${TMP_PATH}`);
-
     // Gérer les requêtes OPTIONS pour CORS
     if (event.httpMethod === 'OPTIONS') {
       return respond(200, { message: 'CORS OK' });
@@ -426,27 +346,6 @@ exports.handler = async (event, context) => {
           return respond(400, addDebugInfo({ success: false, error: 'Contenu de l\'image manquant' }));
         }
         
-        // Vérifier l'extension du fichier
-        const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'ico'];
-        const fileExtension = path.split('.').pop().toLowerCase();
-        if (!allowedExtensions.includes(fileExtension)) {
-          return respond(400, addDebugInfo({ 
-            success: false, 
-            error: `Type de fichier non autorisé. Extensions autorisées: ${allowedExtensions.join(', ')}` 
-          }));
-        }
-        
-        // Vérifier la taille de l'image (approximation brute en base64)
-        const base64Size = content.length;
-        const approximateFileSizeMB = (base64Size * 0.75) / (1024 * 1024);
-        if (approximateFileSizeMB > 100) {
-          return respond(400, addDebugInfo({ 
-            success: false, 
-            error: `L'image est trop volumineuse (${approximateFileSizeMB.toFixed(2)} MB). 
-                   Limite GitHub: 100MB. Veuillez compresser l'image.` 
-          }));
-        }
-        
         // Traiter l'image base64
         let imageContent = content;
         if (content.startsWith('data:')) {
@@ -459,95 +358,15 @@ exports.handler = async (event, context) => {
         }
         
         // Construire le chemin complet de l'image
-        // Éviter la duplication du dossier images en vérifiant si le chemin contient déjà 'images'
-        let imagePath;
-        if (path.startsWith(IMAGES_PATH)) {
-          imagePath = path;
-        } else if (path.startsWith('images/')) {
-          imagePath = `public/${path}`;
-        } else {
-          imagePath = `${IMAGES_PATH}/${path}`;
-        }
-        console.log(`Téléchargement de l'image vers: ${imagePath} (taille ~ ${approximateFileSizeMB.toFixed(2)} MB)`);
+        const imagePath = path.startsWith(IMAGES_PATH) ? path : `${IMAGES_PATH}/${path}`;
+        console.log(`Téléchargement de l'image vers: ${imagePath}`);
         
-        try {
-          // S'assurer que les dossiers temporaires existent
-          ensureDirectoryExists(`${TMP_PATH}/${IMAGES_PATH}`);
-          
-          // Mettre à jour ou créer le fichier image
-          const uploadResult = await updateFileOnGitHub(imagePath, imageContent, message || `Ajout de l'image ${path}`, false);
-          
-          if (uploadResult.success) {
-            console.log(`Image téléchargée avec succès. URL: ${uploadResult.url}`);
-            console.log('Le site sera redéployé automatiquement via le webhook GitHub -> Netlify');
-          }
-          
-          return respond(uploadResult.success ? 200 : 500, addDebugInfo(uploadResult));
-        } catch (error) {
-          console.error(`Erreur lors du téléchargement de l'image ${path}:`, error);
-          return respond(500, addDebugInfo({ 
-            success: false, 
-            error: error.message || 'Erreur lors du téléchargement de l\'image'
-          }));
-        }
-        
-      case 'verify-config':
-        // Tester la connexion GitHub et les permissions
-        try {
-          // Tester l'accès au dépôt
-          const repoUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
-          const repoResponse = await fetch(repoUrl, {
-            method: 'GET',
-            headers: getGitHubHeaders()
-          });
-          
-          // Collecter des informations de diagnostic détaillées
-          const diagnostics = {
-            tokenStatus: token ? 'présent' : 'manquant',
-            repoAccessible: repoResponse.ok,
-            repoStatus: repoResponse.status,
-            environment: process.env.NODE_ENV || 'non défini',
-            netlifyContext: process.env.CONTEXT || 'non défini',
-            tempDirectories: {
-              base: fs.existsSync(TMP_PATH),
-              data: fs.existsSync(`${TMP_PATH}/${DATA_PATH}`),
-              images: fs.existsSync(`${TMP_PATH}/${IMAGES_PATH}`)
-            },
-            // Convertir l'objet réponse en objet simple pour l'affichage
-            repoDetails: repoResponse.ok ? await repoResponse.json() : null
-          };
-          
-          // Tester l'accès en écriture en créant un fichier de test
-          if (repoResponse.ok) {
-            const testPath = `${DATA_PATH}/test-config-${Date.now()}.json`;
-            const testContent = { timestamp: Date.now(), test: true };
-            const updateResult = await updateFileOnGitHub(
-              testPath, 
-              testContent, 
-              'Test de configuration de fonction Netlify'
-            );
-            diagnostics.writeTest = updateResult;
-          }
-          
-          return respond(200, addDebugInfo({ 
-            success: true, 
-            message: 'Vérification de la configuration terminée', 
-            diagnostics 
-          }));
-        } catch (error) {
-          return respond(500, addDebugInfo({ 
-            success: false, 
-            error: error.message, 
-            diagnostics: {
-              message: 'Erreur lors de la vérification de la configuration',
-              errorDetails: error.stack
-            }
-          }));
-        }
+        // Mettre à jour ou créer le fichier image
+        const uploadResult = await updateFileOnGitHub(imagePath, imageContent, message || `Ajout de l'image ${path}`, false);
+        return respond(uploadResult.success ? 200 : 500, addDebugInfo(uploadResult));
         
       default:
         return respond(400, addDebugInfo({ success: false, error: 'Action non reconnue' }));
-      
     }
   } catch (error) {
     console.error('Erreur lors du traitement de la requête:', error);

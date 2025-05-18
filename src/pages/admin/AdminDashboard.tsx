@@ -11,7 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('testimonials');
+  const [activeTab, setActiveTab] = useState('overview');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [syncMessage, setSyncMessage] = useState<string>('');
   const [stats, setStats] = useState({
@@ -200,7 +200,8 @@ const AdminDashboard: React.FC = () => {
             <Tabs value={activeTab} onValueChange={handleTabChange}>
               <div className="mb-2">
                 <TabsList>
-                  <div className="grid grid-cols-3 gap-1 w-full">
+                  <div className="grid grid-cols-4 gap-1 w-full">
+                    <TabsTrigger value="overview"><span className="text-[10px] sm:text-sm">Vue d'ensemble</span></TabsTrigger>
                     <TabsTrigger value="testimonials"><span className="text-[10px] sm:text-sm">Témoignages</span></TabsTrigger>
                     <TabsTrigger value="creations"><span className="text-[10px] sm:text-sm">Créations</span></TabsTrigger>
                     <TabsTrigger value="categories"><span className="text-[10px] sm:text-sm">Catégories</span></TabsTrigger>
@@ -208,7 +209,76 @@ const AdminDashboard: React.FC = () => {
                 </TabsList>
               </div>
               
-
+              <TabsContent value="overview" className="pt-6 relative">
+                {tabLoading && (
+                  <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+                    <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6 mb-4 sm:mb-8">
+                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
+                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-1 sm:mb-2">Témoignages</h3>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-display">{stats.testimonials}</p>
+                  </div>
+                  
+                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
+                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-1 sm:mb-2">Créations</h3>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-display">{stats.creations}</p>
+                  </div>
+                  
+                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
+                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-1 sm:mb-2">Catégories</h3>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-display">{stats.categories}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6 mb-3 sm:mb-6">
+                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
+                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-2 sm:mb-4">Activité récente</h3>
+                    
+                    {recentActivities.length > 0 ? (
+                      <div className="space-y-4">
+                        {recentActivities.map((activity, index) => (
+                          <div key={index} className="flex items-start">
+                            <div className="w-2 h-2 rounded-full bg-rose-400 mt-2 mr-3"></div>
+                            <div>
+                              <p className="text-taupe-800 text-xs sm:text-sm">{activity.title}</p>
+                              <p className="text-xs text-taupe-600">{activity.date}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-taupe-600 italic">Aucune activité récente</p>
+                    )}
+                  </div>
+                  
+                  <div className="bg-beige-50 p-4 sm:p-6 rounded-lg border border-beige-200 shadow-sm">
+                    <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-2 sm:mb-4">Informations</h3>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-xs sm:text-sm font-medium text-taupe-600">Dernière mise à jour</p>
+                        <p className="text-xs sm:text-sm text-taupe-800">{lastUpdated || 'Non disponible'}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs sm:text-sm font-medium text-taupe-600">Prochaine étape</p>
+                        <p className="text-xs sm:text-sm text-taupe-800">Personnaliser vos témoignages</p>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <button 
+                          onClick={handleSyncChanges}
+                          className="text-rose-500 hover:text-rose-600 text-xs sm:text-sm font-medium"
+                        >
+                          Rafraîchir les statistiques
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
               
               <TabsContent value="testimonials" className="pt-6 relative">
                 {tabLoading ? (
