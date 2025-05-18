@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/admin/Tabs';
 import TestimonialsManager from '../../components/admin/TestimonialsManager';
+// Import du gestionnaire de créations
 import CreationsManager from '../../components/admin/CreationsManager';
 import CategoriesManager from '../../components/admin/CategoriesManager';
 import SiteCustomizationManager from '../../components/admin/SiteCustomizationManager';
+import FaqsManager from '../../components/admin/FaqsManager';
 import { AlertCircle, CheckCircle, Info, LogOut, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('creations');
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [syncMessage, setSyncMessage] = useState<string>('');
+  const [syncStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [syncMessage] = useState<string>('');
   const [tabLoading, setTabLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -94,13 +96,14 @@ const AdminDashboard: React.FC = () => {
                   Comment utiliser le panneau d'administration
                 </p>
                 <p className="mb-2 text-xs sm:text-sm">
-                  Ce panneau vous permet de gérer le contenu de votre site facilement sans connaissances techniques.
+                  Ce panneau vous permet de gérer le contenu de votre site facilement. La nouvelle interface utilise un système moderne avec des fenêtres modales.
                 </p>
                 <ol className="list-decimal pl-4 sm:pl-5 space-y-1 text-xs sm:text-sm">
                   <li>Utilisez les onglets ci-dessous pour accéder aux différentes sections</li>
-                  <li>Modifiez le contenu selon vos besoins</li>
-                  <li>Cliquez sur le bouton <strong>Enregistrer les modifications</strong> en haut</li>
-                  <li>Attendez quelques minutes pour que les changements soient visibles sur votre site</li>
+                  <li>Pour <strong>ajouter</strong> un contenu, cliquez sur le bouton correspondant</li>
+                  <li>Pour <strong>modifier</strong> un contenu existant, cliquez sur l'icône de crayon</li>
+                  <li>Effectuez vos modifications dans la fenêtre qui s'ouvre</li>
+                  <li>Une fois toutes vos modifications terminées, cliquez sur le bouton flottant <strong>Enregistrer les modifications</strong> pour les publier</li>
                 </ol>
               </div>
             </div>
@@ -112,6 +115,7 @@ const AdminDashboard: React.FC = () => {
                     <TabsTrigger value="creations"><span className="text-[10px] sm:text-sm">Créations</span></TabsTrigger>
                     <TabsTrigger value="categories"><span className="text-[10px] sm:text-sm">Catégories</span></TabsTrigger>
                     <TabsTrigger value="testimonials"><span className="text-[10px] sm:text-sm">Témoignages</span></TabsTrigger>
+                    <TabsTrigger value="faqs"><span className="text-[10px] sm:text-sm">FAQs</span></TabsTrigger>
                   </div>
                 </TabsList>
               </div>
@@ -176,6 +180,22 @@ const AdminDashboard: React.FC = () => {
                       <p className="text-sm text-rose-700">Vous personnalisez l'<strong>apparence</strong> de votre site (logo, favicon et informations générales).</p>
                     </div>
                     <SiteCustomizationManager />
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="faqs" className="pt-6 relative">
+                {tabLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="bg-rose-50 border-l-4 border-rose-400 p-3 mb-6 flex items-center">
+                      <Info size={20} className="text-rose-500 mr-2" />
+                      <p className="text-sm text-rose-700">Vous gérez les <strong>questions fréquentes (FAQ)</strong> qui apparaissent sur les différentes pages du site.</p>
+                    </div>
+                    <FaqsManager />
                   </div>
                 )}
               </TabsContent>

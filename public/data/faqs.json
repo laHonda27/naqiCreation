@@ -1,0 +1,147 @@
+{
+  "faqs": {
+    "home": [
+      {
+        "id": "home-1",
+        "question": "Comment choisir le bon panneau pour mon événement ?",
+        "answer": "Pour choisir le bon panneau, tenez compte du thème de votre événement, des couleurs dominantes et de l'espace disponible. Nous pouvons vous conseiller sur les dimensions et matériaux les plus adaptés à vos besoins."
+      },
+      {
+        "id": "home-2",
+        "question": "Quels sont les délais de réalisation ?",
+        "answer": "Nos délais de réalisation sont généralement de 2 à 3 semaines selon la complexité du projet. Nous vous recommandons de commander au moins 3 semaines avant votre événement."
+      },
+      {
+        "id": "home-3",
+        "question": "Proposez-vous la livraison ?",
+        "answer": "Oui, nous proposons la livraison sur Nîmes et ses alentours. Pour le reste de la France, nous expédions via des transporteurs fiables avec un suivi de colis."
+      },
+      {
+        "id": "home-4",
+        "question": "Quels événements peuvent bénéficier de vos créations ?",
+        "answer": "Nos créations s'adaptent à tous types d'événements : mariages, fiançailles, baby showers, anniversaires, baptêmes, événements d'entreprise, et bien plus encore. Chaque occasion mérite une touche personnalisée !"
+      },
+      {
+        "id": "home-5",
+        "question": "Comment entretenir mes panneaux en plexiglass ?",
+        "answer": "Pour entretenir vos panneaux, utilisez simplement un chiffon doux légèrement humide. Évitez les produits abrasifs qui pourraient rayer la surface. Conservez-les à l'abri de la chaleur directe et des rayons UV prolongés pour préserver leur éclat."
+      },
+      {
+        "id": "home-6",
+        "question": "Peut-on réutiliser les panneaux pour d'autres événements ?",
+        "answer": "Absolument ! Nos panneaux sont conçus pour durer. Selon le type de personnalisation choisi, certains peuvent être adaptés ou réutilisés pour différents événements. Demandez-nous conseil pour une création polyvalente."
+      }
+    ],
+    "contact": [
+      {
+        "id": "contact-1",
+        "question": "Comment passer commande ?",
+        "answer": "Pour passer commande, contactez-nous via le formulaire de contact, Instagram ou par email. Nous discuterons de votre projet et vous enverrons un devis personnalisé."
+      },
+      {
+        "id": "contact-2",
+        "question": "Quels sont les délais de réalisation ?",
+        "answer": "Nos délais de réalisation sont généralement de 2 à 3 semaines selon la complexité du projet. Nous vous recommandons de commander au moins 3 semaines avant votre événement."
+      },
+      {
+        "id": "contact-3",
+        "question": "Proposez-vous des modèles prédéfinis ?",
+        "answer": "Nous proposons des modèles prédéfinis que vous pouvez personnaliser selon vos goûts, mais nous pouvons également créer des designs entièrement sur mesure selon vos idées."
+      },
+      {
+        "id": "contact-4",
+        "question": "Quel est le processus de commande ?",
+        "answer": "Notre processus se déroule en 4 étapes : 1) Discussion initiale et devis, 2) Validation de la maquette numérique, 3) Production de votre création, 4) Livraison ou retrait. Nous vous accompagnons à chaque étape pour garantir votre satisfaction."
+      },
+      {
+        "id": "contact-5",
+        "question": "Quels moyens de paiement acceptez-vous ?",
+        "answer": "Nous acceptons plusieurs moyens de paiement : virement bancaire, PayPal, et espèces (uniquement pour les retraits en personne). Un acompte de 30% est demandé à la validation du projet, le solde étant réglé avant l'expédition."
+      },
+      {
+        "id": "contact-6",
+        "question": "Comment suivre ma commande ?",
+        "answer": "Une fois votre commande confirmée, nous vous tenons informé(e) à chaque étape du processus. Pour les envois, un numéro de suivi vous est communiqué dès l'expédition de votre colis."
+      }
+    ],
+    "services": [
+      {
+        "id": "services-1",
+        "question": "Quels types de panneaux proposez-vous ?",
+        "answer": "Nous proposons une large gamme de panneaux : panneaux de bienvenue pour mariages, fiançailles, baby showers, anniversaires, ainsi que des menus, plans de table et signalétique d'événement."
+      },
+      {
+        "id": "services-2",
+        "question": "Quels matériaux utilisez-vous ?",
+        "answer": "Nous utilisons principalement du plexiglass de haute qualité (3mm d'épaisseur) pour nos panneaux, avec des supports en bois naturel. D'autres matériaux sont disponibles sur demande."
+      },
+      {
+        "id": "services-3",
+        "question": "Peut-on voir des exemples avant de commander ?",
+        "answer": "Absolument ! Nous vous envoyons toujours une maquette numérique avant la production pour validation. Vous pouvez également consulter nos réalisations sur notre Instagram et notre galerie."
+      },
+      {
+        "id": "services-4",
+        "question": "Proposez-vous des ensembles coordonnés ?",
+        "answer": "Oui, nous créons des ensembles coordonnés pour une cohérence visuelle parfaite : panneau de bienvenue, menu, marque-places, étiquettes, etc. Ces ensembles apportent une touche d'élégance et d'harmonie à votre événement."
+      },
+      {
+        "id": "services-5",
+        "question": "Quelles sont les dimensions disponibles ?",
+        "answer": "Nous proposons plusieurs formats standards, mais pouvons également réaliser des dimensions sur mesure selon vos besoins. Les formats les plus demandés vont de 30x40cm à 60x80cm pour les panneaux de bienvenue."
+      },
+      {
+        "id": "services-6",
+        "question": "Peut-on intégrer des éléments spécifiques à notre histoire ?",
+        "answer": "Absolument ! Nous adorons intégrer des éléments personnels qui racontent votre histoire : date de rencontre, lieux importants, citations favorites, ou symboles qui vous représentent. Ces détails rendent chaque création unique et significative."
+      },
+      {
+        "id": "services-7",
+        "question": "Proposez-vous la location de supports ou accessoires ?",
+        "answer": "Nous proposons à la location certains supports décoratifs et accessoires pour mettre en valeur vos panneaux. Cette option est idéale pour les événements ponctuels. Contactez-nous pour connaître les disponibilités."
+      }
+    ],
+    "customization": [
+      {
+        "id": "customization-1",
+        "question": "Quels sont les délais pour les personnalisations complémentaires ?",
+        "answer": "Nous recommandons de commander au moins 3 semaines avant votre événement pour garantir une livraison à temps. Pour les commandes urgentes, contactez-nous directement pour vérifier nos disponibilités."
+      },
+      {
+        "id": "customization-2",
+        "question": "Puis-je voir des échantillons avant de commander ?",
+        "answer": "Nous vous envoyons des maquettes numériques avant de réaliser vos créations pour validation. Pour certains produits, des échantillons physiques peuvent être disponibles sur demande moyennant un petit supplément."
+      },
+      {
+        "id": "customization-3",
+        "question": "Quelles sont les options de livraison ?",
+        "answer": "Nous proposons la livraison sur Nîmes et alentours, ainsi que l'expédition partout en France. Les frais d'envoi dépendent du poids et de la taille des articles. Pour les petits éléments comme les marque-places, les frais sont généralement réduits."
+      },
+      {
+        "id": "customization-4",
+        "question": "Quelles sont les méthodes de paiement acceptées ?",
+        "answer": "Nous acceptons les paiements par virement bancaire, PayPal et espèces pour les livraisons en personne. Un acompte de 50% est demandé à la commande, le solde étant réglé avant l'expédition ou la livraison."
+      },
+      {
+        "id": "customization-5",
+        "question": "Y a-t-il une quantité minimale pour les commandes ?",
+        "answer": "Pour certains articles comme les marque-places ou les étiquettes, nous avons effectivement une quantité minimale de commande (généralement 10 à 20 pièces selon les articles). Cela nous permet d'optimiser la production et de vous offrir le meilleur rapport qualité-prix."
+      },
+      {
+        "id": "customization-6",
+        "question": "Peut-on commander des articles assortis aux panneaux déjà commandés ?",
+        "answer": "Absolument ! C'est même l'idéal pour une cohérence visuelle parfaite. Si vous avez déjà commandé un panneau chez nous, nous conservons votre design et pouvons créer des éléments complémentaires assortis (menus, marque-places, etc.)."
+      },
+      {
+        "id": "customization-7",
+        "question": "Les prix incluent-ils la personnalisation ?",
+        "answer": "Oui, nos prix incluent la personnalisation de base (texte, couleurs, design simple). Pour des designs très complexes ou des illustrations sur mesure, un supplément peut être appliqué. Nous vous informons toujours à l'avance si c'est le cas."
+      },
+      {
+        "id": "customization-8",
+        "question": "Combien de modifications peut-on demander sur les maquettes ?",
+        "answer": "Nous incluons jusqu'à 3 cycles de modifications dans nos tarifs. Cela est généralement suffisant pour obtenir un résultat parfait. Des modifications supplémentaires peuvent être réalisées moyennant un petit supplément."
+      }
+    ]
+  }
+}

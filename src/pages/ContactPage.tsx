@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { MapPin, Package, Phone, Mail, Instagram } from 'lucide-react';
 import ContactForm from '../components/contact/ContactForm';
+import FaqSection from '../components/common/FaqSection';
 
 const ContactPage: React.FC = () => {
   const [ref, inView] = useInView({
@@ -137,39 +138,11 @@ const ContactPage: React.FC = () => {
       </section>
       
       {/* FAQ Section */}
-      <section className="py-16 bg-white">
-        <div className="container-custom">
-          <div className="text-center mb-12">
-            <h2 className="section-title">Questions fréquentes</h2>
-            <div className="w-16 h-1 bg-rose-300 mx-auto mb-6"></div>
-          </div>
-          
-          <div className="max-w-3xl mx-auto">
-            <div className="space-y-6">
-              <div className="bg-beige-50 p-6 rounded-lg shadow-soft hover:shadow-medium transition-all duration-300">
-                <h3 className="text-xl font-display font-semibold mb-2">Comment passer commande ?</h3>
-                <p className="text-taupe-600">
-                  Pour passer commande, contactez-nous via le formulaire de contact, Instagram ou par email. Nous discuterons de votre projet et vous enverrons un devis personnalisé.
-                </p>
-              </div>
-              
-              <div className="bg-beige-50 p-6 rounded-lg shadow-soft hover:shadow-medium transition-all duration-300">
-                <h3 className="text-xl font-display font-semibold mb-2">Quels sont les délais de réalisation ?</h3>
-                <p className="text-taupe-600">
-                  Nos délais de réalisation sont généralement de 2 à 3 semaines selon la complexité du projet. Nous vous recommandons de commander au moins 3 semaines avant votre événement.
-                </p>
-              </div>
-              
-              <div className="bg-beige-50 p-6 rounded-lg shadow-soft hover:shadow-medium transition-all duration-300">
-                <h3 className="text-xl font-display font-semibold mb-2">Proposez-vous des modèles prédéfinis ?</h3>
-                <p className="text-taupe-600">
-                  Nous proposons des modèles prédéfinis que vous pouvez personnaliser selon vos goûts, mais nous pouvons également créer des designs entièrement sur mesure selon vos idées.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FaqSection 
+        pageType="contact" 
+        title="Questions fréquentes" 
+        subtitle="Retrouvez les réponses aux questions les plus courantes concernant nos services et modalités de contact."
+      />
     </>
   );
 };

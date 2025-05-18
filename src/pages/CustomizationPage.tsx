@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { Plus, Minus, ChevronRight, ShoppingBag, Award, Image, Instagram } from 'lucide-react';
 import customizationsData from '../data/customizations.json';
+import FaqSection from '../components/common/FaqSection';
 
 // Types for customization items
 interface CustomizationImage {
@@ -438,46 +439,11 @@ const CustomizationPage: React.FC = () => {
       </section>
       
       {/* FAQ Section */}
-      <section className="py-16">
-        <div className="container-custom">
-          <div className="text-center mb-12">
-            <h2 className="section-title">Questions fréquentes</h2>
-            <div className="w-16 h-1 bg-rose-300 mx-auto mb-6"></div>
-          </div>
-          
-          <div className="max-w-3xl mx-auto">
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg shadow-soft">
-                <h3 className="text-xl font-display font-semibold mb-2">Quels sont les délais pour les personnalisations ?</h3>
-                <p className="text-taupe-600">
-                  Nous recommandons de commander au moins 3 semaines avant votre événement pour garantir une livraison à temps. Pour les commandes urgentes, contactez-nous directement.
-                </p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-soft">
-                <h3 className="text-xl font-display font-semibold mb-2">Puis-je voir des échantillons avant de commander ?</h3>
-                <p className="text-taupe-600">
-                  Nous vous envoyons des maquettes numériques avant de réaliser vos créations pour validation. Pour certains produits, des échantillons physiques peuvent être disponibles sur demande.
-                </p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-soft">
-                <h3 className="text-xl font-display font-semibold mb-2">Quelles sont les options de livraison ?</h3>
-                <p className="text-taupe-600">
-                  Nous proposons la livraison sur Nîmes et alentours, ainsi que l'expédition partout en France. Les frais d'envoi dépendent du poids et de la taille des articles.
-                </p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-soft">
-                <h3 className="text-xl font-display font-semibold mb-2">Quelles sont les méthodes de paiement acceptées ?</h3>
-                <p className="text-taupe-600">
-                  Nous acceptons les paiements par virement bancaire, PayPal et espèces pour les livraisons en personne. Un acompte de 50% est demandé à la commande.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FaqSection 
+        pageType="customization" 
+        title="Questions fréquentes" 
+        subtitle="Retrouvez les réponses aux questions les plus courantes concernant nos options de personnalisation."
+      />
       
       {/* Image Modal */}
       {isModalOpen && (

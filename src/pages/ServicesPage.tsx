@@ -3,8 +3,9 @@ import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useCreations } from '../hooks/useCreations';
-import { Plus, X, ChevronRight, Filter } from 'lucide-react';
+import { Plus, X, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import FaqSection from '../components/common/FaqSection';
 
 const ServicesPage: React.FC = () => {
   const { creations, categories, loading } = useCreations();
@@ -13,7 +14,7 @@ const ServicesPage: React.FC = () => {
   const [activeCreation, setActiveCreation] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'colors' | 'shapes'>('overview');
   
-  const [ref, inView] = useInView({
+  const [ref] = useInView({
     triggerOnce: true,
     threshold: 0.1,
     initialInView: false
@@ -746,6 +747,13 @@ const ServicesPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <FaqSection 
+        pageType="services" 
+        title="Questions fréquentes sur nos prestations" 
+        subtitle="Retrouvez les réponses à vos questions concernant nos services, délais et processus de création."
+      />
     </>
   );
 };

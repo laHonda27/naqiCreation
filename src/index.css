@@ -31,6 +31,11 @@
     @apply px-6 py-3 rounded-md transition-all duration-300 font-medium text-center inline-block;
   }
   
+  /* Bouton flottant pour enregistrer */
+  .floating-save-btn {
+    @apply fixed bottom-6 right-6 bg-rose-500 text-white rounded-full p-4 shadow-lg z-40 hover:bg-rose-600 transition-all transform hover:scale-105 flex items-center justify-center;
+  }
+  
   .btn-primary {
     @apply btn bg-rose-400 text-white hover:bg-rose-500;
   }
@@ -92,6 +97,38 @@
 
 .delay-700 {
   animation-delay: 700ms;
+}
+
+/* Animation pour modal */
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-enter {
+  animation: modalFadeIn 0.3s ease-out forwards;
+}
+
+.image-upload-container {
+  @apply border-2 border-dashed border-beige-300 rounded-lg p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:border-rose-400 transition-colors;
+}
+
+.image-upload-container.dragging {
+  @apply border-rose-500 bg-rose-50;
+}
+
+/* Tabs dans formulaires */
+.form-tab {
+  @apply py-2 px-4 font-medium text-sm text-taupe-600 border-b-2 border-transparent cursor-pointer transition-all;
+}
+
+.form-tab.active {
+  @apply border-rose-500 text-rose-500;
+}
+
+/* Badge pour modifications non enregistrées */
+.unsaved-changes-badge {
+  @apply inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-xs font-medium text-white absolute -top-1 -right-1;
 }
 
 /* Custom scrollbar */

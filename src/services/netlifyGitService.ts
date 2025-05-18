@@ -4,12 +4,14 @@
 
 // URL de base pour les fonctions Netlify (automatiquement résolu en production)
 const BASE_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:8888/.netlify/functions' // URL pour le développement local avec netlify dev
+  ? 'http://localhost:8890/.netlify/functions' // URL pour le développement local avec netlify dev
   : '/.netlify/functions';
 
-interface GitServiceResult {
+export interface GitServiceResult {
   success: boolean;
   data?: any;
+  content?: string;
+  sha?: string;
   error?: string;
 }
 
@@ -165,7 +167,7 @@ export const netlifyGitService = {
    * Récupère le contenu d'un fichier JSON spécifique
    */
   async getJsonFile(filename: string): Promise<GitServiceResult> {
-    return this.callNetlifyFunction('read', { filename });
+    return this.callNetlifyFunction('read', { path: filename });
   },
 
   /**
@@ -173,7 +175,7 @@ export const netlifyGitService = {
    */
   async writeJsonFile(filename: string, content: any, commitMessage?: string): Promise<GitServiceResult> {
     return this.callNetlifyFunction('write', {
-      filename,
+      path: filename,
       content,
       commitMessage
     });

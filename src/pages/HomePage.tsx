@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
+import FaqSection from '../components/common/FaqSection';
 import { 
   Heart, 
   ChevronRight, 
@@ -27,28 +28,28 @@ const instagramPosts = [
     id: 'post1',
     imageUrl: 'https://images.pexels.com/photos/2253833/pexels-photo-2253833.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     likes: 124,
-    caption: 'Panneau personnalisé pour le mariage de Sophie et Thomas 💍 #naqicreation #mariage',
+    caption: 'Panneau personnalisé pour le mariage de Sophie et Thomas #naqicreation #mariage',
     date: '2 jours'
   },
   {
     id: 'post2',
     imageUrl: 'https://images.pexels.com/photos/3171813/pexels-photo-3171813.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     likes: 98,
-    caption: 'Nouvelle création pour une baby shower pastel 👶 #babyshower #naqicreation',
+    caption: 'Nouvelle création pour une baby shower pastel #babyshower #naqicreation',
     date: '5 jours'
   },
   {
     id: 'post3',
     imageUrl: 'https://images.pexels.com/photos/1128782/pexels-photo-1128782.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     likes: 156,
-    caption: 'Panneau de bienvenue pour les fiançailles de Marie et Antoine ✨ #fiancailles',
+    caption: 'Panneau de bienvenue pour les fiançailles de Marie et Antoine #fiancailles',
     date: '1 semaine'
   },
   {
     id: 'post4',
     imageUrl: 'https://images.pexels.com/photos/3419728/pexels-photo-3419728.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     likes: 87,
-    caption: 'Cartons d\'invitation élégants pour un anniversaire chic 🎂 #anniversaire',
+    caption: 'Cartons d\'invitation élégants pour un anniversaire chic #anniversaire',
     date: '2 semaines'
   }
 ];
@@ -59,7 +60,7 @@ const testimonialMessages = [
     id: 'msg1',
     profilePic: 'https://images.pexels.com/photos/1987301/pexels-photo-1987301.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     name: 'Sophie Dupont',
-    message: "Oh mon Dieu c'est absolument magnifique 😍! Je suis tellement émue, tu as parfaitement capturé ce qu'on voulait. Merci infiniment pour ton travail, tous nos invités vont adorer ! 💕",
+    message: "Oh mon Dieu c'est absolument magnifique ! Je suis tellement émue, tu as parfaitement capturé ce qu'on voulait. Merci infiniment pour ton travail, tous nos invités vont adorer ! ",
     date: '2 juin',
     event: 'Mariage'
   },
@@ -67,7 +68,7 @@ const testimonialMessages = [
     id: 'msg2',
     profilePic: 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     name: 'Karim Ben',
-    message: "Waouh, c'est tellement mieux que ce que j'imaginais ! Merci pour ton professionnalisme et ta patience avec nos demandes. Le panneau était le point fort de notre fête ! 👏🏼",
+    message: "Waouh, c'est tellement mieux que ce que j'imaginais ! Merci pour ton professionnalisme et ta patience avec nos demandes. Le panneau était le point fort de notre fête ! ",
     date: '14 mai',
     event: 'Fiançailles'
   },
@@ -75,7 +76,7 @@ const testimonialMessages = [
     id: 'msg3',
     profilePic: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     name: 'Émilie Martin',
-    message: "Je viens de recevoir le colis, c'est juste parfait ! Ta créativité a rendu notre baby shower si spécial. Déjà 3 personnes m'ont demandé ton contact 🥰 Merci encore !",
+    message: "Je viens de recevoir le colis, c'est juste parfait ! Ta créativité a rendu notre baby shower si spécial. Déjà 3 personnes m'ont demandé ton contact ",
     date: '28 avril',
     event: 'Baby Shower'
   }
@@ -127,17 +128,17 @@ const servicesDetails = [
 // Caractéristiques principales
 const highlights = [
   { 
-    icon: "✨", 
+    icon: "", 
     title: "Création sur mesure", 
     description: "Chaque création est unique et personnalisée selon vos goûts et vos envies."
   },
   { 
-    icon: "💝", 
+    icon: "", 
     title: "Matériaux premium", 
     description: "Nous utilisons uniquement des matériaux de qualité supérieure pour des créations durables."
   },
   { 
-    icon: "🎨", 
+    icon: "", 
     title: "Design exclusif", 
     description: "Nos designs exclusifs apportent une touche d'élégance et d'originalité à votre événement."
   }
@@ -224,6 +225,7 @@ const HomePage: React.FC = () => {
   const [advantagesRef, advantagesInView] = useInView(inViewOptions);
   const [highlightsRef, highlightsInView] = useInView(inViewOptions);
   const [ctaRef, ctaInView] = useInView(inViewOptions);
+  const [faqRef] = useInView(inViewOptions);
   
   // Forcer rafraîchissement des sections lors du retour sur la page
   useEffect(() => {
@@ -622,7 +624,7 @@ const HomePage: React.FC = () => {
                   <img 
                     src={creation.image} 
                     alt={creation.title} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                   />
                 </div>
                 
@@ -632,7 +634,7 @@ const HomePage: React.FC = () => {
                   </div>
                 )}
                 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end">
                   <h3 className="text-white text-xl font-display font-semibold transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
                     {creation.title}
                   </h3>
@@ -1004,6 +1006,15 @@ const HomePage: React.FC = () => {
             </div>
           </motion.div>
         </div>
+      </section>
+      
+      {/* Section FAQ */}
+      <section ref={faqRef} className="py-20 bg-white">
+        <FaqSection 
+          pageType="home" 
+          title="Questions fréquentes" 
+          subtitle="Retrouvez les réponses aux questions les plus courantes concernant nos créations personnalisées."
+        />
       </section>
       
       {/* CTA Section moderne */}
