@@ -4,7 +4,7 @@
       "id": "1",
       "title": "Panneau Mariage Élégant",
       "description": "Panneau de bienvenue personnalisé pour votre mariage avec design élégant.",
-      "price": 50,
+      "price": 12,
       "image": "https://images.pexels.com/photos/1824684/pexels-photo-1824684.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
       "category": "mariage",
       "featured": true,
@@ -59,9 +59,9 @@
     },
     {
       "id": "2",
-      "title": "Panneau Fiançailles",
+      "title": "Panneau Fiançaillesss",
       "description": "Annoncez vos fiançailles avec style grâce à ce panneau personnalisé.",
-      "price": 7500,
+      "price": 50,
       "image": "https://images.pexels.com/photos/3585798/pexels-photo-3585798.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
       "category": "fiancailles",
       "featured": true,
@@ -111,7 +111,8 @@
           "Support en bois inclus",
           "Emballage sécurisé pour la livraison"
         ]
-      }
+      },
+      "date": "2025-05-17"
     },
     {
       "id": "3",
@@ -287,7 +288,7 @@
       "description": "Parfait pour une enterrement de vie de jeune fille mémorable.",
       "price": 6000,
       "image": "https://images.pexels.com/photos/5543401/pexels-photo-5543401.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "category": "evjf",
+      "category": "all",
       "featured": false,
       "technicalDetails": [
         "Support en bois inclus pour une présentation élégante",
