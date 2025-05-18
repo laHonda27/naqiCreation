@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { Trash2, Edit, Plus, X, Check, Image, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, ChevronDown, ChevronUp, Trash2, Link as LinkIcon, Check, Edit } from 'lucide-react';
 import { useContentManager } from '../../hooks/useContentManager';
-import type { Creation, Category, OrderProcess, Specifications } from '../../hooks/useContentManager';
+import { Creation, OrderProcess, Category, Specifications } from '../../types';
+import { imageUploadService } from '../../services/imageUploadService';
 
 const CreationsManager: React.FC = () => {
   const { creations, categories, addCreation, updateCreation, deleteCreation } = useContentManager();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [imageSourceType, setImageSourceType] = useState<'url' | 'upload'>('url');
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [uploadError, setUploadError] = useState<string>('');
   const [formData, setFormData] = useState<Omit<Creation, 'id'>>({
     title: '',
     description: '',
@@ -77,6 +81,50 @@ const CreationsManager: React.FC = () => {
         ...prev,
         [name]: value
       }));
+    }
+  };
+  
+  // Fonction pour gérer l'upload d'image
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    
+    // Vérifier le type de fichier
+    if (!file.type.startsWith('image/')) {
+      setUploadStatus('error');
+      setUploadError('Le fichier doit être une image');
+      return;
+    }
+    
+    // Vérifier la taille (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadStatus('error');
+      setUploadError('L\'image est trop volumineuse (max 5MB)');
+      return;
+    }
+    
+    try {
+      setUploadStatus('loading');
+      setUploadError('');
+      
+      // Utiliser la catégorie actuelle ou 'divers' si aucune n'est sélectionnée
+      const categoryId = formData.category || 'divers';
+      
+      // Uploader l'image
+      const imagePath = await imageUploadService.uploadCreationImage(file, categoryId);
+      
+      // Mettre à jour le formulaire avec le chemin de l'image
+      setFormData(prev => ({
+        ...prev,
+        image: imagePath
+      }));
+      
+      setUploadStatus('success');
+    } catch (error: any) {
+      setUploadStatus('error');
+      setUploadError(error.message || 'Erreur lors du téléchargement de l\'image');
     }
   };
   
@@ -214,6 +262,72 @@ const CreationsManager: React.FC = () => {
     });
   };
   
+  // Render technical details fields
+  const renderTechnicalDetailsFields = () => {
+    return formData.technicalDetails.map((detail: string, index: number) => (
+      <div key={`technical-detail-${index}`} className="flex items-center mb-2">
+        <input
+          type="text"
+          value={detail}
+          onChange={(e) => handleArrayFieldChange(index, e.target.value, 'technicalDetails')}
+          className="input-field text-sm flex-grow"
+          placeholder="Détail technique"
+        />
+        <button 
+          type="button" 
+          onClick={() => removeArrayField(index, 'technicalDetails')}
+          className="ml-2 text-taupe-500 hover:text-red-500"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+    ));
+  };
+  
+  // Render customization options fields
+  const renderCustomizationOptionsFields = () => {
+    return formData.customizationOptions.map((option: string, index: number) => (
+      <div key={`customization-option-${index}`} className="flex items-center mb-2">
+        <input
+          type="text"
+          value={option}
+          onChange={(e) => handleArrayFieldChange(index, e.target.value, 'customizationOptions')}
+          className="input-field text-sm flex-grow"
+          placeholder="Option de personnalisation"
+        />
+        <button 
+          type="button" 
+          onClick={() => removeArrayField(index, 'customizationOptions')}
+          className="ml-2 text-taupe-500 hover:text-red-500"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+    ));
+  };
+  
+  // Render additional info fields
+  const renderAdditionalInfoFields = () => {
+    return formData.specifications.additionalInfo.map((info: string, index: number) => (
+      <div key={`additional-info-${index}`} className="flex items-center mb-2">
+        <input
+          type="text"
+          value={info}
+          onChange={(e) => handleArrayFieldChange(index, e.target.value, 'additionalInfo')}
+          className="input-field text-sm flex-grow"
+          placeholder="Information supplémentaire"
+        />
+        <button 
+          type="button" 
+          onClick={() => removeArrayField(index, 'additionalInfo')}
+          className="ml-2 text-taupe-500 hover:text-red-500"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+    ));
+  };
+  
   // Start editing a creation
   const handleEdit = (creation: Creation) => {
     setFormData({
@@ -246,11 +360,11 @@ const CreationsManager: React.FC = () => {
     // Clean up empty array entries
     const cleanedFormData = {
       ...formData,
-      technicalDetails: formData.technicalDetails.filter(detail => detail.trim() !== ''),
-      customizationOptions: formData.customizationOptions.filter(option => option.trim() !== ''),
+      technicalDetails: formData.technicalDetails.filter((detail: string) => detail.trim() !== ''),
+      customizationOptions: formData.customizationOptions.filter((option: string) => option.trim() !== ''),
       specifications: {
         ...formData.specifications,
-        additionalInfo: formData.specifications.additionalInfo.filter(info => info.trim() !== '')
+        additionalInfo: formData.specifications.additionalInfo.filter((info: string) => info.trim() !== '')
       }
     };
     
@@ -258,14 +372,32 @@ const CreationsManager: React.FC = () => {
       // Update existing creation
       updateCreation({
         id: editingId,
-        ...cleanedFormData,
+        title: cleanedFormData.title,
+        description: cleanedFormData.description,
+        price: cleanedFormData.price,
+        image: cleanedFormData.image,
+        category: cleanedFormData.category,
+        featured: cleanedFormData.featured,
+        technicalDetails: cleanedFormData.technicalDetails,
+        customizationOptions: cleanedFormData.customizationOptions,
+        orderProcess: cleanedFormData.orderProcess,
+        specifications: cleanedFormData.specifications,
         date: new Date().toISOString().split('T')[0]
       });
     } else {
       // Add new creation
       addCreation({
         id: `creation-${Date.now()}`, // Générer un ID unique
-        ...cleanedFormData,
+        title: cleanedFormData.title,
+        description: cleanedFormData.description,
+        price: cleanedFormData.price,
+        image: cleanedFormData.image,
+        category: cleanedFormData.category,
+        featured: cleanedFormData.featured,
+        technicalDetails: cleanedFormData.technicalDetails,
+        customizationOptions: cleanedFormData.customizationOptions,
+        orderProcess: cleanedFormData.orderProcess,
+        specifications: cleanedFormData.specifications,
         date: new Date().toISOString().split('T')[0]
       });
     }
@@ -398,22 +530,104 @@ const CreationsManager: React.FC = () => {
                     
                     <div>
                       <label htmlFor="image" className="block text-sm font-medium text-taupe-700 mb-1">
-                        URL de l'image
+                        Image
                       </label>
-                      <div className="flex">
-                        <input
-                          id="image"
-                          name="image"
-                          type="url"
-                          value={formData.image}
-                          onChange={handleChange}
-                          required
-                          className="input-field text-sm rounded-r-none flex-grow"
-                          placeholder="https://example.com/image.jpg"
-                        />
-                        <div className="bg-beige-200 px-3 flex items-center rounded-r-md">
-                          <Image size={18} className="text-taupe-600" />
+                      <div className="space-y-2">
+                        {/* Afficher l'image actuelle si elle existe */}
+                        {formData.image && (
+                          <div className="mb-2">
+                            <img 
+                              src={formData.image.startsWith('http') 
+                                ? formData.image 
+                                : `https://raw.githubusercontent.com/laHonda27/naqiCreation/main/public${formData.image}`} 
+                              alt="Aperçu" 
+                              className="h-24 w-auto object-cover rounded-md border border-beige-200" 
+                              onError={(e) => {
+                                // Fallback en cas d'erreur de chargement de l'image
+                                e.currentTarget.src = '/placeholder-image.jpg';
+                              }}
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Options pour l'image */}
+                        <div className="flex flex-col space-y-2">
+                          <div className="flex items-center">
+                            <input
+                              id="useUrl"
+                              name="imageSourceType"
+                              type="radio"
+                              checked={imageSourceType === 'url'}
+                              onChange={() => setImageSourceType('url')}
+                              className="h-4 w-4 text-rose-400 focus:ring-rose-300 border-beige-300 rounded"
+                            />
+                            <label htmlFor="useUrl" className="ml-2 block text-sm text-taupe-700">
+                              Utiliser une URL
+                            </label>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <input
+                              id="uploadImage"
+                              name="imageSourceType"
+                              type="radio"
+                              checked={imageSourceType === 'upload'}
+                              onChange={() => setImageSourceType('upload')}
+                              className="h-4 w-4 text-rose-400 focus:ring-rose-300 border-beige-300 rounded"
+                            />
+                            <label htmlFor="uploadImage" className="ml-2 block text-sm text-taupe-700">
+                              Télécharger une image
+                            </label>
+                          </div>
                         </div>
+                        
+                        {/* Champ URL ou upload selon l'option choisie */}
+                        {imageSourceType === 'url' ? (
+                          <div className="flex">
+                            <input
+                              id="image"
+                              name="image"
+                              type="url"
+                              value={formData.image}
+                              onChange={handleChange}
+                              className="input-field text-sm rounded-r-none flex-grow"
+                              placeholder="https://example.com/image.jpg"
+                            />
+                            <div className="bg-beige-200 px-3 flex items-center rounded-r-md">
+                              <LinkIcon size={18} className="text-taupe-600" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <input
+                              id="imageFile"
+                              name="imageFile"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="block w-full text-sm text-taupe-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-rose-50 file:text-rose-500 hover:file:bg-rose-100"
+                            />
+                            {uploadStatus === 'loading' && (
+                              <div className="text-sm text-taupe-600 flex items-center">
+                                <div className="w-4 h-4 border-2 border-rose-300 border-t-rose-500 rounded-full animate-spin mr-2"></div>
+                                Téléchargement en cours...
+                              </div>
+                            )}
+                            {uploadStatus === 'success' && (
+                              <div className="text-sm text-green-600 flex items-center">
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Image téléchargée avec succès
+                              </div>
+                            )}
+                            {uploadStatus === 'error' && (
+                              <div className="text-sm text-red-600">
+                                Erreur: {uploadError}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -502,25 +716,7 @@ const CreationsManager: React.FC = () => {
                     <label className="block text-sm font-medium text-taupe-700 mb-1">
                       Informations supplémentaires
                     </label>
-                    {formData.specifications.additionalInfo.map((info, index) => (
-                      <div key={index} className="flex mb-2">
-                        <input
-                          type="text"
-                          value={info}
-                          onChange={(e) => handleArrayFieldChange(index, e.target.value, 'additionalInfo')}
-                          className="input-field text-sm flex-grow"
-                          placeholder="ex: Finition personnalisable"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeArrayField(index, 'additionalInfo')}
-                          className="ml-2 text-red-500 hover:text-red-600 p-1"
-                          aria-label="Supprimer"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    ))}
+                    {renderAdditionalInfoFields()}
                     <button
                       type="button"
                       onClick={() => addArrayField('additionalInfo')}
@@ -551,25 +747,7 @@ const CreationsManager: React.FC = () => {
                     <label className="block text-sm font-medium text-taupe-700 mb-1">
                       Détails techniques
                     </label>
-                    {formData.technicalDetails.map((detail, index) => (
-                      <div key={index} className="flex mb-2">
-                        <input
-                          type="text"
-                          value={detail}
-                          onChange={(e) => handleArrayFieldChange(index, e.target.value, 'technicalDetails')}
-                          className="input-field text-sm flex-grow"
-                          placeholder="ex: Fabriqué à la main"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeArrayField(index, 'technicalDetails')}
-                          className="ml-2 text-red-500 hover:text-red-600 p-1"
-                          aria-label="Supprimer"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    ))}
+                    {renderTechnicalDetailsFields()}
                     <button
                       type="button"
                       onClick={() => addArrayField('technicalDetails')}
@@ -584,25 +762,7 @@ const CreationsManager: React.FC = () => {
                     <label className="block text-sm font-medium text-taupe-700 mb-1">
                       Options de personnalisation
                     </label>
-                    {formData.customizationOptions.map((option, index) => (
-                      <div key={index} className="flex mb-2">
-                        <input
-                          type="text"
-                          value={option}
-                          onChange={(e) => handleArrayFieldChange(index, e.target.value, 'customizationOptions')}
-                          className="input-field text-sm flex-grow"
-                          placeholder="ex: Choix de couleurs"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeArrayField(index, 'customizationOptions')}
-                          className="ml-2 text-red-500 hover:text-red-600 p-1"
-                          aria-label="Supprimer"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    ))}
+                    {renderCustomizationOptionsFields()}
                     <button
                       type="button"
                       onClick={() => addArrayField('customizationOptions')}
@@ -714,9 +874,15 @@ const CreationsManager: React.FC = () => {
               <div className="flex space-x-4">
                 <div className="w-24 h-24 rounded-md overflow-hidden bg-beige-100 flex-shrink-0">
                   <img 
-                    src={creation.image} 
+                    src={creation.image.startsWith('http') 
+                      ? creation.image 
+                      : `https://raw.githubusercontent.com/laHonda27/naqiCreation/main/public${creation.image}`} 
                     alt={creation.title} 
                     className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      // Fallback en cas d'erreur de chargement de l'image
+                      e.currentTarget.src = '/placeholder-image.jpg';
+                    }}
                   />
                 </div>
                 

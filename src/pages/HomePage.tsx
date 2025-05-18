@@ -620,9 +620,15 @@ const HomePage: React.FC = () => {
               >
                 <div className="aspect-[3/4] overflow-hidden">
                   <img 
-                    src={creation.image} 
+                    src={creation.image.startsWith('http') 
+                      ? creation.image 
+                      : `https://raw.githubusercontent.com/laHonda27/naqiCreation/main/public${creation.image}`} 
                     alt={creation.title} 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    onError={(e) => {
+                      // Fallback en cas d'erreur de chargement de l'image
+                      e.currentTarget.src = '/placeholder-image.jpg';
+                    }}
                   />
                 </div>
                 

@@ -1,58 +1,44 @@
 import React, { useState, useEffect } from 'react';
-
-// Déclaration TypeScript pour les fonctions globales
-declare global {
-  interface Window {
-    siteCustomizationSaveSettings?: () => Promise<void>;
-  }
-}
 import { Helmet } from 'react-helmet';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/admin/Tabs';
 import TestimonialsManager from '../../components/admin/TestimonialsManager';
 import CreationsManager from '../../components/admin/CreationsManager';
 import CategoriesManager from '../../components/admin/CategoriesManager';
 import SiteCustomizationManager from '../../components/admin/SiteCustomizationManager';
-import { RefreshCw, AlertCircle, CheckCircle, Info, LogOut, Home } from 'lucide-react';
+import { Save, RefreshCw, AlertCircle, CheckCircle, Info, LogOut, Home } from 'lucide-react';
 import { netlifyGitService } from '../../services/netlifyGitService';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('customization');
+  const [activeTab, setActiveTab] = useState('testimonials');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [syncMessage, setSyncMessage] = useState<string>('');
+  const [stats, setStats] = useState({
+    testimonials: 0,
+    creations: 0,
+    categories: 0
+  });
+  const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [recentActivities, setRecentActivities] = useState<{title: string; date: string}[]>([]);
   const [tabLoading, setTabLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  // Code supprimé - déclaration déplacée au niveau racine
-  
   // Fonction pour synchroniser les modifications avec le dépôt Git
   const handleSyncChanges = async () => {
     try {
       setSyncStatus('loading');
       setSyncMessage('Enregistrement des modifications en cours...');
       
-      // D'abord, sauvegarder les modifications locales dans chaque gestionnaire
-      // Ceci permet de s'assurer que les images et autres modifications sont bien enregistrées
-      console.log('Sauvegarde des modifications locales avant synchronisation...');
-      
-      // Déclencher la sauvegarde des paramètres du site via la fonction globale
-      try {
-        if (window.siteCustomizationSaveSettings) {
-          console.log('Sauvegarde des paramètres du site...');
-          await window.siteCustomizationSaveSettings();
-        }
-      } catch (error) {
-        console.warn('Erreur lors de la sauvegarde des paramètres du site:', error);
-      }
-      
       // Synchroniser les modifications avec le dépôt Git
-      console.log('Synchronisation avec le dépôt Git...');
       const result = await netlifyGitService.syncRepository();
       
       if (result.success) {
         setSyncStatus('success');
         setSyncMessage('Modifications enregistrées avec succès. Le site sera mis à jour dans quelques minutes.');
+        
+        // Recharger les statistiques
+        loadStats();
         
         // Réinitialiser le message après 10 secondes
         setTimeout(() => {
@@ -75,104 +61,156 @@ const AdminDashboard: React.FC = () => {
     navigate('/admin/login');
   };
   
-  // Charger les données nécessaires au tableau de bord
+  // Charger les statistiques
+  const loadStats = async () => {
+    try {
+      // Charger les données des témoignages
+      const testimonialsResult = await netlifyGitService.getJsonFile('customizations.json');
+      if (testimonialsResult.success && testimonialsResult.data) {
+        const testimonials = testimonialsResult.data.testimonials || [];
+        setStats(prev => ({ ...prev, testimonials: testimonials.length }));
+      }
+      
+      // Charger les données des créations
+      const creationsResult = await netlifyGitService.getJsonFile('creations.json');
+      if (creationsResult.success && creationsResult.data) {
+        const creations = creationsResult.data.creations || [];
+        setStats(prev => ({ ...prev, creations: creations.length }));
+        
+        // Créer des activités récentes basées sur les créations
+        const activities = creations.slice(0, 3).map((creation: any) => ({
+          title: `Création: ${creation.title}`,
+          date: new Date().toLocaleDateString('fr-FR')
+        }));
+        setRecentActivities(activities);
+      }
+      
+      // Charger les données des catégories
+      const categoriesResult = await netlifyGitService.getJsonFile('categories.json');
+      if (categoriesResult.success && categoriesResult.data) {
+        const categories = categoriesResult.data.categories || [];
+        setStats(prev => ({ ...prev, categories: categories.length - 1 })); // -1 pour exclure la catégorie "Tous"
+      }
+      
+      // Charger la date de dernière mise à jour
+      const indexResult = await netlifyGitService.getJsonFile('index.json');
+      if (indexResult.success && indexResult.data && indexResult.data.lastUpdated) {
+        const date = new Date(indexResult.data.lastUpdated);
+        setLastUpdated(date.toLocaleDateString('fr-FR', { 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }));
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des statistiques:', error);
+    }
+  };
+  
+  // Charger les statistiques au chargement du composant
   useEffect(() => {
-    // Aucune statistique à charger car l'onglet Vue d'ensemble a été supprimé
+    loadStats();
   }, []);
-
-  // Gérer le changement d'onglet
-  const onTabChange = () => {
+  
+  // Gérer le changement d'onglet avec un loader
+  const handleTabChange = (value: string) => {
     setTabLoading(true);
-    // Désactiver le loader après un court délai
+    setActiveTab(value);
+    
+    // Simuler un délai de chargement pour montrer le loader
     setTimeout(() => {
       setTabLoading(false);
-    }, 300);
+    }, 500);
   };
 
   return (
     <>
       <Helmet>
-        <title>Tableau de bord d'administration | Naqi Création</title>
+        <title>Tableau de bord | Administration Naqi Création</title>
       </Helmet>
       
       <div className="min-h-screen bg-beige-50">
-        <header className="bg-white shadow-sm border-b border-beige-200">
-          <div className="flex justify-between items-center px-4 py-2 sm:px-6 lg:px-8">
+
+        <header className="bg-beige-50 text-taupe-800 py-3 px-4 sticky top-0 z-10 shadow-md border-b border-beige-200">
+          <div className="container mx-auto flex justify-between items-center">
             <div className="flex items-center">
-              <Logo className="h-10 w-auto mr-3" />
-              <h1 className="text-xl font-bold text-rose-600">Tableau de bord d'administration</h1>
+              <Logo className="h-10 w-auto" />
             </div>
             
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleLogout}
-                className="flex items-center text-taupe-600 hover:text-rose-600"
-              >
-                <LogOut size={18} className="mr-1" />
-                <span className="text-sm">Déconnexion</span>
-              </button>
-              
-              <Link to="/" className="flex items-center text-taupe-600 hover:text-rose-600">
-                <Home size={18} className="mr-1" />
-                <span className="text-sm">Retour au site</span>
+            <div className="flex items-center space-x-1 sm:space-x-3">
+              <div className="bg-rose-100 text-rose-600 px-2 py-1 rounded-md text-xs font-medium hidden sm:block">
+                Mode Admin
+              </div>
+              <Link to="/" className="text-taupe-700 hover:text-rose-500 transition-colors flex items-center p-2 rounded-md hover:bg-beige-100">
+                <Home size={16} className="sm:mr-1" />
+                <span className="hidden sm:inline text-sm">Voir le site</span>
               </Link>
+              <button 
+                onClick={handleLogout}
+                className="text-taupe-700 hover:text-rose-500 transition-colors flex items-center p-2 rounded-md hover:bg-beige-100"
+              >
+                <LogOut size={16} className="sm:mr-1" />
+                <span className="hidden sm:inline text-sm">Déconnexion</span>
+              </button>
             </div>
           </div>
         </header>
         
-        <main className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Messages d'état */}
+        <main className="container mx-auto px-2 sm:px-4 py-3 sm:py-6">
+          <div className="bg-white rounded-lg shadow-medium p-3 sm:p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
+                <h1 className="text-xl sm:text-2xl font-display font-semibold">Tableau de bord</h1>
+              </div>
+            
             {syncStatus === 'success' && (
-              <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-400 flex items-center">
-                <CheckCircle size={20} className="text-green-500 mr-2" />
+              <div className="mb-6 p-3 bg-green-100 text-green-700 rounded-md flex items-start">
+                <CheckCircle size={18} className="mr-2 mt-0.5 flex-shrink-0" />
                 <p>{syncMessage}</p>
               </div>
             )}
             
             {syncStatus === 'error' && (
-              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 flex items-center">
-                <AlertCircle size={20} className="text-red-500 mr-2" />
+              <div className="mb-6 p-3 bg-red-100 text-red-700 rounded-md flex items-start">
+                <AlertCircle size={18} className="mr-2 mt-0.5 flex-shrink-0" />
                 <p>{syncMessage}</p>
               </div>
             )}
             
-            {/* Bouton de synchronisation global */}
-            <div className="mb-6">
-              <button
-                onClick={handleSyncChanges}
-                disabled={syncStatus === 'loading'}
-                className={`w-full flex items-center justify-center px-4 py-3 rounded-md text-sm font-medium ${syncStatus === 'loading' ? 'bg-taupe-300 text-taupe-100 cursor-not-allowed' : 'bg-rose-600 text-white hover:bg-rose-700'}`}
-              >
-                {syncStatus === 'loading' ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Synchronisation en cours...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw size={18} className="mr-2" />
-                    Mettre à jour toutes les modifications
-                  </>
-                )}
-              </button>
-              <p className="text-xs text-center mt-2 text-taupe-500">Ce bouton permet de sauvegarder toutes les modifications et de mettre à jour le site.</p>
+            <div className="p-3 sm:p-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-md flex flex-col sm:flex-row items-start mb-4 sm:mb-6 text-sm">
+              <Info size={18} className="mr-3 mt-0.5 flex-shrink-0 text-blue-600 hidden sm:block" />
+              <div>
+                <p className="font-semibold mb-1 flex items-center">
+                  <Info size={16} className="mr-2 flex-shrink-0 text-blue-600 sm:hidden" />
+                  Comment utiliser le panneau d'administration
+                </p>
+                <p className="mb-2 text-xs sm:text-sm">
+                  Ce panneau vous permet de gérer le contenu de votre site facilement sans connaissances techniques.
+                </p>
+                <ol className="list-decimal pl-4 sm:pl-5 space-y-1 text-xs sm:text-sm">
+                  <li>Utilisez les onglets ci-dessous pour accéder aux différentes sections</li>
+                  <li>Modifiez le contenu selon vos besoins</li>
+                  <li>Cliquez sur le bouton <strong>Enregistrer les modifications</strong> en haut</li>
+                  <li>Attendez quelques minutes pour que les changements soient visibles sur votre site</li>
+                </ol>
+              </div>
             </div>
             
-            <Tabs value={activeTab} onValueChange={(value) => {
-                setActiveTab(value);
-                onTabChange();
-              }}>
-              <div className="mb-6">
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
+              <div className="mb-2">
                 <TabsList>
-                  <TabsTrigger value="testimonials">Témoignages</TabsTrigger>
-                  <TabsTrigger value="creations">Créations</TabsTrigger>
-                  <TabsTrigger value="categories">Catégories</TabsTrigger>
-                  <TabsTrigger value="customization">Personnalisation</TabsTrigger>
+                  <div className="grid grid-cols-3 gap-1 w-full">
+                    <TabsTrigger value="testimonials"><span className="text-[10px] sm:text-sm">Témoignages</span></TabsTrigger>
+                    <TabsTrigger value="creations"><span className="text-[10px] sm:text-sm">Créations</span></TabsTrigger>
+                    <TabsTrigger value="categories"><span className="text-[10px] sm:text-sm">Catégories</span></TabsTrigger>
+                  </div>
                 </TabsList>
               </div>
               
-              <TabsContent value="testimonials" className="pt-2 relative">
+
+              
+              <TabsContent value="testimonials" className="pt-6 relative">
                 {tabLoading ? (
                   <div className="flex items-center justify-center py-20">
                     <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
@@ -188,7 +226,7 @@ const AdminDashboard: React.FC = () => {
                 )}
               </TabsContent>
               
-              <TabsContent value="creations" className="pt-2 relative">
+              <TabsContent value="creations" className="pt-6 relative">
                 {tabLoading ? (
                   <div className="flex items-center justify-center py-20">
                     <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
@@ -204,7 +242,7 @@ const AdminDashboard: React.FC = () => {
                 )}
               </TabsContent>
               
-              <TabsContent value="categories" className="pt-2 relative">
+              <TabsContent value="categories" className="pt-6 relative">
                 {tabLoading ? (
                   <div className="flex items-center justify-center py-20">
                     <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
@@ -220,7 +258,7 @@ const AdminDashboard: React.FC = () => {
                 )}
               </TabsContent>
               
-              <TabsContent value="customization" className="pt-2 relative">
+              <TabsContent value="customization" className="pt-6 relative">
                 {tabLoading ? (
                   <div className="flex items-center justify-center py-20">
                     <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
@@ -229,7 +267,7 @@ const AdminDashboard: React.FC = () => {
                   <div>
                     <div className="bg-rose-50 border-l-4 border-rose-400 p-3 mb-6 flex items-center">
                       <Info size={20} className="text-rose-500 mr-2" />
-                      <p className="text-sm text-rose-700">Vous personnalisez l'<strong>apparence</strong> de votre site (logo, favicon et couleurs).</p>
+                      <p className="text-sm text-rose-700">Vous personnalisez l'<strong>apparence</strong> de votre site (logo, favicon et informations générales).</p>
                     </div>
                     <SiteCustomizationManager />
                   </div>

@@ -146,11 +146,6 @@ const ensureDirectoryExists = (dirPath) => {
 // Fonction pour enregistrer un fichier local
 const saveLocalFile = async (filePath, content, isBase64 = false) => {
   try {
-    // Vérification supplémentaire du chemin de fichier
-    if (!filePath || typeof filePath !== 'string' || filePath.trim() === '') {
-      return { success: false, error: 'Chemin de fichier invalide ou manquant' };
-    }
-    
     // S'assurer que le dossier parent existe
     const dirPath = path.dirname(filePath);
     const dirCreated = ensureDirectoryExists(dirPath);
@@ -267,11 +262,6 @@ const pushToGitHub = async (message = 'Mise à jour automatique') => {
 // Met à jour un fichier sur GitHub et localement
 const updateFileOnGitHub = async (path, content, message, isJsonFile = true) => {
   try {
-    // Validation du chemin
-    if (!path || typeof path !== 'string' || path.trim() === '') {
-      throw new Error('Chemin du fichier invalide ou manquant');
-    }
-    
     // Déterminer le chemin complet pour GitHub
     const basePath = isJsonFile ? DATA_PATH : '';
     const fullPath = basePath ? `${basePath}/${path}` : path;
@@ -289,17 +279,12 @@ const updateFileOnGitHub = async (path, content, message, isJsonFile = true) => 
     // Vérifier si le fichier existe déjà sur GitHub
     let sha = null;
     try {
-      // Pour site-settings.json, s'assurer que nous utilisons le bon chemin
-      const pathToCheck = path.includes('site-settings.json') ? 'site-settings.json' : path;
-      console.log(`Vérification de l'existence du fichier: ${pathToCheck} (isJsonFile: ${isJsonFile})`);
-      
-      const existingFile = await getFileFromGitHub(pathToCheck, isJsonFile);
+      const existingFile = await getFileFromGitHub(path, isJsonFile);
       if (existingFile.success) {
         sha = existingFile.sha;
-        console.log(`Fichier existant trouvé avec SHA: ${sha}`);
       }
     } catch (error) {
-      console.log(`Le fichier ${path} n'existe pas encore sur GitHub, il sera créé. Erreur:`, error.message);
+      console.log(`Le fichier ${path} n'existe pas encore sur GitHub, il sera créé.`);
     }
     
     // Préparer le contenu à envoyer
@@ -390,9 +375,7 @@ exports.handler = async (event, context) => {
     
     // Analyser le corps de la requête
     const body = JSON.parse(event.body || '{}');
-    const { action, content, message } = body;
-    // Utilisation de let pour permettre la réassignation plus tard
-    let filePath = body.path;
+    const { action, path, content, message } = body;
     
     // Ajouter les informations de débogage à toutes les réponses
     const addDebugInfo = (result) => {
@@ -408,53 +391,35 @@ exports.handler = async (event, context) => {
         
       case 'list':
         // Lister les fichiers JSON
-        const listResult = await listFilesFromGitHub(filePath || '');
+        const listResult = await listFilesFromGitHub(path || '');
         return respond(listResult.success ? 200 : 500, addDebugInfo(listResult));
         
       case 'get':
         // Récupérer un fichier
-        if (!filePath) {
+        if (!path) {
           return respond(400, addDebugInfo({ success: false, error: 'Chemin du fichier manquant' }));
         }
         
-        const getResult = await getFileFromGitHub(filePath);
+        const getResult = await getFileFromGitHub(path);
         return respond(getResult.success ? 200 : 500, addDebugInfo(getResult));
         
       case 'update':
         // Mettre à jour un fichier JSON
-        if (!filePath) {
-          // Générer un nom de fichier par défaut si manquant
-          const timestamp = new Date().toISOString().replace(/[:.-]/g, '-');
-          filePath = `settings-${timestamp}.json`;
-          console.log(`Aucun chemin spécifié, utilisation du chemin par défaut: ${filePath}`);
-        } else {
-          console.log(`Mise à jour du fichier existant: ${filePath}`);
+        if (!path) {
+          return respond(400, addDebugInfo({ success: false, error: 'Chemin du fichier manquant' }));
         }
         
         if (content === undefined) {
           return respond(400, addDebugInfo({ success: false, error: 'Contenu du fichier manquant' }));
         }
         
-        try {
-          const updateResult = await updateFileOnGitHub(filePath, content, message || `Mise à jour du fichier ${filePath}`, true);
-          return respond(updateResult.success ? 200 : 500, addDebugInfo(updateResult));
-        } catch (error) {
-          console.error(`Erreur lors de la mise à jour du fichier ${filePath}:`, error);
-          return respond(500, addDebugInfo({ 
-            success: false, 
-            error: error.message || 'Erreur lors de la mise à jour du fichier',
-            path: filePath
-          }));
-        }
+        const updateResult = await updateFileOnGitHub(path, content, message, true);
+        return respond(updateResult.success ? 200 : 500, addDebugInfo(updateResult));
         
       case 'upload-image':
         // Télécharger une image
-        if (!filePath) {
-          // Générer un nom de fichier par défaut si manquant
-          const timestamp = new Date().toISOString().replace(/[:.-]/g, '-');
-          const randomId = Math.random().toString(36).substring(2, 10);
-          filePath = `image-${timestamp}-${randomId}.jpg`;
-          console.log(`Aucun chemin d'image spécifié, utilisation du chemin par défaut: ${filePath}`);
+        if (!path) {
+          return respond(400, addDebugInfo({ success: false, error: 'Chemin de l\'image manquant' }));
         }
         
         if (!content) {
@@ -463,7 +428,7 @@ exports.handler = async (event, context) => {
         
         // Vérifier l'extension du fichier
         const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'ico'];
-        const fileExtension = filePath.split('.').pop().toLowerCase();
+        const fileExtension = path.split('.').pop().toLowerCase();
         if (!allowedExtensions.includes(fileExtension)) {
           return respond(400, addDebugInfo({ 
             success: false, 
@@ -472,7 +437,8 @@ exports.handler = async (event, context) => {
         }
         
         // Vérifier la taille de l'image (approximation brute en base64)
-        const approximateFileSizeMB = content ? (content.length * 0.75) / (1024 * 1024) : 0;
+        const base64Size = content.length;
+        const approximateFileSizeMB = (base64Size * 0.75) / (1024 * 1024);
         if (approximateFileSizeMB > 100) {
           return respond(400, addDebugInfo({ 
             success: false, 
@@ -481,12 +447,11 @@ exports.handler = async (event, context) => {
           }));
         }
         
-        // Extraire le contenu base64 sans le préfixe si nécessaire
+        // Traiter l'image base64
         let imageContent = content;
-        if (content.startsWith('data:image')) {
-          // Format base64 avec préfixe (data:image/jpeg;base64,...)
-          const matches = content.match(/^data:image\/(\w+);base64,(.*)$/);
-          
+        if (content.startsWith('data:')) {
+          // Extraire le contenu base64 de la chaîne data URL
+          const matches = content.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
           if (!matches || matches.length !== 3) {
             return respond(400, addDebugInfo({ success: false, error: 'Format de l\'image invalide' }));
           }
@@ -494,7 +459,15 @@ exports.handler = async (event, context) => {
         }
         
         // Construire le chemin complet de l'image
-        const imagePath = filePath.startsWith(IMAGES_PATH) ? filePath : `${IMAGES_PATH}/${filePath}`;
+        // Éviter la duplication du dossier images en vérifiant si le chemin contient déjà 'images'
+        let imagePath;
+        if (path.startsWith(IMAGES_PATH)) {
+          imagePath = path;
+        } else if (path.startsWith('images/')) {
+          imagePath = `public/${path}`;
+        } else {
+          imagePath = `${IMAGES_PATH}/${path}`;
+        }
         console.log(`Téléchargement de l'image vers: ${imagePath} (taille ~ ${approximateFileSizeMB.toFixed(2)} MB)`);
         
         try {
@@ -502,7 +475,7 @@ exports.handler = async (event, context) => {
           ensureDirectoryExists(`${TMP_PATH}/${IMAGES_PATH}`);
           
           // Mettre à jour ou créer le fichier image
-          const uploadResult = await updateFileOnGitHub(imagePath, imageContent, message || `Ajout de l'image ${filePath}`, false);
+          const uploadResult = await updateFileOnGitHub(imagePath, imageContent, message || `Ajout de l'image ${path}`, false);
           
           if (uploadResult.success) {
             console.log(`Image téléchargée avec succès. URL: ${uploadResult.url}`);
@@ -511,7 +484,7 @@ exports.handler = async (event, context) => {
           
           return respond(uploadResult.success ? 200 : 500, addDebugInfo(uploadResult));
         } catch (error) {
-          console.error(`Erreur lors du téléchargement de l'image ${filePath}:`, error);
+          console.error(`Erreur lors du téléchargement de l'image ${path}:`, error);
           return respond(500, addDebugInfo({ 
             success: false, 
             error: error.message || 'Erreur lors du téléchargement de l\'image'

@@ -165,19 +165,17 @@ export const netlifyGitService = {
    * Récupère le contenu d'un fichier JSON spécifique
    */
   async getJsonFile(filename: string): Promise<GitServiceResult> {
-    console.log(`Tentative de récupération du fichier JSON: ${filename}`);
-    return this.callNetlifyFunction('read', { path: filename });
+    return this.callNetlifyFunction('read', { filename });
   },
 
   /**
    * Écrit le contenu dans un fichier JSON et le commit dans le dépôt
    */
   async writeJsonFile(filename: string, content: any, commitMessage?: string): Promise<GitServiceResult> {
-    console.log(`Écriture du fichier JSON: ${filename} avec message: ${commitMessage}`);
-    return this.callNetlifyFunction('update', {
-      path: filename, // Utiliser 'path' au lieu de 'filename' pour être cohérent avec l'API
+    return this.callNetlifyFunction('write', {
+      filename,
       content,
-      message: commitMessage // Utiliser 'message' au lieu de 'commitMessage' pour être cohérent avec l'API
+      commitMessage
     });
   },
   
@@ -210,5 +208,31 @@ export const netlifyGitService = {
     
     // Synchroniser les modifications avec le dépôt distant
     return this.syncRepository();
+  },
+
+  /**
+   * Télécharge une image vers le dépôt Git
+   * 
+   * @param path Chemin de l'image dans le dépôt
+   * @param base64Content Contenu de l'image en base64
+   * @param message Message de commit (optionnel)
+   */
+  async uploadImage(path: string, base64Content: string, message?: string): Promise<GitServiceResult> {
+    try {
+      // Appeler la fonction Netlify pour télécharger l'image
+      const result = await this.callNetlifyFunction('upload', {
+        path,
+        content: base64Content,
+        message: message || `Ajout de l'image ${path.split('/').pop()}`
+      });
+      
+      return result;
+    } catch (error: any) {
+      console.error("Erreur lors de l'upload de l'image:", error);
+      return { 
+        success: false, 
+        error: error.message || "Erreur lors de l'upload de l'image" 
+      };
+    }
   }
 };
