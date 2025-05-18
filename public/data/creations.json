@@ -5,11 +5,7 @@
       "title": "Panneau Mariage Élégant",
       "description": "Panneau de bienvenue personnalisé pour votre mariage avec design élégant.",
       "price": 19.96,
-<<<<<<< HEAD
       "image": "https://images.pexels.com/photos/1824684/pexels-photo-1824684.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-=======
-      "image": "/images/creations/mariage/1747594686805-snapchat-665417030.jpg",
->>>>>>> 0e85bc1a32e0bd68dd01d3765fbcd0c62fd791f5
       "category": "mariage",
       "featured": true,
       "technicalDetails": [
