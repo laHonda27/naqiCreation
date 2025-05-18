@@ -281,62 +281,6 @@
           "Emballage sécurisé pour la livraison"
         ]
       }
-    },
-    {
-      "id": "6",
-      "title": "Panneau EVJF",
-      "description": "Parfait pour une enterrement de vie de jeune fille mémorable.",
-      "price": 6000,
-      "image": "https://images.pexels.com/photos/5543401/pexels-photo-5543401.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "category": "all",
-      "featured": false,
-      "technicalDetails": [
-        "Support en bois inclus pour une présentation élégante",
-        "Polissage des bords pour une finition parfaite",
-        "Résistant aux rayures et durables dans le temps",
-        "Film protecteur à retirer avant utilisation",
-        "Entretien facile avec un chiffon doux et de l'eau savonneuse"
-      ],
-      "customizationOptions": [
-        "Choix de la couleur du fond (rose, doré populaires)",
-        "Choix de la couleur des inscriptions",
-        "Texte personnalisable (phrases fun, jeux de mots)",
-        "Motifs festifs et ludiques",
-        "Design original adapté à l'ambiance de l'événement"
-      ],
-      "orderProcess": [
-        {
-          "step": 1,
-          "title": "Consultation",
-          "description": "Discussion de vos besoins"
-        },
-        {
-          "step": 2,
-          "title": "Validation",
-          "description": "Approbation du design"
-        },
-        {
-          "step": 3,
-          "title": "Création",
-          "description": "Réalisation sur mesure"
-        },
-        {
-          "step": 4,
-          "title": "Livraison",
-          "description": "Réception et installation"
-        }
-      ],
-      "specifications": {
-        "standardSize": "30 x 40 cm",
-        "deliveryTime": "1-2 semaines",
-        "material": "Plexiglass 3mm",
-        "additionalInfo": [
-          "Format pratique à transporter pour les activités",
-          "Idéal pour les photos souvenirs",
-          "Support en bois inclus",
-          "Emballage discret disponible sur demande"
-        ]
-      }
     }
   ]
 }
