@@ -1,17 +1,6 @@
 {
   "testimonials": [
     {
-      "type": "text",
-      "name": "c'est le j ",
-      "comment": "woaw trop bien",
-      "rating": 5,
-      "event": "fiancailles",
-      "avatar": "",
-      "id": "1747676432470",
-      "dateAdded": "2025-05-19T17:40:32.470Z",
-      "dateModified": "2025-05-19T17:40:32.470Z"
-    },
-    {
       "type": "screenshot",
       "name": "niawee",
       "imageUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747676473/naqi-creation/morocco.png",
