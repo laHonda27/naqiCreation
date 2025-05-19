@@ -1,8 +1,5 @@
 // Fichier de configuration pour l'authentification
+// Les identifiants sont maintenant gérés via les variables d'environnement
+// Ce fichier est conservé pour la compatibilité avec le code existant
 
-export const users = [
-  {
-    username: "admin_naqi",
-    password: "N@q1Cr3@t10n2025"
-  }
-];
+export const users = [];

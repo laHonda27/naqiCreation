@@ -43,16 +43,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const adminUsername = import.meta.env.VITE_ADMIN_USERNAME;
       const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
       
-      // Vérification en mode développement (pour éviter les erreurs)
+      // Vérification des variables d'environnement
       if (!adminUsername || !adminPassword) {
-        console.warn('Variables d\'environnement non définies. Utilisation des identifiants de secours.');
-        // Identifiants de secours pour le développement local uniquement
-        if (username.trim() === 'admin_naqi' && password.trim() === 'N@q1Cr3@t10n2025') {
-          const token = 'naqi_auth_' + Date.now();
-          localStorage.setItem('auth_token', token);
-          setIsAuthenticated(true);
-          return true;
-        }
+        console.error('Variables d\'environnement non définies pour l\'authentification');
         return false;
       }
 

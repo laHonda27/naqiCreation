@@ -27,16 +27,20 @@ const AdminLoginPage: React.FC = () => {
     const adminUsername = import.meta.env.VITE_ADMIN_USERNAME;
     const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
     
+    // Vérification des variables d'environnement
+    if (!adminUsername || !adminPassword) {
+      console.error('Variables d\'environnement non définies pour l\'authentification');
+      setError('Erreur de configuration. Contactez l\'administrateur.');
+      setIsLoading(false);
+      return;
+    }
+    
     // Vérification avec les variables d'environnement ou les identifiants de secours
     const isValidCredentials = 
       // Vérification avec les variables d'environnement
       (adminUsername && adminPassword && 
        username === adminUsername && 
-       password === adminPassword) ||
-      // Identifiants de secours pour le développement local
-      ((!adminUsername || !adminPassword) && 
-       username === 'admin_naqi' && 
-       password === 'N@q1Cr3@t10n2025');
+       password === adminPassword);
     
     if (isValidCredentials) {
       // Stockage du token

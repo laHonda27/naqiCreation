@@ -14,9 +14,10 @@
 
 # Variables d'environnement pour le développement local
 # Ces valeurs seront remplacées par les variables d'environnement définies dans l'interface Netlify
+# Ne pas mettre de valeurs réelles ici, utilisez l'interface Netlify
 [build.environment]
-  VITE_ADMIN_USERNAME = "admin_placeholder"
-  VITE_ADMIN_PASSWORD = "password_placeholder"
+  # Ces valeurs sont des placeholders et doivent être remplacées dans l'interface Netlify
+ 
 
 [[redirects]]
   from = "/*"
