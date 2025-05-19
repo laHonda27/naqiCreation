@@ -12,6 +12,12 @@
   autoLaunch = true
   targetPort = 5173
 
+# Variables d'environnement pour le développement local
+# Ces valeurs seront remplacées par les variables d'environnement définies dans l'interface Netlify
+[build.environment]
+  VITE_ADMIN_USERNAME = "admin_placeholder"
+  VITE_ADMIN_PASSWORD = "password_placeholder"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

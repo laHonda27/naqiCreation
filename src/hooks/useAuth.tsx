@@ -39,20 +39,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
-      // Création d'un objet de débogage
-      const debugInfo = {
-        usernameReceived: username,
-        passwordReceived: password,
-        usernameTrimmed: username.trim(),
-        passwordTrimmed: password.trim(),
-        isUsernameMatch: username.trim() === 'admin',
-        isPasswordMatch: password.trim() === 'admin123'
-      };
+      // Récupérer les identifiants depuis les variables d'environnement
+      const adminUsername = import.meta.env.VITE_ADMIN_USERNAME;
+      const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
       
-      console.log('Détails de la tentative de connexion:', debugInfo);
+      // Vérification en mode développement (pour éviter les erreurs)
+      if (!adminUsername || !adminPassword) {
+        console.warn('Variables d\'environnement non définies. Utilisation des identifiants de secours.');
+        // Identifiants de secours pour le développement local uniquement
+        if (username.trim() === 'admin_naqi' && password.trim() === 'N@q1Cr3@t10n2025') {
+          const token = 'naqi_auth_' + Date.now();
+          localStorage.setItem('auth_token', token);
+          setIsAuthenticated(true);
+          return true;
+        }
+        return false;
+      }
 
-      // Vérification des identifiants
-      if (username.trim() === 'admin' && password.trim() === 'admin123') {
+      // Vérification des identifiants avec les variables d'environnement
+      if (username.trim() === adminUsername && password.trim() === adminPassword) {
         console.log('Identifiants valides, connexion en cours...');
         const token = 'naqi_auth_' + Date.now();
         localStorage.setItem('auth_token', token);

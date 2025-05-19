@@ -135,19 +135,31 @@ const ContactManager: React.FC = () => {
             />
             
             <div className="flex items-center">
-              <div className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="sr-only peer" 
-                  checked={formData.showPhone}
-                  onChange={() => handleTogglePhoneVisibility()}
-                  id="phoneVisibility"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-rose-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+              <div className="flex items-center cursor-pointer" onClick={() => handleTogglePhoneVisibility()}>
+                <div className="relative inline-flex items-center">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={formData.showPhone}
+                    readOnly
+                    id="phoneVisibility"
+                  />
+                  <div className="relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out cursor-pointer"
+                    style={{
+                      backgroundColor: formData.showPhone ? '#f43f5e' : '#e5e7eb',
+                    }}
+                  >
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-0.5">
+                      <span 
+                        className={`inline-block h-5 w-5 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out ${formData.showPhone ? 'translate-x-5' : 'translate-x-0'}`}
+                      ></span>
+                    </span>
+                  </div>
+                </div>
+                <span className="ml-3 text-sm font-medium text-taupe-700">
+                  {formData.showPhone ? "Téléphone visible" : "Téléphone masqué"}
+                </span>
               </div>
-              <label htmlFor="phoneVisibility" className="ml-3 text-sm font-medium text-taupe-700">
-                {formData.showPhone ? "Téléphone visible" : "Téléphone masqué"}
-              </label>
             </div>
             
             <div className={`p-3 rounded-md ${formData.showPhone ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
