@@ -3,6 +3,8 @@ import { Trash2, Edit, Plus, Star } from 'lucide-react';
 import { useTestimonials, Testimonial, TextTestimonial, ScreenshotTestimonial } from '../../hooks/useTestimonials';
 import TestimonialFormModal from './TestimonialFormModal';
 import GlobalSaveButton from './GlobalSaveButton';
+import Masonry from 'react-masonry-css';
+import '../testimonials/TestimonialGrid.css';
 
 const TestimonialsManager: React.FC = () => {
   const { testimonials, addTestimonial, updateTestimonial, deleteTestimonial } = useTestimonials();
@@ -67,14 +69,22 @@ const TestimonialsManager: React.FC = () => {
         </button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {testimonials.length === 0 ? (
-          <p className="text-center py-8 text-taupe-600 col-span-2">
-            Aucun témoignage pour le moment.
-          </p>
-        ) : (
-          testimonials.map(testimonial => (
-            <div key={testimonial.id} className="bg-white p-4 rounded-lg border border-beige-200 shadow-sm hover:shadow-md transition-all duration-300">
+      {testimonials.length === 0 ? (
+        <p className="text-center py-8 text-taupe-600">
+          Aucun témoignage pour le moment.
+        </p>
+      ) : (
+        <Masonry
+          breakpointCols={{
+            default: 2,
+            1280: 2,
+            768: 1
+          }}
+          className="my-masonry-grid admin-masonry-grid"
+          columnClassName="my-masonry-grid_column"
+        >
+          {testimonials.map(testimonial => (
+            <div key={testimonial.id} className="masonry-item bg-white p-5 rounded-lg border border-beige-200 shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex justify-between">
                 <div className="flex flex-grow">
                   {testimonial.type === 'text' ? (
@@ -103,7 +113,9 @@ const TestimonialsManager: React.FC = () => {
                             Texte
                           </span>
                         </div>
-                        <p className="text-sm text-taupe-600">{testimonial.event}</p>
+                        {testimonial.event && testimonial.event.trim() !== '' && (
+                          <p className="text-sm text-taupe-600">{testimonial.event}</p>
+                        )}
                         <div className="flex mt-1 mb-2">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star
@@ -124,7 +136,9 @@ const TestimonialsManager: React.FC = () => {
                           Capture d'écran
                         </span>
                       </div>
-                      <p className="text-sm text-taupe-600 mb-1">{testimonial.event}</p>
+                      {testimonial.event && testimonial.event.trim() !== '' && (
+                        <p className="text-sm text-taupe-600 mb-1">{testimonial.event}</p>
+                      )}
                       <div className="flex mt-1 mb-2">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
@@ -174,9 +188,9 @@ const TestimonialsManager: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </Masonry>
+      )}
 
       {/* Modal pour ajouter/modifier un témoignage */}
       <TestimonialFormModal

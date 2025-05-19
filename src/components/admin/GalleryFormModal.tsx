@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { X } from 'lucide-react';
 import { GalleryImage } from '../../hooks/useGallery';
+import ImageUploader from './ImageUploader';
 
 interface GalleryFormModalProps {
   isOpen: boolean;
@@ -23,8 +24,7 @@ const GalleryFormModal: React.FC<GalleryFormModalProps> = ({
     category: categories[0] || ''
   });
   const [newCategory, setNewCategory] = useState<string>('');
-  const [uploadMethod, setUploadMethod] = useState<'url' | 'cloudinary'>('url');
-  const [isUploading, setIsUploading] = useState<boolean>(false);
+
   
   // Réinitialiser le formulaire lorsque le modal s'ouvre ou que l'image à éditer change
   useEffect(() => {
@@ -44,7 +44,6 @@ const GalleryFormModal: React.FC<GalleryFormModalProps> = ({
         });
       }
       setNewCategory('');
-      setUploadMethod('url');
     }
   }, [isOpen, editingImage, categories]);
   
@@ -58,37 +57,7 @@ const GalleryFormModal: React.FC<GalleryFormModalProps> = ({
     onSubmit(formData);
   };
   
-  const handleCloudinaryUpload = () => {
-    setIsUploading(true);
-    
-    // @ts-ignore
-    const widget = window.cloudinary.createUploadWidget(
-      {
-        cloudName: 'dqo2tnjaf',
-        uploadPreset: 'naqi-creation',
-        sources: ['local', 'url', 'camera'],
-        multiple: false,
-        maxFiles: 1,
-        resourceType: 'image',
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        maxFileSize: 5000000, // 5MB
-      },
-      (error: any, result: any) => {
-        if (!error && result && result.event === 'success') {
-          setFormData(prev => ({
-            ...prev,
-            src: result.info.secure_url
-          }));
-        }
-        
-        if (result.event === 'close') {
-          setIsUploading(false);
-        }
-      }
-    );
-    
-    widget.open();
-  };
+
   
   if (!isOpen) return null;
   
@@ -111,90 +80,15 @@ const GalleryFormModal: React.FC<GalleryFormModalProps> = ({
         </div>
         
         <form onSubmit={handleSubmit} className="p-4">
-          {/* Méthode d'upload */}
+          {/* Image */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-taupe-700 mb-2">
-              Méthode d'ajout d'image
-            </label>
-            <div className="flex space-x-4">
-              <button
-                type="button"
-                className={`flex-1 py-2 px-4 rounded-md flex items-center justify-center ${
-                  uploadMethod === 'url' 
-                    ? 'bg-rose-100 text-rose-600 border border-rose-300' 
-                    : 'bg-beige-100 text-taupe-600 border border-beige-200 hover:bg-beige-200'
-                }`}
-                onClick={() => setUploadMethod('url')}
-              >
-                <ImageIcon size={18} className="mr-2" />
-                URL
-              </button>
-              <button
-                type="button"
-                className={`flex-1 py-2 px-4 rounded-md flex items-center justify-center ${
-                  uploadMethod === 'cloudinary' 
-                    ? 'bg-rose-100 text-rose-600 border border-rose-300' 
-                    : 'bg-beige-100 text-taupe-600 border border-beige-200 hover:bg-beige-200'
-                }`}
-                onClick={() => setUploadMethod('cloudinary')}
-              >
-                <Upload size={18} className="mr-2" />
-                Upload
-              </button>
-            </div>
+            <ImageUploader
+              value={formData.src}
+              onChange={(url) => setFormData(prev => ({ ...prev, src: url }))}
+              placeholder="URL de l'image"
+              required={true}
+            />
           </div>
-          
-          {/* URL de l'image */}
-          {uploadMethod === 'url' ? (
-            <div className="mb-4">
-              <label htmlFor="src" className="block text-sm font-medium text-taupe-700 mb-2">
-                URL de l'image *
-              </label>
-              <input
-                type="url"
-                id="src"
-                name="src"
-                value={formData.src}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-beige-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-300"
-                placeholder="https://example.com/image.jpg"
-                required
-              />
-            </div>
-          ) : (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-taupe-700 mb-2">
-                Uploader une image *
-              </label>
-              <button
-                type="button"
-                onClick={handleCloudinaryUpload}
-                className="w-full px-3 py-2 border border-beige-300 rounded-md bg-beige-50 hover:bg-beige-100 transition-colors flex items-center justify-center"
-                disabled={isUploading}
-              >
-                {isUploading ? (
-                  <span>Chargement en cours...</span>
-                ) : (
-                  <>
-                    <Upload size={18} className="mr-2" />
-                    <span>Sélectionner une image</span>
-                  </>
-                )}
-              </button>
-              {formData.src && (
-                <div className="mt-2">
-                  <p className="text-sm text-taupe-600">Image sélectionnée :</p>
-                  <div className="mt-1 h-20 w-full bg-beige-50 rounded-md overflow-hidden">
-                    <img 
-                      src={formData.src} 
-                      alt="Aperçu" 
-                      className="h-full object-contain mx-auto" 
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
           
           {/* Description de l'image */}
           <div className="mb-4">

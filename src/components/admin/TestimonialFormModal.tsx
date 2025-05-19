@@ -224,6 +224,24 @@ const TestimonialFormModal: React.FC<TestimonialFormModalProps> = ({
             </div>
           </div>
         </div>
+        
+        {/* Date (optionnelle) */}
+        <div>
+          <label htmlFor="dateAdded" className="block text-sm font-medium text-taupe-700 mb-1">
+            Date (optionnelle) Si non renseignée, la date du jour sera utilisée.
+          </label>
+          <div className="flex items-center">
+            <input
+              id="dateAdded"
+              name="dateAdded"
+              type="date"
+              value={formData.dateAdded ? new Date(formData.dateAdded).toISOString().split('T')[0] : ''}
+              onChange={handleChange}
+              className="input-field text-sm w-full"
+              placeholder="Date de l'avis"
+            />
+          </div>
+        </div>
 
         {/* Champs spécifiques au type de témoignage */}
         {testimonialType === 'text' ? (

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import FaqSection from '../components/common/FaqSection';
+import { useTestimonials } from '../hooks/useTestimonials';
 import { 
   Heart, 
   ChevronRight, 
@@ -54,33 +55,7 @@ const instagramPosts = [
   }
 ];
 
-// Messages de remerciement
-const testimonialMessages = [
-  {
-    id: 'msg1',
-    profilePic: 'https://images.pexels.com/photos/1987301/pexels-photo-1987301.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    name: 'Sophie Dupont',
-    message: "Oh mon Dieu c'est absolument magnifique ! Je suis tellement émue, tu as parfaitement capturé ce qu'on voulait. Merci infiniment pour ton travail, tous nos invités vont adorer ! ",
-    date: '2 juin',
-    event: 'Mariage'
-  },
-  {
-    id: 'msg2',
-    profilePic: 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    name: 'Karim Ben',
-    message: "Waouh, c'est tellement mieux que ce que j'imaginais ! Merci pour ton professionnalisme et ta patience avec nos demandes. Le panneau était le point fort de notre fête ! ",
-    date: '14 mai',
-    event: 'Fiançailles'
-  },
-  {
-    id: 'msg3',
-    profilePic: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    name: 'Émilie Martin',
-    message: "Je viens de recevoir le colis, c'est juste parfait ! Ta créativité a rendu notre baby shower si spécial. Déjà 3 personnes m'ont demandé ton contact ",
-    date: '28 avril',
-    event: 'Baby Shower'
-  }
-];
+// Les témoignages sont maintenant chargés dynamiquement depuis le hook useTestimonials
 
 // Services et prestations détaillés
 const servicesDetails = [
@@ -213,6 +188,23 @@ const HomePage: React.FC = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [animating, setAnimating] = useState(false);
   
+  // Récupération des témoignages depuis le hook
+  const { testimonials, loading } = useTestimonials();
+  
+  // Sélection des 5 témoignages les plus récents
+  const recentTestimonials = useMemo(() => {
+    if (!testimonials) return [];
+    
+    // Trier par date (du plus récent au plus ancien)
+    return [...testimonials]
+      .sort((a, b) => {
+        const dateA = a.dateAdded ? new Date(a.dateAdded).getTime() : 0;
+        const dateB = b.dateAdded ? new Date(b.dateAdded).getTime() : 0;
+        return dateB - dateA;
+      })
+      .slice(0, 5); // Prendre les 5 premiers
+  }, [testimonials]);
+
   // Options pour tous les useInView avec une valeur par défaut en cas de problème
   const inViewOptions = { triggerOnce: true, threshold: 0.1, initialInView: false };
   
@@ -246,16 +238,16 @@ const HomePage: React.FC = () => {
   };
   
   const nextTestimonial = () => {
-    if (animating) return;
+    if (animating || !recentTestimonials.length) return;
     setAnimating(true);
-    setCurrentTestimonial((prev) => (prev + 1) % testimonialMessages.length);
+    setCurrentTestimonial((prev) => (prev + 1) % recentTestimonials.length);
     setTimeout(() => setAnimating(false), 500);
   };
   
   const prevTestimonial = () => {
-    if (animating) return;
+    if (animating || !recentTestimonials.length) return;
     setAnimating(true);
-    setCurrentTestimonial((prev) => (prev - 1 + testimonialMessages.length) % testimonialMessages.length);
+    setCurrentTestimonial((prev) => (prev - 1 + recentTestimonials.length) % recentTestimonials.length);
     setTimeout(() => setAnimating(false), 500);
   };
   
@@ -722,7 +714,7 @@ const HomePage: React.FC = () => {
           transition={{ duration: 0.7 }}
           className="container-custom"
         >
-          <div className="text-center mb-16">
+          <div className="text-center">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
@@ -737,10 +729,28 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="h-1 bg-rose-300 mx-auto mb-6"
             />
+            
+            {/* Bouton pour voir tous les avis */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mb-8"
+            >
+              <Link 
+                to="/avis" 
+                className="inline-flex items-center text-rose-500 hover:text-rose-600 transition-colors font-medium px-6 py-3 rounded-full border border-rose-300 hover:border-rose-500 bg-white shadow-sm hover:shadow-md relative z-20"
+              >
+                <ArrowRight size={18} className="mr-2" />
+                Voir tous nos avis clients
+              </Link>
+            </motion.div>
           </div>
           
           <div className="max-w-4xl mx-auto relative px-4">
             <div className="absolute inset-0 bg-gradient-to-r from-rose-100/20 to-taupe-100/20 rounded-3xl transform -rotate-1"></div>
+            
+
             
             <div className="relative bg-white rounded-2xl shadow-xl p-2 sm:p-4 overflow-hidden">
               {/* Style similaire à un chat message */}
@@ -755,42 +765,88 @@ const HomePage: React.FC = () => {
                     exit="exit"
                     variants={testimonialVariants}
                     transition={{ duration: 0.4 }}
-                    className="flex flex-col md:flex-row md:items-start gap-6"
+                    className={`flex flex-col ${recentTestimonials[currentTestimonial]?.type !== 'screenshot' ? 'md:flex-row md:items-start' : ''} gap-6`}
                   >
-                    <div className="flex-shrink-0">
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white">
-                          <img 
-                            src={testimonialMessages[currentTestimonial].profilePic} 
-                            alt={testimonialMessages[currentTestimonial].name} 
-                            className="w-full h-full object-cover"
-                          />
+                    {recentTestimonials[currentTestimonial]?.type !== 'screenshot' ? (
+                      <div className="flex-shrink-0">
+                        <div className="relative">
+                          <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white">
+                            <img 
+                              src={'https://ui-avatars.com/api/?name=' + encodeURIComponent(recentTestimonials[currentTestimonial]?.name || 'Client')} 
+                              alt={recentTestimonials[currentTestimonial]?.name || 'Client'} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white"></div>
                         </div>
-                        <div className="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white"></div>
                       </div>
-                    </div>
+                    ) : null}
                     
-                    <div className="flex-grow">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-medium text-taupe-900">
-                            {testimonialMessages[currentTestimonial].name}
-                          </h3>
-                          <p className="text-sm text-taupe-600">
-                            {testimonialMessages[currentTestimonial].event}
+                    {recentTestimonials[currentTestimonial]?.type === 'screenshot' ? (
+                      <div className="w-full">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-medium text-taupe-900">
+                              {recentTestimonials[currentTestimonial]?.name || 'Client'}
+                            </h3>
+                            {recentTestimonials[currentTestimonial]?.event && (
+                              <p className="text-sm text-taupe-600">
+                                {recentTestimonials[currentTestimonial]?.event}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-xs text-taupe-500">
+                            {recentTestimonials[currentTestimonial]?.dateAdded 
+                              ? new Date(recentTestimonials[currentTestimonial]?.dateAdded).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long'}) 
+                              : ''}
+                          </div>
+                        </div>
+                        
+                        <div className="mt-2 overflow-hidden rounded-lg shadow-sm">
+                          <div className="max-h-[500px] overflow-hidden">
+                            <img 
+                              src={recentTestimonials[currentTestimonial]?.imageUrl} 
+                              alt={recentTestimonials[currentTestimonial]?.name || 'Capture d\'écran'}
+                              className="w-full h-auto object-contain max-h-[500px] mx-auto"
+                            />
+                          </div>
+                        </div>
+                        
+                        {recentTestimonials[currentTestimonial]?.caption && (
+                          <div className="mt-2 text-taupe-800 bg-white p-4 rounded-lg shadow-sm">
+                            <p className="text-lg">
+                              {recentTestimonials[currentTestimonial]?.caption}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex-grow">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-medium text-taupe-900">
+                              {recentTestimonials[currentTestimonial]?.name || 'Client'}
+                            </h3>
+                            {recentTestimonials[currentTestimonial]?.event && (
+                              <p className="text-sm text-taupe-600">
+                                {recentTestimonials[currentTestimonial]?.event}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-xs text-taupe-500">
+                            {recentTestimonials[currentTestimonial]?.dateAdded 
+                              ? new Date(recentTestimonials[currentTestimonial]?.dateAdded).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long'}) 
+                              : ''}
+                          </div>
+                        </div>
+                        
+                        <div className="mt-2 text-taupe-800 bg-white p-4 rounded-lg rounded-tl-none shadow-sm">
+                          <p className="text-lg">
+                            {recentTestimonials[currentTestimonial]?.comment}
                           </p>
                         </div>
-                        <div className="text-xs text-taupe-500">
-                          {testimonialMessages[currentTestimonial].date}
-                        </div>
                       </div>
-                      
-                      <div className="mt-2 text-taupe-800 bg-white p-4 rounded-lg rounded-tl-none shadow-sm">
-                        <p className="text-lg">
-                          {testimonialMessages[currentTestimonial].message}
-                        </p>
-                      </div>
-                    </div>
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -798,7 +854,7 @@ const HomePage: React.FC = () => {
               <div className="flex justify-between items-center pt-4 px-4">
                 <div className="flex items-center text-rose-400">
                   <MessageCircle size={20} className="mr-2" />
-                  <span className="text-sm font-medium">Messages clients</span>
+                  <span className="text-sm font-medium">Avis clients</span>
                 </div>
                 
                 <div className="flex space-x-2">
@@ -820,9 +876,11 @@ const HomePage: React.FC = () => {
               </div>
             </div>
             
+
+            
             {/* Pagination dots */}
-            <div className="flex justify-center mt-6 space-x-2">
-              {testimonialMessages.map((_, idx) => (
+            <div className="flex justify-center mt-4 space-x-2">
+              {recentTestimonials.map((_, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => {

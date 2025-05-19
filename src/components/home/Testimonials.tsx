@@ -1,11 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { ChevronLeft, ChevronRight, Star, MessageSquare, Instagram } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useTestimonials, Testimonial, TextTestimonial, ScreenshotTestimonial } from '../../hooks/useTestimonials';
 
 const Testimonials: React.FC = () => {
   const { testimonials, loading } = useTestimonials();
+  
+  // Récupérer les 5 témoignages les plus récents pour le carousel
+  const recentTestimonials = useMemo(() => {
+    if (!testimonials || testimonials.length === 0) return [];
+    
+    // Trier par date (du plus récent au plus ancien)
+    return [...testimonials]
+      .sort((a, b) => {
+        const dateA = a.dateAdded ? new Date(a.dateAdded).getTime() : 0;
+        const dateB = b.dateAdded ? new Date(b.dateAdded).getTime() : 0;
+        return dateB - dateA;
+      })
+      .slice(0, 5); // Prendre les 5 premiers
+  }, [testimonials]);
+  
   const [currentSlide, setCurrentSlide] = useState(0);
   const [animating, setAnimating] = useState(false);
   
@@ -17,22 +33,22 @@ const Testimonials: React.FC = () => {
   
   // Reset current slide when testimonials change
   useEffect(() => {
-    if (testimonials.length > 0 && currentSlide >= testimonials.length) {
+    if (recentTestimonials.length > 0 && currentSlide >= recentTestimonials.length) {
       setCurrentSlide(0);
     }
-  }, [testimonials, currentSlide]);
+  }, [recentTestimonials, currentSlide]);
   
   const nextSlide = () => {
-    if (animating || testimonials.length <= 1) return;
+    if (animating || recentTestimonials.length <= 1) return;
     setAnimating(true);
-    setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+    setCurrentSlide((prev) => (prev + 1) % recentTestimonials.length);
     setTimeout(() => setAnimating(false), 500);
   };
   
   const prevSlide = () => {
-    if (animating || testimonials.length <= 1) return;
+    if (animating || recentTestimonials.length <= 1) return;
     setAnimating(true);
-    setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setCurrentSlide((prev) => (prev - 1 + recentTestimonials.length) % recentTestimonials.length);
     setTimeout(() => setAnimating(false), 500);
   };
   
@@ -94,7 +110,7 @@ const Testimonials: React.FC = () => {
           <div className="max-w-4xl mx-auto relative">
             <div className="relative overflow-hidden rounded-xl shadow-lg bg-white">
               <AnimatePresence mode="wait">
-                {testimonials.length > 0 && (
+                {recentTestimonials.length > 0 && (
                   <motion.div
                     key={currentSlide}
                     variants={slideVariants}
@@ -103,15 +119,15 @@ const Testimonials: React.FC = () => {
                     exit="exit"
                     className="w-full p-1"
                   >
-                    {isTextTestimonial(testimonials[currentSlide]) && (
+                    {isTextTestimonial(recentTestimonials[currentSlide]) && (
                       <div className="p-6 md:p-8">
                         <div className="relative bg-beige-50 rounded-lg p-6 shadow-inner">
                           <div className="flex flex-col md:flex-row gap-6">
                             <div className="flex-shrink-0 flex flex-col items-center">
                               <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-md mb-3">
                                 <img 
-                                  src={testimonials[currentSlide].avatar || "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} 
-                                  alt={testimonials[currentSlide].name}
+                                  src={recentTestimonials[currentSlide].avatar || "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} 
+                                  alt={recentTestimonials[currentSlide].name}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
@@ -120,7 +136,7 @@ const Testimonials: React.FC = () => {
                                   <Star
                                     key={i}
                                     size={15}
-                                    className={i < testimonials[currentSlide].rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
+                                    className={i < recentTestimonials[currentSlide].rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
                                   />
                                 ))}
                               </div>
@@ -128,13 +144,15 @@ const Testimonials: React.FC = () => {
                             
                             <div className="flex-1">
                               <div className="mb-4">
-                                <h4 className="font-medium text-taupe-900 text-lg">{testimonials[currentSlide].name}</h4>
-                                <p className="text-sm text-taupe-600">{testimonials[currentSlide].event}</p>
+                                <h4 className="font-medium text-taupe-900 text-lg">{recentTestimonials[currentSlide].name}</h4>
+                                {recentTestimonials[currentSlide].event && recentTestimonials[currentSlide].event.trim() !== '' && (
+                                  <p className="text-sm text-taupe-600">{recentTestimonials[currentSlide].event}</p>
+                                )}
                               </div>
                               
                               <div className="relative bg-white p-5 rounded-lg shadow-sm">
                                 <div className="absolute top-0 left-6 w-4 h-4 bg-white transform rotate-45 -translate-y-2"></div>
-                                <p className="italic text-taupe-700 text-lg">"{(testimonials[currentSlide] as TextTestimonial).comment}"</p>
+                                <p className="italic text-taupe-700 text-lg">"{(recentTestimonials[currentSlide] as TextTestimonial).comment}"</p>
                               </div>
                             </div>
                           </div>
@@ -142,14 +160,16 @@ const Testimonials: React.FC = () => {
                       </div>
                     )}
                     
-                    {isScreenshotTestimonial(testimonials[currentSlide]) && (
+                    {isScreenshotTestimonial(recentTestimonials[currentSlide]) && (
                       <div className="p-4 md:p-6">
                         <div className="flex flex-col md:flex-row gap-6 bg-beige-50 p-4 md:p-6 rounded-lg">
                           <div className="flex-1">
                             <div className="mb-4 flex items-center justify-between">
                               <div>
-                                <h4 className="font-medium text-taupe-900 text-lg">{testimonials[currentSlide].name}</h4>
-                                <p className="text-sm text-taupe-600">{testimonials[currentSlide].event}</p>
+                                <h4 className="font-medium text-taupe-900 text-lg">{recentTestimonials[currentSlide].name}</h4>
+                                {recentTestimonials[currentSlide].event && recentTestimonials[currentSlide].event.trim() !== '' && (
+                                  <p className="text-sm text-taupe-600">{recentTestimonials[currentSlide].event}</p>
+                                )}
                               </div>
                               <div className="flex items-center">
                                 <div className="flex mr-2">
@@ -157,25 +177,24 @@ const Testimonials: React.FC = () => {
                                     <Star
                                       key={i}
                                       size={14}
-                                      className={i < testimonials[currentSlide].rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
+                                      className={i < recentTestimonials[currentSlide].rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
                                     />
                                   ))}
                                 </div>
-                                <Instagram size={18} className="text-rose-400" />
                               </div>
                             </div>
                             
                             <div className="relative overflow-hidden rounded-lg border-4 border-white shadow-lg">
                               <img 
-                                src={(testimonials[currentSlide] as ScreenshotTestimonial).imageUrl} 
-                                alt={`Capture d'écran du témoignage de ${testimonials[currentSlide].name}`}
+                                src={(recentTestimonials[currentSlide] as ScreenshotTestimonial).imageUrl} 
+                                alt={`Capture d'écran du témoignage de ${recentTestimonials[currentSlide].name}`}
                                 className="w-full h-auto"
                               />
                             </div>
                             
-                            {(testimonials[currentSlide] as ScreenshotTestimonial).caption && (
+                            {(recentTestimonials[currentSlide] as ScreenshotTestimonial).caption && (
                               <p className="text-sm text-taupe-500 italic mt-3 text-center">
-                                {(testimonials[currentSlide] as ScreenshotTestimonial).caption}
+                                {(recentTestimonials[currentSlide] as ScreenshotTestimonial).caption}
                               </p>
                             )}
                           </div>
@@ -187,7 +206,7 @@ const Testimonials: React.FC = () => {
               </AnimatePresence>
             </div>
             
-            {testimonials.length > 1 && (
+            {recentTestimonials.length > 1 && (
               <>
                 <button 
                   onClick={prevSlide}
@@ -209,9 +228,9 @@ const Testimonials: React.FC = () => {
             )}
             
             {/* Pagination dots */}
-            {testimonials.length > 1 && (
+            {recentTestimonials.length > 1 && (
               <div className="flex justify-center mt-8 space-x-2">
-                {testimonials.map((_, index) => (
+                {recentTestimonials.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => handleDotClick(index)}
@@ -225,16 +244,14 @@ const Testimonials: React.FC = () => {
               </div>
             )}
             
-            <div className="text-center mt-8">
-              <a
-                href="https://www.instagram.com/naqi.creation/"
-                target="_blank"
-                rel="noopener noreferrer"
+            <div className="text-center mt-8 space-y-4">
+              <Link
+                to="/avis"
                 className="inline-flex items-center text-rose-500 hover:text-rose-600 transition-colors font-medium"
               >
-                <MessageSquare size={18} className="mr-2" />
-                Voir plus de témoignages sur notre Instagram
-              </a>
+                <ArrowRight size={18} className="mr-2" />
+                Voir tous nos avis clients
+              </Link>
             </div>
           </div>
         )}

@@ -2,15 +2,18 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { MapPin, Package, Phone, Mail, Instagram } from 'lucide-react';
+import { MapPin, Package, Phone, Mail, Instagram, Facebook } from 'lucide-react';
 import ContactForm from '../components/contact/ContactForm';
 import FaqSection from '../components/common/FaqSection';
+import { useContactInfo } from '../hooks/useContactInfo';
 
 const ContactPage: React.FC = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
   });
+  
+  const { contactInfo, loading } = useContactInfo();
   
   return (
     <>
@@ -51,43 +54,75 @@ const ContactPage: React.FC = () => {
               
               <div className="space-y-6">
                 {/* Instagram Card - Featured first with enhanced styling */}
-                <div className="flex items-start bg-white p-6 rounded-lg shadow-soft border-2 border-rose-300 transition-transform hover:translate-y-[-5px] duration-300">
-                  <div className="bg-rose-400 p-3 rounded-full mr-4">
-                    <Instagram size={24} className="text-white" />
+                {contactInfo.instagram && (
+                  <div className="flex items-start bg-white p-6 rounded-lg shadow-soft border-2 border-rose-300 transition-transform hover:translate-y-[-5px] duration-300">
+                    <div className="bg-rose-400 p-3 rounded-full mr-4">
+                      <Instagram size={24} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">Instagram <span className="text-sm text-rose-500 font-normal">(Recommandé)</span></h3>
+                      <a 
+                        href={`https://www.instagram.com/${contactInfo.instagram}/`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-rose-400 hover:text-rose-500 transition-colors font-medium"
+                      >
+                        @{contactInfo.instagram}
+                      </a>
+                      <p className="text-taupe-600 mt-2 text-sm italic">Contactez-nous via Instagram pour une réponse plus rapide</p>
+                      <a 
+                        href={`https://www.instagram.com/${contactInfo.instagram}/`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm bg-rose-50 text-rose-500 hover:bg-rose-100 px-3 py-1 rounded-full mt-3 transition-colors"
+                      >
+                        <Instagram size={14} className="mr-1" />
+                        Nous suivre
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">Instagram <span className="text-sm text-rose-500 font-normal">(Recommandé)</span></h3>
-                    <a 
-                      href="https://www.instagram.com/naqi.creation/" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-rose-400 hover:text-rose-500 transition-colors font-medium"
-                    >
-                      @naqi.creation
-                    </a>
-                    <p className="text-taupe-600 mt-2 text-sm italic">Contactez-nous via Instagram pour une réponse plus rapide</p>
-                    <a 
-                      href="https://www.instagram.com/naqi.creation/" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-sm bg-rose-50 text-rose-500 hover:bg-rose-100 px-3 py-1 rounded-full mt-3 transition-colors"
-                    >
-                      <Instagram size={14} className="mr-1" />
-                      Nous suivre
-                    </a>
-                  </div>
-                </div>
+                )}
                 
-                <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
-                  <div className="bg-rose-100 p-3 rounded-full mr-4">
-                    <MapPin size={24} className="text-rose-500" />
+                {/* Facebook Card */}
+                {contactInfo.facebook && (
+                  <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
+                    <div className="bg-blue-500 p-3 rounded-full mr-4">
+                      <Facebook size={24} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">Facebook</h3>
+                      <a 
+                        href={`https://www.facebook.com/${contactInfo.facebook}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-600 transition-colors font-medium"
+                      >
+                        {contactInfo.facebook}
+                      </a>
+                      <a 
+                        href={`https://www.facebook.com/${contactInfo.facebook}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1 rounded-full mt-3 transition-colors"
+                      >
+                        <Facebook size={14} className="mr-1" />
+                        Nous suivre
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">Localisation</h3>
-                    <p className="text-taupe-600">Nîmes et alentours</p>
-                    <p className="text-taupe-600">Gard (30), France</p>
+                )}
+                
+                {contactInfo.address && (
+                  <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
+                    <div className="bg-rose-100 p-3 rounded-full mr-4">
+                      <MapPin size={24} className="text-rose-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">Localisation</h3>
+                      <p className="text-taupe-600">{contactInfo.address}</p>
+                    </div>
                   </div>
-                </div>
+                )}
                 
                 <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
                   <div className="bg-rose-100 p-3 rounded-full mr-4">
@@ -100,25 +135,29 @@ const ContactPage: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
-                  <div className="bg-rose-100 p-3 rounded-full mr-4">
-                    <Phone size={24} className="text-rose-500" />
+                {contactInfo.phone && contactInfo.showPhone && (
+                  <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
+                    <div className="bg-rose-100 p-3 rounded-full mr-4">
+                      <Phone size={24} className="text-rose-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">Téléphone</h3>
+                      <p className="text-taupe-600">{contactInfo.phone}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">Téléphone</h3>
-                    <p className="text-taupe-600">06 XX XX XX XX</p>
-                  </div>
-                </div>
+                )}
                 
-                <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
-                  <div className="bg-rose-100 p-3 rounded-full mr-4">
-                    <Mail size={24} className="text-rose-500" />
+                {contactInfo.email && (
+                  <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
+                    <div className="bg-rose-100 p-3 rounded-full mr-4">
+                      <Mail size={24} className="text-rose-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">Email</h3>
+                      <p className="text-taupe-600">{contactInfo.email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">Email</h3>
-                    <p className="text-taupe-600">contact@naqicreation.com</p>
-                  </div>
-                </div>
+                )}
               </div>
             </motion.div>
             

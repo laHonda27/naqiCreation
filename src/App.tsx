@@ -7,6 +7,7 @@ import ServicesPage from './pages/ServicesPage';
 import CustomizationPage from './pages/CustomizationPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
+import TestimonialsPage from './pages/TestimonialsPage';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import NotFoundPage from './pages/NotFoundPage';
@@ -28,6 +29,7 @@ function App() {
           <Route path="prestations" element={<ServicesPage />} />
           <Route path="personnalisation" element={<CustomizationPage />} />
           <Route path="galerie" element={<GalleryPage />} />
+          <Route path="avis" element={<TestimonialsPage />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

@@ -1,0 +1,29 @@
+/* Styles pour la grille masonry */
+.my-masonry-grid {
+  display: flex;
+  width: auto;
+  margin-left: -24px; /* gutter size offset */
+}
+
+.my-masonry-grid_column {
+  padding-left: 24px; /* gutter size */
+  background-clip: padding-box;
+}
+
+/* Style pour les éléments à l'intérieur des colonnes */
+.masonry-item {
+  margin-bottom: 32px; /* Augmentation de la marge verticale */
+}
+
+/* Styles spécifiques pour la grille d'administration */
+.admin-masonry-grid {
+  margin-left: -30px; /* gutter size offset plus grand pour l'admin */
+}
+
+.admin-masonry-grid .my-masonry-grid_column {
+  padding-left: 30px; /* gutter size plus grand pour l'admin */
+}
+
+.admin-masonry-grid .masonry-item {
+  margin-bottom: 40px; /* Marge verticale encore plus grande pour l'admin */
+}

@@ -74,6 +74,11 @@ const Header: React.FC = () => {
           }>
             Galerie
           </NavLink>
+          <NavLink to="/avis" className={({ isActive }) => 
+            `font-medium transition-colors hover:text-rose-400 ${isActive ? 'text-rose-500' : 'text-taupe-800'}`
+          }>
+            Avis
+          </NavLink>
           <NavLink to="/contact" className={({ isActive }) => 
             `font-medium transition-colors hover:text-rose-400 ${isActive ? 'text-rose-500' : 'text-taupe-800'}`
           }>
@@ -174,6 +179,15 @@ const Header: React.FC = () => {
                 onClick={() => setIsOpen(false)}
               >
                 Galerie
+              </NavLink>
+              <NavLink 
+                to="/avis" 
+                className={({ isActive }) => 
+                  `text-2xl font-medium py-3 transition-colors ${isActive ? 'text-rose-500' : 'text-taupe-800 hover:text-rose-400'}`
+                }
+                onClick={() => setIsOpen(false)}
+              >
+                Avis
               </NavLink>
               <NavLink 
                 to="/contact" 

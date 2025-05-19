@@ -103,7 +103,8 @@ export const useTestimonials = () => {
       const newTestimonial = {
         ...testimonial,
         id: Date.now().toString(),
-        dateAdded: now,
+        // Utiliser la date fournie ou la date actuelle
+        dateAdded: testimonial.dateAdded || now,
         dateModified: now
       } as Testimonial;
 
