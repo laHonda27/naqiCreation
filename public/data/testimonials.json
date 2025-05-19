@@ -1,15 +1,3 @@
 {
-  "testimonials": [
-    {
-      "type": "text",
-      "name": "jesper",
-      "comment": "test",
-      "rating": 2,
-      "event": " sam arhce",
-      "avatar": "",
-      "id": "1747676518546",
-      "dateAdded": "2025-05-19T17:41:58.546Z",
-      "dateModified": "2025-05-19T17:41:58.546Z"
-    }
-  ]
+  "testimonials": []
 }
