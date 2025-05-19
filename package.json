@@ -11,6 +11,7 @@
     "netlify:dev": "netlify dev"
   },
   "dependencies": {
+    "cloudinary": "^1.41.0",
     "@emailjs/browser": "^3.11.0",
     "@netlify/functions": "^3.1.8",
     "@octokit/rest": "^21.1.1",
