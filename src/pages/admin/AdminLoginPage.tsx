@@ -23,9 +23,23 @@ const AdminLoginPage: React.FC = () => {
     setIsLoading(true);
     setError('');
     
-    // Vérification directe des identifiants sans passer par le hook useAuth
-    if (username === 'admin' && password === 'admin123') {
-      // Stockage du token directement
+    // Récupérer les identifiants depuis les variables d'environnement
+    const adminUsername = import.meta.env.VITE_ADMIN_USERNAME;
+    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+    
+    // Vérification avec les variables d'environnement ou les identifiants de secours
+    const isValidCredentials = 
+      // Vérification avec les variables d'environnement
+      (adminUsername && adminPassword && 
+       username === adminUsername && 
+       password === adminPassword) ||
+      // Identifiants de secours pour le développement local
+      ((!adminUsername || !adminPassword) && 
+       username === 'admin_naqi' && 
+       password === 'N@q1Cr3@t10n2025');
+    
+    if (isValidCredentials) {
+      // Stockage du token
       localStorage.setItem('auth_token', 'naqi_admin_' + Date.now());
       
       // Délai court avant la redirection pour montrer l'animation de chargement
