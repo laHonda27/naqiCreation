@@ -14,6 +14,11 @@ export interface Specifications {
   additionalInfo: string[];
 }
 
+export interface CreationImage {
+  src: string;
+  alt: string;
+}
+
 export interface Creation {
   id: string;
   title: string;
@@ -27,6 +32,7 @@ export interface Creation {
   customizationOptions: string[];
   orderProcess: OrderProcess[];
   specifications: Specifications;
+  exampleImages?: CreationImage[];
 }
 
 export interface Category {

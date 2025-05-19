@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { Plus, Minus, ChevronRight, ShoppingBag, Award, Image, Instagram } from 'lucide-react';
-import customizationsData from '../data/customizations.json';
+import { useCustomizations } from '../hooks/useCustomizations';
 import FaqSection from '../components/common/FaqSection';
 
 // Types for customization items
@@ -39,15 +39,21 @@ const CustomizationPage: React.FC = () => {
     threshold: 0.1
   });
 
-  const [customItems, setCustomItems] = useState<CustomItem[]>([]);
+  const { customItems, loading, error } = useCustomizations();
   const [selectedItem, setSelectedItem] = useState<CustomItem | null>(null);
   const [activeImage, setActiveImage] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   
-  // Load data
+  // Sélectionner l'élément à partir du hash de l'URL
   useEffect(() => {
-    setCustomItems(customizationsData.customItems);
-  }, []);
+    const hash = window.location.hash.substring(1);
+    if (hash && customItems.length > 0) {
+      const item = customItems.find(item => item.id === hash);
+      if (item) {
+        openItemDetails(item);
+      }
+    }
+  }, [customItems]);
   
   // Select an item to view details
   const openItemDetails = (item: CustomItem) => {

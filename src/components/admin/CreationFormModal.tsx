@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, Plus, Trash2, X } from 'lucide-react';
 import Modal from './Modal';
 import ImageUploader from './ImageUploader';
-import type { Creation, Category, OrderProcess } from '../../hooks/useContentManager';
+import type { Creation, Category, OrderProcess, CreationImage } from '../../hooks/useCreations';
 
 interface CreationFormModalProps {
   isOpen: boolean;
@@ -20,6 +20,15 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
   categories
 }) => {
   const [activeTab, setActiveTab] = useState('basic');
+
+  // Onglets du formulaire
+  const tabs = [
+    { id: 'basic', label: 'Informations de base' },
+    { id: 'details', label: 'Détails techniques' },
+    { id: 'customization', label: 'Options de personnalisation' },
+    { id: 'process', label: 'Processus de commande' },
+    { id: 'examples', label: 'Images d\'exemple' }
+  ];
 
   // État du formulaire
   const [formData, setFormData] = useState<Omit<Creation, 'id'> & { id?: string }>({
@@ -39,7 +48,8 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
       deliveryTime: '',
       material: '',
       additionalInfo: ['']
-    }
+    },
+    exampleImages: []
   });
 
   // Initialiser le formulaire avec les données de la création en cours d'édition
@@ -67,7 +77,8 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
           deliveryTime: '',
           material: '',
           additionalInfo: ['']
-        }
+        },
+        exampleImages: []
       });
     }
   }, [editingCreation, isOpen]);
@@ -95,11 +106,42 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
     }
   };
 
-  // Gérer les changements d'image
+  // Gérer les changements d'image principale
   const handleImageChange = (url: string) => {
     setFormData(prev => ({
       ...prev,
       image: url
+    }));
+  };
+
+  // Gérer les changements d'images d'exemple
+  const handleExampleImageChange = (index: number, field: 'src' | 'alt', value: string) => {
+    setFormData(prev => {
+      const updatedImages = [...(prev.exampleImages || [])];
+      if (!updatedImages[index]) {
+        updatedImages[index] = { src: '', alt: '' };
+      }
+      updatedImages[index] = { ...updatedImages[index], [field]: value };
+      return {
+        ...prev,
+        exampleImages: updatedImages
+      };
+    });
+  };
+
+  // Ajouter une image d'exemple
+  const addExampleImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      exampleImages: [...(prev.exampleImages || []), { src: '', alt: '' }]
+    }));
+  };
+
+  // Supprimer une image d'exemple
+  const removeExampleImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      exampleImages: (prev.exampleImages || []).filter((_, i) => i !== index)
     }));
   };
 
@@ -262,35 +304,17 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
     >
       <form onSubmit={handleFormSubmit} className="space-y-6">
         {/* Navigation par onglets - version mobile optimisée */}
-        <div className="flex flex-wrap border-b border-beige-200 gap-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('basic')}
-            className={`py-2 px-3 text-xs sm:text-sm font-medium ${activeTab === 'basic' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-taupe-500 hover:text-taupe-800'}`}
-          >
-            Informations
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('details')}
-            className={`py-2 px-3 text-xs sm:text-sm font-medium ${activeTab === 'details' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-taupe-500 hover:text-taupe-800'}`}
-          >
-            Détails
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('customization')}
-            className={`py-2 px-3 text-xs sm:text-sm font-medium ${activeTab === 'customization' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-taupe-500 hover:text-taupe-800'}`}
-          >
-            Personnalisation
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('process')}
-            className={`py-2 px-3 text-xs sm:text-sm font-medium ${activeTab === 'process' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-taupe-500 hover:text-taupe-800'}`}
-          >
-            Commande
-          </button>
+        <div className="flex space-x-2 mb-4 border-b border-beige-200 overflow-x-auto pb-1">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${activeTab === tab.id ? 'text-rose-500 border-b-2 border-rose-500' : 'text-taupe-600 hover:text-taupe-800'}`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Contenu de l'onglet "Informations de base" */}
@@ -585,6 +609,74 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
               <Plus size={16} className="mr-1" />
               Ajouter une étape
             </button>
+          </div>
+        )}
+
+        {/* Contenu de l'onglet "Images d'exemple" */}
+        {activeTab === 'examples' && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium">Images d'exemple</label>
+              <button
+                type="button"
+                onClick={addExampleImage}
+                className="text-rose-500 hover:text-rose-600 text-sm font-medium flex items-center"
+              >
+                <Plus size={16} className="mr-1" />
+                Ajouter une image
+              </button>
+            </div>
+            
+            {formData.exampleImages && formData.exampleImages.length === 0 && (
+              <div className="text-center py-8 bg-beige-50 rounded-lg border border-dashed border-beige-200">
+                <p className="text-taupe-500">Aucune image d'exemple ajoutée</p>
+                <button
+                  type="button"
+                  onClick={addExampleImage}
+                  className="mt-2 text-rose-500 hover:text-rose-600 text-sm font-medium inline-flex items-center"
+                >
+                  <Plus size={16} className="mr-1" />
+                  Ajouter une image
+                </button>
+              </div>
+            )}
+            
+            <div className="space-y-4">
+              {formData.exampleImages && formData.exampleImages.map((image, index) => (
+                <div key={index} className="p-4 bg-beige-50 rounded-lg border border-beige-200 relative">
+                  <button
+                    type="button"
+                    onClick={() => removeExampleImage(index)}
+                    className="absolute top-2 right-2 text-taupe-400 hover:text-red-500"
+                  >
+                    <X size={16} />
+                  </button>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium mb-1 text-taupe-600">Image {index + 1}</label>
+                      <ImageUploader
+                        value={image.src}
+                        onChange={(url) => handleExampleImageChange(index, 'src', url)}
+                        placeholder="URL de l'image"
+                        defaultMode="upload"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1 text-taupe-600">Texte alternatif</label>
+                      <input
+                        type="text"
+                        value={image.alt}
+                        onChange={(e) => handleExampleImageChange(index, 'alt', e.target.value)}
+                        className="input-field"
+                        placeholder="Description de l'image"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

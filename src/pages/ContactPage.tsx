@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { MapPin, Package, Phone, Mail, Instagram, Facebook } from 'lucide-react';
+import { MapPin, Package, Phone, Mail, Instagram } from 'lucide-react';
 import ContactForm from '../components/contact/ContactForm';
 import FaqSection from '../components/common/FaqSection';
 import { useContactInfo } from '../hooks/useContactInfo';
@@ -13,7 +13,7 @@ const ContactPage: React.FC = () => {
     threshold: 0.1
   });
   
-  const { contactInfo, loading } = useContactInfo();
+  const { contactInfo } = useContactInfo();
   
   return (
     <>
@@ -83,34 +83,7 @@ const ContactPage: React.FC = () => {
                   </div>
                 )}
                 
-                {/* Facebook Card */}
-                {contactInfo.facebook && (
-                  <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">
-                    <div className="bg-blue-500 p-3 rounded-full mr-4">
-                      <Facebook size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">Facebook</h3>
-                      <a 
-                        href={`https://www.facebook.com/${contactInfo.facebook}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:text-blue-600 transition-colors font-medium"
-                      >
-                        {contactInfo.facebook}
-                      </a>
-                      <a 
-                        href={`https://www.facebook.com/${contactInfo.facebook}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-sm bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1 rounded-full mt-3 transition-colors"
-                      >
-                        <Facebook size={14} className="mr-1" />
-                        Nous suivre
-                      </a>
-                    </div>
-                  </div>
-                )}
+
                 
                 {contactInfo.address && (
                   <div className="flex items-start bg-white p-6 rounded-lg shadow-soft transition-transform hover:translate-y-[-5px] duration-300">

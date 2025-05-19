@@ -7,7 +7,6 @@ export interface ContactInfo {
   showPhone: boolean;
   address: string;
   instagram: string;
-  facebook: string;
 }
 
 export function useContactInfo() {
@@ -16,8 +15,7 @@ export function useContactInfo() {
     phone: '',
     showPhone: true,
     address: '',
-    instagram: '',
-    facebook: ''
+    instagram: ''
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,8 +40,7 @@ export function useContactInfo() {
           phone: '',
           showPhone: true,
           address: '',
-          instagram: '',
-          facebook: ''
+          instagram: ''
         });
       } else {
         throw new Error('Erreur lors du chargement des informations de contact');

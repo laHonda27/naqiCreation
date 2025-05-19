@@ -9,6 +9,7 @@ interface ImageUploaderProps {
   initialImage?: string;
   onImageChange?: (url: string) => void;
   required?: boolean;
+  defaultMode?: 'url' | 'upload';
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ 
@@ -17,7 +18,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   placeholder = "URL de l'image", 
   initialImage, 
   onImageChange,
-  required = false
+  required = false,
+  defaultMode = 'url'
 }) => {
   // Utiliser value ou initialImage selon ce qui est fourni
   const imageValue = value || initialImage || '';
@@ -27,7 +29,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     if (onChange) onChange(url);
     if (onImageChange) onImageChange(url);
   };
-  const [mode, setMode] = useState<'url' | 'upload'>(imageValue ? 'url' : 'upload');
+  const [mode, setMode] = useState<'url' | 'upload'>(imageValue ? defaultMode : 'upload');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);

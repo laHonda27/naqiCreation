@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, MapPin, Package, Phone, Mail } from 'lucide-react';
+import { Instagram, Phone, Mail, MapPin, Package } from 'lucide-react';
 import Logo from '../common/Logo';
 import { useContactInfo } from '../../hooks/useContactInfo';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const { contactInfo, loading } = useContactInfo();
+  const { contactInfo } = useContactInfo();
   
   return (
     <footer className="bg-beige-100 pt-16 pb-8">
@@ -18,31 +18,26 @@ const Footer: React.FC = () => {
             <p className="text-taupe-700 mt-4">
               Des créations sur mesure pour vos moments inoubliables. Panneaux personnalisés pour mariages, fiançailles et tous types d'événements.
             </p>
-            <div className="mt-6 flex flex-col space-y-2">
-              {contactInfo.instagram && (
-                <a 
-                  href={`https://www.instagram.com/${contactInfo.instagram}/`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center text-taupe-800 hover:text-rose-400 transition-colors"
-                  aria-label="Instagram"
-                >
-                  <Instagram size={20} className="mr-2" />
-                  <span>@{contactInfo.instagram}</span>
-                </a>
-              )}
-              {contactInfo.facebook && (
-                <a 
-                  href={`https://www.facebook.com/${contactInfo.facebook}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center text-taupe-800 hover:text-rose-400 transition-colors"
-                  aria-label="Facebook"
-                >
-                  <Facebook size={20} className="mr-2" />
-                  <span>{contactInfo.facebook}</span>
-                </a>
-              )}
+            <div className="flex items-center mb-3">
+              <MapPin size={20} className="text-rose-400 mr-2" />
+              <h3 className="text-lg font-semibold text-taupe-800">Nos produits</h3>
+            </div>
+            {/* Social Media */}
+            <div className="mb-6">
+              <div className="flex space-x-3">
+                {contactInfo.instagram && (
+                  <a 
+                    href={`https://www.instagram.com/${contactInfo.instagram}/`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-rose-100 p-2 rounded-full hover:bg-rose-200 transition-colors flex items-center space-x-2 pr-4"
+                    aria-label="Instagram"
+                  >
+                    <Instagram size={20} className="text-rose-500" />
+                    <span className="text-rose-500 font-medium">@{contactInfo.instagram}</span>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
           

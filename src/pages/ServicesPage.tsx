@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useCreations } from '../hooks/useCreations';
-import { Plus, X, ChevronRight } from 'lucide-react';
+import { Plus, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FaqSection from '../components/common/FaqSection';
 
@@ -13,6 +13,11 @@ const ServicesPage: React.FC = () => {
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [activeCreation, setActiveCreation] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'colors' | 'shapes'>('overview');
+  
+  // État pour la lightbox des images d'exemple
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [lightboxImages, setLightboxImages] = useState<{src: string, alt: string}[]>([]);
   
   const [ref] = useInView({
     triggerOnce: true,
@@ -31,7 +36,50 @@ const ServicesPage: React.FC = () => {
       setActiveCreation(id);
     }
   };
-
+  
+  // Ouvrir la lightbox pour les images d'exemple
+  const openLightbox = (images: {src: string, alt: string}[], index: number) => {
+    setLightboxImages(images);
+    setCurrentImageIndex(index);
+    setLightboxOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+  
+  // Fermer la lightbox
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    document.body.style.overflow = 'auto';
+  };
+  
+  // Navigation dans la lightbox
+  const goToPrevious = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+  };
+  
+  const goToNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % lightboxImages.length);
+  };
+  
+  // Gestion des touches clavier pour la navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!lightboxOpen) return;
+      
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        setCurrentImageIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+      } else if (e.key === 'ArrowRight') {
+        setCurrentImageIndex((prev) => (prev + 1) % lightboxImages.length);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, lightboxImages.length]);
+  
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
     setIsCategoryMenuOpen(false);
@@ -362,6 +410,36 @@ const ServicesPage: React.FC = () => {
                                           </ul>
                                         </div>
                                       </div>
+                                      
+                                      {/* Images d'exemple */}
+                                      {creation.exampleImages && creation.exampleImages.length > 0 && (
+                                        <div className="mt-6 pt-6 border-t border-beige-200">
+                                          <h4 className="text-lg font-display font-semibold mb-3">Exemples de réalisations</h4>
+                                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {creation.exampleImages.map((image, index) => (
+                                              <div 
+                                                key={index} 
+                                                className="bg-white p-2 rounded-lg border border-beige-200 shadow-sm cursor-pointer hover:shadow-md transition-all duration-300"
+                                                onClick={() => creation.exampleImages && openLightbox(creation.exampleImages, index)}
+                                              >
+                                                <div className="aspect-square rounded-md overflow-hidden">
+                                                  <img 
+                                                    src={image.src} 
+                                                    alt={image.alt} 
+                                                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" 
+                                                    onError={(e) => {
+                                                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300?text=Image+non+disponible';
+                                                    }}
+                                                  />
+                                                </div>
+                                                {image.alt && (
+                                                  <p className="text-sm text-taupe-600 mt-2 px-2">{image.alt}</p>
+                                                )}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
                                       
                                       <div className="mt-6 pt-6 border-t border-beige-200">
                                         <h4 className="text-lg font-display font-semibold mb-3">Processus de commande</h4>
@@ -754,6 +832,83 @@ const ServicesPage: React.FC = () => {
         title="Questions fréquentes sur nos prestations" 
         subtitle="Retrouvez les réponses à vos questions concernant nos services, délais et processus de création."
       />
+      
+      {/* Lightbox pour les images d'exemple */}
+      <AnimatePresence>
+        {lightboxOpen && lightboxImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+            onClick={closeLightbox}
+          >
+            <button 
+              className="absolute top-4 right-4 z-10 text-white bg-taupe-900/40 hover:bg-taupe-900/60 p-2 rounded-full" 
+              onClick={closeLightbox}
+              aria-label="Fermer"
+            >
+              <X size={24} />
+            </button>
+            
+            <button 
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white bg-taupe-900/40 hover:bg-taupe-900/60 p-2 rounded-full"
+              onClick={goToPrevious}
+              aria-label="Image précédente"
+            >
+              <ChevronLeft size={30} />
+            </button>
+            
+            <button 
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white bg-taupe-900/40 hover:bg-taupe-900/60 p-2 rounded-full"
+              onClick={goToNext}
+              aria-label="Image suivante"
+            >
+              <ChevronRight size={30} />
+            </button>
+            
+            <div className="relative max-w-5xl max-h-[90vh] w-full h-full flex items-center justify-center px-4" onClick={(e) => e.stopPropagation()}>
+              <motion.img
+                key={currentImageIndex}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+                src={lightboxImages[currentImageIndex].src}
+                alt={lightboxImages[currentImageIndex].alt}
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+            
+            {/* Miniatures en bas */}
+            {lightboxImages.length > 1 && (
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center overflow-x-auto px-4 py-2 space-x-2">
+                {lightboxImages.map((img, idx) => (
+                  <div 
+                    key={idx}
+                    className={`w-16 h-16 rounded overflow-hidden flex-shrink-0 border-2 cursor-pointer
+                      ${idx === currentImageIndex ? 'border-rose-400' : 'border-transparent'}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentImageIndex(idx);
+                    }}
+                  >
+                    <img 
+                      src={img.src} 
+                      alt={img.alt} 
+                      className="w-full h-full object-cover" 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300?text=Image+non+disponible';
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

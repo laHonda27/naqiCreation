@@ -5,11 +5,13 @@ import { netlifyGitService } from '../../services/netlifyGitService';
 interface GlobalSaveButtonProps {
   hasUnsavedChanges: boolean;
   onSaveComplete?: () => void;
+  onSave?: () => Promise<boolean>;
 }
 
 const GlobalSaveButton: React.FC<GlobalSaveButtonProps> = ({ 
   hasUnsavedChanges,
-  onSaveComplete
+  onSaveComplete,
+  onSave
 }) => {
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState<string>('');
@@ -21,6 +23,16 @@ const GlobalSaveButton: React.FC<GlobalSaveButtonProps> = ({
       setStatus('saving');
       setMessage('Enregistrement des modifications...');
       
+      // Si une fonction onSave personnalisée est fournie, l'exécuter d'abord
+      let saveSuccess = true;
+      if (onSave) {
+        saveSuccess = await onSave();
+        if (!saveSuccess) {
+          throw new Error('Erreur lors de l\'enregistrement des données');
+        }
+      }
+      
+      // Synchroniser avec le dépôt Git
       const result = await netlifyGitService.syncRepository();
       
       if (result.success) {

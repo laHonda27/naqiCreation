@@ -8,6 +8,7 @@ import CategoriesManager from '../../components/admin/CategoriesManager';
 import FaqsManager from '../../components/admin/FaqsManager';
 import GalleryManager from '../../components/admin/GalleryManager';
 import ContactManager from '../../components/admin/ContactManager';
+import CustomizationsManager from '../../components/admin/CustomizationsManager';
 import { AlertCircle, CheckCircle, Info, LogOut, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
@@ -115,8 +116,9 @@ const AdminDashboard: React.FC = () => {
                   <TabsTrigger value="creations">Créations</TabsTrigger>
                   <TabsTrigger value="categories">Catégories</TabsTrigger>
                   <TabsTrigger value="testimonials">Témoignages</TabsTrigger>
-                  <TabsTrigger value="faqs">FAQs</TabsTrigger>
+                  <TabsTrigger value="faqs">FAQ</TabsTrigger>
                   <TabsTrigger value="gallery">Galerie</TabsTrigger>
+                  <TabsTrigger value="customizations">Personnalisations</TabsTrigger>
                   <TabsTrigger value="contact">Contact</TabsTrigger>
                 </TabsList>
               </div>
@@ -199,6 +201,22 @@ const AdminDashboard: React.FC = () => {
                       <p className="text-sm text-rose-700">Vous gérez les <strong>images de la galerie</strong> qui apparaissent sur la page galerie du site.</p>
                     </div>
                     <GalleryManager />
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="customizations" className="pt-6 relative">
+                {tabLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="bg-rose-50 border-l-4 border-rose-400 p-3 mb-6 flex items-center">
+                      <Info size={20} className="text-rose-500 mr-2" />
+                      <p className="text-sm text-rose-700">Vous gérez les <strong>options de personnalisation</strong> qui apparaissent sur la page de personnalisation.</p>
+                    </div>
+                    <CustomizationsManager />
                   </div>
                 )}
               </TabsContent>
