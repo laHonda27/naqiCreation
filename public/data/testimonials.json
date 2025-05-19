@@ -1,17 +1,6 @@
 {
   "testimonials": [
     {
-      "type": "screenshot",
-      "name": "niawee",
-      "imageUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747676473/naqi-creation/morocco.png",
-      "rating": 5,
-      "event": "",
-      "caption": "message recu de instagram",
-      "dateAdded": "2025-05-01",
-      "id": "1747676496487",
-      "dateModified": "2025-05-19T17:41:36.487Z"
-    },
-    {
       "type": "text",
       "name": "jesper",
       "comment": "test",
