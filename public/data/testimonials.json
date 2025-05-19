@@ -1,17 +1,6 @@
 {
   "testimonials": [
     {
-      "type": "screenshot",
-      "name": "ranim",
-      "imageUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747598538/naqi-creation/Snapchat-665417030.jpg",
-      "rating": 5,
-      "event": "mariage",
-      "caption": "c'etais waow",
-      "id": "1747674710425",
-      "dateAdded": "2025-05-19T17:11:50.425Z",
-      "dateModified": "2025-05-19T17:11:50.425Z"
-    },
-    {
       "type": "text",
       "name": "jespere",
       "comment": "niawee trop bien",
