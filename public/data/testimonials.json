@@ -2,17 +2,6 @@
   "testimonials": [
     {
       "type": "text",
-      "name": "jespere",
-      "comment": "niawee trop bien",
-      "rating": 5,
-      "event": "mariage",
-      "avatar": "",
-      "dateAdded": "2025-01-09",
-      "id": "1747676394232",
-      "dateModified": "2025-05-19T17:39:54.232Z"
-    },
-    {
-      "type": "text",
       "name": "c'est le j ",
       "comment": "woaw trop bien",
       "rating": 5,
