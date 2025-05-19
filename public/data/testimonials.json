@@ -1,3 +1,15 @@
 {
-  "testimonials": []
+  "testimonials": [
+    {
+      "type": "text",
+      "name": "mazog zaki",
+      "comment": "niawe trop cool",
+      "rating": 5,
+      "event": "bapteme",
+      "avatar": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747674665/naqi-creation/IMG-20250510-WA0008.jpg",
+      "id": "1747674671964",
+      "dateAdded": "2025-05-19T17:11:11.964Z",
+      "dateModified": "2025-05-19T17:11:11.964Z"
+    }
+  ]
 }
