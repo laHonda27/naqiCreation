@@ -4,19 +4,19 @@ const { Buffer } = require('buffer');
 const cloudinary = require('cloudinary').v2;
 
 // Configuration
-const REPO_OWNER = 'laHonda27'; // Propriétaire du dépôt
-const REPO_NAME = 'naqiCreation'; // Nom du dépôt principal du projet
+const REPO_OWNER = process.env.GITHUB_REPO_OWNER || 'laHonda27'; // Propriétaire du dépôt
+const REPO_NAME = process.env.GITHUB_REPO_NAME || 'naqiCreation'; // Nom du dépôt principal du projet
 const DATA_PATH = 'public/data'; // Chemin vers les fichiers de données dans le dépôt
 const IMAGES_PATH = 'public/images'; // Chemin vers les images dans le dépôt
-const TMP_PATH = 'C:/tmp/naqi-creation-data'; // Chemin vers le dossier temporaire local
+const TMP_PATH = '/tmp/naqi-creation-data'; // Chemin vers le dossier temporaire local (compatible avec Netlify)
 const fs = require('fs');
 const path = require('path');
 
-// Configuration de Cloudinary
+// Configuration de Cloudinary avec variables d'environnement
 cloudinary.config({
-  cloud_name: 'dqo2tnjaf',
-  api_key: '636621957433952',
-  api_secret: '_uHnHKUxm1qlUCMCXQ1-BPTdui8'
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dqo2tnjaf',
+  api_key: process.env.CLOUDINARY_API_KEY || '636621957433952',
+  api_secret: process.env.CLOUDINARY_API_SECRET || '_uHnHKUxm1qlUCMCXQ1-BPTdui8'
 });
 
 // Fonction utilitaire pour répondre avec les bons headers CORS
