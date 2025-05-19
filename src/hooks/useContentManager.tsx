@@ -8,7 +8,8 @@ export interface Creation {
   image: string;
   category: string;
   date?: string;
-  price: number;
+  price?: number;
+  customPrice?: string;
   featured: boolean;
   technicalDetails: string[];
   customizationOptions: string[];

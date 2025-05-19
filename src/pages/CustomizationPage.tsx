@@ -18,7 +18,8 @@ interface CustomItem {
   title: string;
   shortDescription: string;
   fullDescription: string;
-  price: number;
+  price?: number;
+  customPrice?: string;
   minQuantity: number;
   priceInfo: string;
   materials: string[];
@@ -163,7 +164,11 @@ const CustomizationPage: React.FC = () => {
                   <div className="p-6 md:p-8 bg-beige-50 flex flex-col">
                     <h2 className="text-3xl font-display font-semibold mb-3">{selectedItem.title}</h2>
                     <p className="text-rose-500 text-xl font-medium mb-6">
-                      À partir de {selectedItem.price.toFixed(2)}€ <span className="text-taupe-600 text-sm font-normal">/ unité</span>
+                      {selectedItem.customPrice 
+                        ? selectedItem.customPrice 
+                        : selectedItem.price !== undefined 
+                          ? `À partir de ${selectedItem.price}€${selectedItem.minQuantity > 1 ? ` / unité` : ''}` 
+                          : 'Nous consulter'}
                     </p>
                     
                     <p className="text-taupe-700 mb-6">{selectedItem.fullDescription}</p>
@@ -272,7 +277,13 @@ const CustomizationPage: React.FC = () => {
                       <h3 className="text-xl font-display font-semibold mb-2">{item.title}</h3>
                       <p className="text-taupe-600 mb-4 line-clamp-2">{item.shortDescription}</p>
                       <div className="flex justify-between items-center">
-                        <p className="text-rose-500 font-medium">À partir de {item.price.toFixed(2)}€</p>
+                        <p className="text-rose-500 font-medium">
+                          {item.customPrice 
+                            ? item.customPrice 
+                            : item.price !== undefined 
+                              ? `À partir de ${item.price}€` 
+                              : 'Nous consulter'}
+                        </p>
                         <button 
                           onClick={() => openItemDetails(item)}
                           className="text-taupe-700 hover:text-rose-400 transition-colors flex items-center"

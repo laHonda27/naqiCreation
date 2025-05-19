@@ -1,18 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useCreations } from '../hooks/useCreations';
-import { Plus, X, ChevronRight, ChevronLeft } from 'lucide-react';
+import type { Creation } from '../hooks/useCreations';
+import { X, ChevronRight, ChevronLeft, Search, ArrowUpDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FaqSection from '../components/common/FaqSection';
+import CreationDetail from '../components/creations/CreationDetail';
+import SlidingCreationDetail from '../components/creations/SlidingCreationDetail';
+import SlidingPanel from '../components/common/SlidingPanel';
+import ColorPalette from '../components/creations/ColorPalette';
+import AvailableShapes from '../components/creations/AvailableShapes';
 
 const ServicesPage: React.FC = () => {
   const { creations, categories, loading } = useCreations();
   const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const [activeCreation, setActiveCreation] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'colors' | 'shapes'>('overview');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<'default' | 'price-asc' | 'price-desc' | 'title-asc' | 'title-desc'>('default');
+  
+  // État pour la vue détaillée
+  const [selectedCreation, setSelectedCreation] = useState<Creation | null>(null);
+  const [activeDetailImage, setActiveDetailImage] = useState<string>('');
   
   // État pour la lightbox des images d'exemple
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -25,20 +34,97 @@ const ServicesPage: React.FC = () => {
     initialInView: false
   });
   
-  const filteredCreations = activeCategory === 'all' 
-    ? creations 
-    : creations.filter(creation => creation.category === activeCategory);
-  
-  const toggleCreationDetails = (id: string) => {
-    if (activeCreation === id) {
-      setActiveCreation(null);
-    } else {
-      setActiveCreation(id);
+  // Filtrer et trier les créations en fonction de la catégorie, de la recherche et du tri
+  const filteredCreations = useMemo(() => {
+    // D'abord, filtrer par catégorie
+    const categoryFiltered = activeCategory === 'all' 
+      ? creations 
+      : creations.filter(creation => creation.category === activeCategory);
+    
+    // Ensuite, filtrer par recherche si une requête est présente
+    const searchFiltered = !searchQuery.trim() 
+      ? categoryFiltered 
+      : categoryFiltered.filter(creation => {
+          const query = searchQuery.toLowerCase().trim();
+          return creation.title.toLowerCase().includes(query) || 
+                 creation.description.toLowerCase().includes(query) ||
+                 (creation.specifications?.material && creation.specifications.material.toLowerCase().includes(query));
+        });
+    
+    // Enfin, appliquer le tri
+    let sorted = [...searchFiltered];
+    
+    switch (sortOrder) {
+      case 'price-asc':
+        sorted.sort((a, b) => {
+          if (a.price === undefined) return 1;
+          if (b.price === undefined) return -1;
+          return a.price - b.price;
+        });
+        break;
+      case 'price-desc':
+        sorted.sort((a, b) => {
+          if (a.price === undefined) return 1;
+          if (b.price === undefined) return -1;
+          return b.price - a.price;
+        });
+        break;
+      case 'title-asc':
+        sorted.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'title-desc':
+        sorted.sort((a, b) => b.title.localeCompare(a.title));
+        break;
+      default:
+        // Conserver l'ordre par défaut
+        break;
     }
+    
+    return sorted;
+  }, [creations, activeCategory, searchQuery, sortOrder]);
+  
+  // Sélectionner la création à partir du hash de l'URL
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    if (hash && creations.length > 0) {
+      const creation = creations.find(creation => creation.id === hash);
+      if (creation) {
+        setSelectedCreation(creation);
+      }
+    }
+  }, [creations]);
+  
+  // Mettre à jour le hash de l'URL quand une création est sélectionnée
+  useEffect(() => {
+    if (selectedCreation) {
+      window.location.hash = selectedCreation.id;
+    } else {
+      // Effacer le hash si aucune création n'est sélectionnée
+      if (window.location.hash) {
+        window.history.pushState("", document.title, window.location.pathname + window.location.search);
+      }
+    }
+  }, [selectedCreation]);
+  
+  // Ouvrir les détails d'une création
+  const openCreationDetails = (creation: Creation) => {
+    setSelectedCreation(creation);
+    if (creation.exampleImages && creation.exampleImages.length > 0) {
+      setActiveDetailImage(creation.exampleImages[0].src);
+    } else {
+      setActiveDetailImage(creation.image);
+    }
+    window.location.hash = creation.id;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  // Fermer les détails d'une création
+  const closeCreationDetails = () => {
+    setSelectedCreation(null);
   };
   
   // Ouvrir la lightbox pour les images d'exemple
-  const openLightbox = (images: {src: string, alt: string}[], index: number) => {
+  const handleOpenLightbox = (images: {src: string, alt: string}[], index: number) => {
     setLightboxImages(images);
     setCurrentImageIndex(index);
     setLightboxOpen(true);
@@ -80,750 +166,275 @@ const ServicesPage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lightboxOpen, lightboxImages.length]);
   
+  // Gérer la sélection de catégorie
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
-    setIsCategoryMenuOpen(false);
   };
   
   return (
     <>
       <Helmet>
-        <title>Nos Prestations | Naqi Création</title>
-        <meta 
-          name="description" 
-          content="Découvrez nos panneaux personnalisés pour mariage, fiançailles et tous types d'événements. Créations sur mesure réalisées avec passion." 
-        />
+        <title>Nos Créations | Naqi Creation</title>
+        <meta name="description" content="Découvrez notre gamme de créations personnalisées, conçues avec passion et savoir-faire artisanal." />
       </Helmet>
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 bg-beige-100">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-display font-semibold mb-4">Nos Prestations</h1>
+            <h1 className="text-4xl md:text-5xl font-display font-semibold mb-4">Nos Créations</h1>
             <div className="w-16 h-1 bg-rose-300 mx-auto mb-6"></div>
             <p className="text-lg text-taupe-600">
-              Découvrez notre gamme de panneaux personnalisés pour tous vos événements.
-              Chaque création est unique et réalisée avec passion pour sublimer vos moments spéciaux.
+              Découvrez notre gamme de créations personnalisées, conçues avec passion et savoir-faire artisanal.
             </p>
           </div>
         </div>
       </section>
       
       {/* Main Content with Sidebar Layout */}
-      <section ref={ref} className="py-16">
-        <div className="container-custom">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Mobile Category Button */}
-            {/* Fixed Filter Button */}
-            <button
-              onClick={() => setIsCategoryMenuOpen(true)}
-              className="lg:hidden fixed bottom-6 right-6 z-30 bg-rose-400 text-white rounded-full shadow-lg px-6 py-3 hover:bg-rose-500 transition-colors"
-            >
-              <span className="font-medium">Filtrer</span>
-            </button>
+      <section ref={ref} className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          {(
 
-            {/* Mobile Category Sidebar */}
-            <AnimatePresence>
-              {isCategoryMenuOpen && (
-                <>
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden overflow-hidden"
-                    onClick={() => setIsCategoryMenuOpen(false)}
-                  />
-                  <motion.div
-                    initial={{ x: '100%' }}
-                    animate={{ x: 0 }}
-                    exit={{ x: '100%' }}
-                    transition={{ type: 'tween', duration: 0.3 }}
-                    className="fixed right-0 top-0 bottom-0 w-3/4 max-w-sm bg-white z-50 lg:hidden flex flex-col"
+            <div className="space-y-8">
+              {/* Filtres et recherche - Style similaire aux témoignages */}
+              <div className="bg-white rounded-xl shadow-soft p-6 md:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-display font-semibold">Filtres</h2>
+                  
+                  <button 
+                    onClick={() => {
+                      setActiveCategory('all');
+                      setSearchQuery('');
+                      setSortOrder('default');
+                    }}
+                    className="text-sm text-rose-500 hover:text-rose-600 transition-colors flex items-center gap-1"
                   >
-                    <div className="flex-shrink-0 bg-white border-b border-beige-200 p-6">
-                      <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-display font-semibold text-taupe-900">Catégories</h2>
-                        <button
-                          onClick={() => setIsCategoryMenuOpen(false)}
-                          className="p-2 hover:bg-beige-100 rounded-full transition-colors"
-                        >
-                          <X size={20} />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-6">
-                      <div className="space-y-2">
-                        {categories.map(category => (
-                          <button
-                            key={category.id}
-                            onClick={() => handleCategorySelect(category.id)}
-                            className={`w-full text-left px-4 py-3 rounded-md transition-all duration-300 flex items-center relative ${
-                              activeCategory === category.id
-                                ? 'bg-rose-50 text-rose-500 font-medium'
-                                : 'text-taupe-700 hover:bg-beige-50'
-                            }`}
-                          >
-                            {activeCategory === category.id && (
-                              <div className="w-1 absolute left-0 top-0 bottom-0 bg-rose-400 rounded-r-full"></div>
-                            )}
-                            <span>{category.name}</span>
-                            {activeCategory === category.id && (
-                              <ChevronRight size={18} className="ml-auto" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-
-            {/* Sidebar with Categories */}
-            <div className="hidden lg:block lg:w-1/4">
-              <div className="bg-white rounded-lg shadow-soft p-6 sticky top-24">
-                <h2 className="text-xl font-display font-semibold mb-4 text-taupe-900">Catégories</h2>
-                <div className="space-y-2 mb-4">
-                  {categories.map(category => (
-                    <button
-                      key={category.id}
-                      onClick={() => setActiveCategory(category.id)}
-                      className={`w-full text-left px-4 py-3 rounded-md transition-all duration-300 flex items-center relative ${
-                        activeCategory === category.id
-                          ? 'bg-rose-50 text-rose-500 font-medium'
-                          : 'text-taupe-700 hover:bg-beige-50'
-                      }`}
-                    >
-                      {activeCategory === category.id && (
-                        <div className="w-1 absolute left-0 top-0 bottom-0 bg-rose-400 rounded-r-full"></div>
-                      )}
-                      <span>{category.name}</span>
-                      {activeCategory === category.id && (
-                        <ChevronRight size={18} className="ml-auto" />
-                      )}
-                    </button>
-                  ))}
+                    <ArrowUpDown size={14} />
+                    Réinitialiser les filtres
+                  </button>
                 </div>
                 
-                {/* Text summary of our services */}
-                <div className="mt-8 p-4 bg-beige-50 rounded-lg">
-                  <h3 className="font-medium text-taupe-800 mb-2">Nos engagements</h3>
-                  <ul className="text-sm text-taupe-600 space-y-2">
-                    <li className="flex items-start">
-                      <span className="text-rose-400 mr-2">•</span>
-                      <span>Création sur mesure pour des événements uniques</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-rose-400 mr-2">•</span>
-                      <span>Matériaux de qualité premium</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-rose-400 mr-2">•</span>
-                      <span>Délais respectés et service attentionné</span>
-                    </li>
-                  </ul>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Filtre par catégorie */}
+                  <div>
+                    <label className="block text-sm font-medium text-taupe-700 mb-2">
+                      Catégorie
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                     
+                      {categories.filter(category => category.id !== 'tous').map(category => (
+                        <button
+                          key={category.id}
+                          onClick={() => handleCategorySelect(category.id)}
+                          className={`py-2 px-3 rounded-md text-sm transition-all ${activeCategory === category.id 
+                            ? 'bg-rose-400 text-white' 
+                            : 'bg-white border border-beige-200 hover:bg-beige-100 text-taupe-700'}`}
+                        >
+                          {category.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Recherche */}
+                  <div>
+                    <label className="block text-sm font-medium text-taupe-700 mb-2">
+                      Recherche
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search size={18} className="text-taupe-400" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Rechercher une création..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 pr-10 py-2 w-full border border-beige-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all"
+                      />
+                      {searchQuery && (
+                        <button 
+                          onClick={() => setSearchQuery('')}
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-taupe-400 hover:text-taupe-600"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Tri */}
+                  <div>
+                    <label className="block text-sm font-medium text-taupe-700 mb-2">
+                      Trier par
+                    </label>
+                    <select
+                      value={sortOrder}
+                      onChange={(e) => setSortOrder(e.target.value as any)}
+                      className="w-full px-3 py-2 bg-white border border-beige-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all"
+                    >
+                      <option value="default">Tri par défaut</option>
+                      <option value="price-asc">Prix croissant</option>
+                      <option value="price-desc">Prix décroissant</option>
+                      <option value="title-asc">Ordre alphabétique</option>
+                      <option value="title-desc">Ordre alphabétique inverse</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-            {/* Main Content Area */}
-            <div className="lg:w-3/4">
-              {/* Tabs for Product Details / Colors / Shapes */}
-              <div className="mb-8 flex bg-white rounded-lg shadow-soft overflow-hidden">
-                <button 
-                  onClick={() => setActiveTab('overview')}
-                  className={`flex-1 py-4 px-2 md:px-4 text-center transition-colors ${
-                    activeTab === 'overview' 
-                      ? 'bg-beige-100 text-taupe-900 font-medium' 
-                      : 'bg-white text-taupe-600 hover:bg-beige-50'
-                  }`}
-                >
-                  Nos créations
-                </button>
-                <button 
-                  onClick={() => setActiveTab('colors')}
-                  className={`flex-1 py-4 px-2 md:px-4 text-center transition-colors ${
-                    activeTab === 'colors' 
-                      ? 'bg-beige-100 text-taupe-900 font-medium' 
-                      : 'bg-white text-taupe-600 hover:bg-beige-50'
-                  }`}
-                >
-                  Nuancier de couleurs
-                </button>
-                <button 
-                  onClick={() => setActiveTab('shapes')}
-                  className={`flex-1 py-4 px-2 md:px-4 text-center transition-colors ${
-                    activeTab === 'shapes' 
-                      ? 'bg-beige-100 text-taupe-900 font-medium' 
-                      : 'bg-white text-taupe-600 hover:bg-beige-50'
-                  }`}
-                >
-                  Formes disponibles
-                </button>
               </div>
               
-              {/* Content for active tab */}
-              <AnimatePresence mode="wait">
-                {activeTab === 'overview' && (
-                  <motion.div
-                    key="overview"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {/* Introduction text before the product list */}
-                    <div className="bg-white rounded-lg shadow-soft p-6 mb-8">
-                      <h2 className="text-2xl font-display font-semibold mb-4">Des créations uniques pour vos moments précieux</h2>
-                      <p className="text-taupe-700 mb-4">
-                        Nos panneaux personnalisés sont conçus pour sublimer vos événements et créer des souvenirs inoubliables. 
-                        Chaque création est réalisée avec passion et attention aux détails pour refléter parfaitement 
-                        votre style et la thématique de votre célébration.
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                        <div className="bg-beige-50 p-4 rounded-lg">
-                          <h3 className="font-medium text-taupe-800 mb-2">Qualité exceptionnelle</h3>
-                          <p className="text-sm text-taupe-600">
-                            Nous utilisons du plexiglass de qualité supérieure pour garantir durabilité et élégance à votre panneau.
-                          </p>
+              {/* Résultats */}
+              <div className="bg-white rounded-xl shadow-soft p-6 md:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-display font-semibold">
+                    {activeCategory === 'all' 
+                      ? 'Toutes nos créations' 
+                      : `Créations : ${categories.find(c => c.id === activeCategory)?.name || ''}`}
+                    {searchQuery && <span className="text-taupe-500 text-base ml-2">contenant "{searchQuery}"</span>}
+                  </h2>
+                  <p className="text-sm text-taupe-500">{filteredCreations.length} résultat(s)</p>
+                </div>
+                
+                {loading ? (
+                  <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-400"></div>
+                  </div>
+                ) : filteredCreations.length === 0 ? (
+                  <div className="text-center py-12 bg-beige-50 rounded-lg">
+                    <p className="text-taupe-600">
+                      {searchQuery 
+                        ? `Aucune création ne correspond à votre recherche "${searchQuery}".` 
+                        : 'Aucune création trouvée dans cette catégorie.'}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setActiveCategory('all');
+                        setSearchQuery('');
+                      }}
+                      className="mt-4 text-rose-500 hover:text-rose-600 transition-colors"
+                    >
+                      Réinitialiser les filtres
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-12">
+                    {filteredCreations.map((creation, index) => (
+                      <motion.div
+                        key={creation.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ 
+                          duration: 0.5, 
+                          delay: index * 0.1,
+                          ease: [0.43, 0.13, 0.23, 0.96] // Easing personnalisé pour une animation plus fluide
+                        }}
+                        whileHover={{ 
+                          y: -8,
+                          transition: { duration: 0.3 }
+                        }}
+                        className="bg-white rounded-xl shadow-medium overflow-hidden flex flex-col h-full transform transition-all duration-300"
+                      >
+                        <div 
+                          className="aspect-square overflow-hidden cursor-pointer relative group" 
+                          onClick={() => setSelectedCreation(creation)}
+                        >
+                          <img 
+                            src={creation.image} 
+                            alt={creation.title} 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300?text=Image+non+disponible';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-start p-4">
+                            <span className="text-white font-medium text-sm bg-rose-500/80 py-1 px-3 rounded-full backdrop-blur-sm">
+                              {categories.find(c => c.id === creation.category)?.name || 'Catégorie'}
+                            </span>
+                          </div>
                         </div>
-                        <div className="bg-beige-50 p-4 rounded-lg">
-                          <h3 className="font-medium text-taupe-800 mb-2">Personnalisation totale</h3>
-                          <p className="text-sm text-taupe-600">
-                            Choisissez les formes, couleurs, textes et motifs qui correspondent à vos envies et à votre événement.
-                          </p>
-                        </div>
-                        <div className="bg-beige-50 p-4 rounded-lg">
-                          <h3 className="font-medium text-taupe-800 mb-2">Service sur mesure</h3>
-                          <p className="text-sm text-taupe-600">
-                            Nous vous accompagnons à chaque étape pour créer le panneau de vos rêves, du design à la livraison.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  
-                    {loading ? (
-                      <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-400"></div>
-                      </div>
-                    ) : (
-                      <div className="space-y-6">
-                        {filteredCreations.length === 0 ? (
-                          <div className="text-center py-12 bg-white rounded-lg shadow-soft">
-                            <p className="text-lg text-taupe-600">
-                              Aucune création ne correspond à cette catégorie pour le moment.
+                        <div className="p-5 flex-1 flex flex-col">
+                          <h3 className="text-lg font-display font-semibold mb-2 line-clamp-1">{creation.title}</h3>
+                          <p className="text-taupe-600 text-sm mb-5 line-clamp-2 flex-1">{creation.description}</p>
+                          <div className="flex items-center justify-between mt-auto pt-3 border-t border-beige-100">
+                            <p className="font-medium text-rose-500">
+                              {creation.customPrice 
+                                ? creation.customPrice 
+                                : creation.price !== undefined 
+                                  ? `À partir de ${creation.price}€` 
+                                  : 'Nous consulter'}
                             </p>
-                          </div>
-                        ) : (
-                          filteredCreations.map((creation) => (
-                            <div 
-                              key={creation.id} 
-                              className="bg-white rounded-lg shadow-soft overflow-hidden transition-all duration-300"
+                            <button 
+                              onClick={() => setSelectedCreation(creation)}
+                              className="text-sm bg-rose-50 text-rose-500 hover:bg-rose-100 font-medium flex items-center py-1 px-3 rounded-full transition-colors"
                             >
-                              {/* Main Creation Card */}
-                              <div className="flex flex-col md:flex-row">
-                                <div className="md:w-1/3 h-64 md:h-auto">
-                                  <img 
-                                    src={creation.image} 
-                                    alt={creation.title} 
-                                    className="w-full h-full object-cover" 
-                                  />
-                                </div>
-                                <div className="md:w-2/3 p-6 flex flex-col">
-                                  <div className="flex-grow">
-                                    <div className="flex justify-between items-start mb-2">
-                                      <h3 className="text-xl font-display font-semibold text-taupe-900">{creation.title}</h3>
-                                      <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-beige-100 text-taupe-700">
-                                        {categories.find(c => c.id === creation.category)?.name}
-                                      </span>
-                                    </div>
-                                    <p className="text-taupe-600 mb-4">{creation.description}</p>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                                      <div className="bg-beige-50 p-3 rounded-md">
-                                        <p className="text-xs text-taupe-600 mb-1">Taille standard</p>
-                                        <p className="font-medium text-taupe-800">{creation.specifications?.standardSize}</p>
-                                      </div>
-                                      <div className="bg-beige-50 p-3 rounded-md">
-                                        <p className="text-xs text-taupe-600 mb-1">Délai de réalisation</p>
-                                        <p className="font-medium text-taupe-800">{creation.specifications?.deliveryTime}</p>
-                                      </div>
-                                      <div className="bg-beige-50 p-3 rounded-md">
-                                        <p className="text-xs text-taupe-600 mb-1">Matériau</p>
-                                        <p className="font-medium text-taupe-800">{creation.specifications?.material}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="flex justify-between items-center mt-2">
-                                    <p className="text-rose-500 font-medium text-lg">À partir de {(creation.price / 100).toFixed(2)}€</p>
-                                    <button 
-                                      onClick={() => toggleCreationDetails(creation.id)}
-                                      className="inline-flex items-center text-taupe-800 font-medium hover:text-rose-500 transition-colors"
-                                    >
-                                      {activeCreation === creation.id ? (
-                                        <>
-                                          <X size={18} className="mr-1" />
-                                          Fermer
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Plus size={18} className="mr-1" />
-                                          Détails
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Expanded Details */}
-                              <AnimatePresence>
-                                {activeCreation === creation.id && (
-                                  <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="border-t border-beige-200 overflow-hidden"
-                                  >
-                                    <div className="p-6 bg-beige-50">
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div>
-                                          <h4 className="text-lg font-display font-semibold mb-3">Détails techniques</h4>
-                                          <ul className="space-y-3 text-taupe-700">
-                                            {creation.technicalDetails?.map((detail, index) => (
-                                              <li key={index} className="flex items-start">
-                                                <span className="text-rose-400 mr-2">•</span>
-                                                <p>{detail}</p>
-                                              </li>
-                                            ))}
-                                          </ul>
-                                        </div>
-                                        <div>
-                                          <h4 className="text-lg font-display font-semibold mb-3">Options de personnalisation</h4>
-                                          <ul className="space-y-3 text-taupe-700">
-                                            {creation.customizationOptions?.map((option, index) => (
-                                              <li key={index} className="flex items-start">
-                                                <span className="text-rose-400 mr-2">•</span>
-                                                <p>{option}</p>
-                                              </li>
-                                            ))}
-                                          </ul>
-                                        </div>
-                                      </div>
-                                      
-                                      {/* Images d'exemple */}
-                                      {creation.exampleImages && creation.exampleImages.length > 0 && (
-                                        <div className="mt-6 pt-6 border-t border-beige-200">
-                                          <h4 className="text-lg font-display font-semibold mb-3">Exemples de réalisations</h4>
-                                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {creation.exampleImages.map((image, index) => (
-                                              <div 
-                                                key={index} 
-                                                className="bg-white p-2 rounded-lg border border-beige-200 shadow-sm cursor-pointer hover:shadow-md transition-all duration-300"
-                                                onClick={() => creation.exampleImages && openLightbox(creation.exampleImages, index)}
-                                              >
-                                                <div className="aspect-square rounded-md overflow-hidden">
-                                                  <img 
-                                                    src={image.src} 
-                                                    alt={image.alt} 
-                                                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" 
-                                                    onError={(e) => {
-                                                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300?text=Image+non+disponible';
-                                                    }}
-                                                  />
-                                                </div>
-                                                {image.alt && (
-                                                  <p className="text-sm text-taupe-600 mt-2 px-2">{image.alt}</p>
-                                                )}
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-                                      
-                                      <div className="mt-6 pt-6 border-t border-beige-200">
-                                        <h4 className="text-lg font-display font-semibold mb-3">Processus de commande</h4>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                                          {creation.orderProcess?.map((step) => (
-                                            <div key={step.step} className="bg-white p-4 rounded-lg text-center">
-                                              <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                <span className="font-display text-lg text-rose-500">{step.step}</span>
-                                              </div>
-                                              <h5 className="font-medium text-taupe-800 mb-1">{step.title}</h5>
-                                              <p className="text-sm text-taupe-600">{step.description}</p>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                      
-                                      <div className="flex justify-center mt-8">
-                                        <a href="/contact" className="btn-primary">
-                                          Demander un devis personnalisé
-                                        </a>
-                                      </div>
-                                    </div>
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
+                              Détails
+                              <ChevronRight size={16} className="ml-1" />
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 )}
                 
-                {activeTab === 'colors' && (
-                  <motion.div
-                    key="colors"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-white rounded-lg shadow-soft p-6 md:p-8"
-                  >
-                    <h2 className="text-2xl font-display font-semibold mb-6">Nuancier de couleurs</h2>
-                    
-                    <div className="mb-8">
-                      <h3 className="text-xl font-display mb-4">Couleurs pour le fond du panneau</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#F5F2E6]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Beige</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#FFD4DC]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Rose bonbon</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#DEA5A4]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Rose pantone</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#722F37]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Bordeaux</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#00533E]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Vert émeraude</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#D0ECF7]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Bleu clair</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#97A595]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Vert sauge</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-white"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Blanc</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#E9ECF2] flex items-center justify-center">
-                            <span className="text-taupe-500 text-sm">Transparent</span>
-                          </div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Transparent</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#F0DC9E] bg-gradient-to-br from-[#F0DC9E] to-[#D2AF44]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Doré - effet miroir</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#E0E0E2] bg-gradient-to-br from-[#E0E0E2] to-[#AAACB1]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Argenté - effet miroir</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#D4D6D8] bg-opacity-50"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Givré</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-xl font-display mb-4">Couleurs pour les inscriptions</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#D2AF44]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Doré</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-white"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Blanc</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#C0C2C4]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800">Argenté</p>
-                          </div>
-                        </div>
-                        <div className="bg-white border border-beige-200 rounded-lg overflow-hidden">
-                          <div className="h-24 bg-[#222222]"></div>
-                          <div className="p-3 text-center">
-                            <p className="font-medium text-taupe-800 text-black">Noir</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-8 pt-8 border-t border-beige-200">
-                      <p className="text-taupe-600 italic text-center">
-                        Ces couleurs sont présentées à titre indicatif. De légères variations peuvent exister entre l'affichage à l'écran et le rendu final.
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
+                {/* Séparateur visuel */}
+                <div className="my-16 border-t-2 border-beige-200 w-full max-w-4xl mx-auto"></div>
                 
-                {activeTab === 'shapes' && (
-                  <motion.div
-                    key="shapes"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-white rounded-lg shadow-soft p-6 md:p-8"
-                  >
-                    <h2 className="text-2xl font-display font-semibold mb-6">Formes et tailles de plexiglass</h2>
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-6 mb-8">
-                      <div className="bg-beige-50 p-4 rounded-lg text-center">
-                        <div className="aspect-[4/5] bg-taupe-300 mx-auto mb-3 rounded-t-[40px] flex items-center justify-center text-white font-medium">
-                          <span>50x70 cm</span>
-                        </div>
-                        <p className="font-medium text-taupe-800">Arche orientale</p>
+                {/* Informations techniques - Section distincte */}
+                <section className="py-12 bg-beige-50 rounded-xl">
+                  <div className="container-custom">
+                    <div className="max-w-5xl mx-auto">
+                      <div className="text-center mb-10">
+                        <h2 className="text-3xl md:text-4xl font-display font-semibold text-taupe-900">
+                          Informations techniques
+                        </h2>
+                        <div className="w-20 h-1 bg-rose-300 mx-auto mt-4"></div>
+                        <p className="text-taupe-600 mt-4 max-w-2xl mx-auto">
+                          Découvrez notre nuancier de couleurs et les différentes formes disponibles pour personnaliser votre création
+                        </p>
                       </div>
-                      <div className="bg-beige-50 p-4 rounded-lg text-center">
-                        <div className="aspect-[4/5] bg-taupe-300 mx-auto mb-3 rounded-t-[100px] flex items-center justify-center text-white font-medium">
-                          <span>50x70 cm</span>
-                        </div>
-                        <p className="font-medium text-taupe-800">Arche classique</p>
+                      
+                      {/* Nuancier de couleurs */}
+                      <div className="mb-12">
+                        <h3 className="text-2xl font-display font-semibold mb-6 text-center">Nuancier de couleurs</h3>
+                        <ColorPalette />
                       </div>
-                      <div className="bg-beige-50 p-4 rounded-lg text-center">
-                        <div className="aspect-[4/5] bg-taupe-300 mx-auto mb-3 flex items-center justify-center text-white font-medium">
-                          <span>50x70 cm</span>
-                        </div>
-                        <p className="font-medium text-taupe-800">Rectangle</p>
-                      </div>
-                      <div className="bg-beige-50 p-4 rounded-lg text-center">
-                        <div className="aspect-[4/5] bg-taupe-300 mx-auto mb-3 rounded-[100%] flex items-center justify-center text-white font-medium">
-                          <span>50x70 cm</span>
-                        </div>
-                        <p className="font-medium text-taupe-800">Ovale</p>
-                      </div>
-                      <div className="bg-beige-50 p-4 rounded-lg text-center">
-                        <div className="aspect-[4/5] bg-taupe-300 mx-auto mb-3 rounded-[30px] flex items-center justify-center text-white font-medium">
-                          <span>50x70 cm</span>
-                        </div>
-                        <p className="font-medium text-taupe-800">Nuage</p>
-                      </div>
-                      <div className="bg-beige-50 p-4 rounded-lg text-center">
-                        <div className="aspect-[3/4] bg-taupe-300 mx-auto mb-3 flex items-center justify-center text-white font-medium">
-                          <span>30x40 cm</span>
-                        </div>
-                        <p className="font-medium text-taupe-800">Rectangle (petit)</p>
-                      </div>
-                      <div className="bg-beige-50 p-4 rounded-lg text-center">
-                        <div className="aspect-square bg-taupe-300 mx-auto mb-3 flex items-center justify-center text-white font-medium">
-                          <span>50x50 cm</span>
-                        </div>
-                        <p className="font-medium text-taupe-800">Carré</p>
-                      </div>
-                      <div className="bg-beige-50 p-4 rounded-lg text-center">
-                        <div className="aspect-square bg-taupe-300 mx-auto mb-3 rounded-full flex items-center justify-center text-white font-medium">
-                          <span>50x50 cm</span>
-                        </div>
-                        <p className="font-medium text-taupe-800">Cercle</p>
+                      
+                      {/* Formes disponibles */}
+                      <div>
+                        <h3 className="text-2xl font-display font-semibold mb-6 text-center">Formes disponibles</h3>
+                        <AvailableShapes />
                       </div>
                     </div>
-                    
-                    <div className="bg-beige-100 p-6 rounded-lg">
-                      <h3 className="text-lg font-display font-semibold mb-3">Informations importantes</h3>
-                      <ul className="space-y-2 text-taupe-700">
-                        <li className="flex items-start">
-                          <span className="text-rose-400 mr-2">•</span>
-                          <p>Les tailles indiquées sont standard, mais des dimensions personnalisées sont disponibles sur demande.</p>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="text-rose-400 mr-2">•</span>
-                          <p>Toutes les formes sont réalisées dans du plexiglass de 3mm d'épaisseur pour garantir solidité et légèreté.</p>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="text-rose-400 mr-2">•</span>
-                          <p>Chaque panneau est livré avec un support en bois adapté à sa forme.</p>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="text-rose-400 mr-2">•</span>
-                          <p>Des formes sur mesure peuvent être réalisées selon vos besoins spécifiques (supplément possible).</p>
-                        </li>
-                      </ul>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Important Information Banner */}
-      <section className="py-12 bg-gradient-to-b from-white to-beige-50/30">
-        <div className="container-custom">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="group bg-white rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 relative overflow-hidden border-t-[3px] border-t-rose-400">
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <p className="text-lg font-display font-medium text-taupe-900 mb-1">3 semaines</p>
-                <p className="text-taupe-600">Commande à passer avant l'événement</p>
-              </div>
-            </div>
-            <div className="group bg-white rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 relative overflow-hidden border-t-[3px] border-t-rose-400">
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <p className="text-lg font-display font-medium text-taupe-900 mb-1">Paiement facilité</p>
-                <p className="text-taupe-600">Règlement possible en deux fois</p>
-              </div>
-            </div>
-            <div className="group bg-white rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 relative overflow-hidden border-t-[3px] border-t-rose-400">
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <p className="text-lg font-display font-medium text-taupe-900 mb-1">Livraison locale</p>
-                <p className="text-taupe-600">Sur Nîmes et ses alentours</p>
-              </div>
-            </div>
-            <div className="group bg-white rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 relative overflow-hidden border-t-[3px] border-t-rose-400">
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <p className="text-lg font-display font-medium text-taupe-900 mb-1">Envoi national</p>
-                <p className="text-taupe-600">Expédition dans toute la France</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Service Information */}
-      <section className="py-16 bg-beige-50">
-        <div className="container-custom">
-          <div className="max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-4xl md:text-5xl font-display font-semibold text-taupe-900">
-                Pourquoi choisir nos panneaux ?
-              </h2>
-              <div className="w-24 h-1 bg-rose-300 mx-auto mt-6"></div>
-            </motion.div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="relative bg-white rounded-2xl p-8 shadow-showcase overflow-hidden group"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-300 to-rose-400"></div>
-                <div className="relative z-10">
-                  <div className="w-16 h-16 bg-rose-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <div className="w-8 h-8 bg-rose-400 rounded-lg transform rotate-45 group-hover:rotate-90 transition-transform duration-300"></div>
                   </div>
-                  <h3 className="text-2xl font-display font-semibold mb-4 text-taupe-900">
-                    Personnalisation totale
-                  </h3>
-                  <p className="text-taupe-600 leading-relaxed">
-                    Chaque panneau est entièrement personnalisable selon vos goûts et les couleurs de votre événement.
-                  </p>
+                </section>
+                
+                {/* Bouton de contact */}
+                <div className="mt-12 text-center">
+                  <Link to="/contact" className="inline-flex items-center px-8 py-4 bg-rose-400 text-white rounded-full font-medium hover:bg-rose-500 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                    Contactez-nous pour un devis
+                  </Link>
                 </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="relative bg-white rounded-2xl p-8 shadow-showcase overflow-hidden group"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-300 to-rose-400"></div>
-                <div className="relative z-10">
-                  <div className="w-16 h-16 bg-rose-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <div className="w-8 h-8 bg-rose-400 rounded-lg transform rotate-45 group-hover:rotate-90 transition-transform duration-300"></div>
-                  </div>
-                  <h3 className="text-2xl font-display font-semibold mb-4 text-taupe-900">
-                    Conseils d'experts
-                  </h3>
-                  <p className="text-taupe-600 leading-relaxed">
-                    Nous vous guidons à chaque étape pour créer un panneau qui correspond parfaitement à vos attentes.
-                  </p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="relative bg-white rounded-2xl p-8 shadow-showcase overflow-hidden group"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-300 to-rose-400"></div>
-                <div className="relative z-10">
-                  <div className="w-16 h-16 bg-rose-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <div className="w-8 h-8 bg-rose-400 rounded-lg transform rotate-45 group-hover:rotate-90 transition-transform duration-300"></div>
-                  </div>
-                  <h3 className="text-2xl font-display font-semibold mb-4 text-taupe-900">
-                    Qualité premium
-                  </h3>
-                  <p className="text-taupe-600 leading-relaxed">
-                    Des matériaux de haute qualité et une finition soignée pour un résultat qui vous ravira.
-                  </p>
-                </div>
-              </motion.div>
+              </div>
             </div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="mt-16 text-center"
-            >
-              <Link to="/contact" className="inline-flex items-center px-8 py-4 bg-rose-400 text-white rounded-full font-medium hover:bg-rose-500 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                Contactez-nous pour un devis
-              </Link>
-            </motion.div>
-          </div>
+          )}
         </div>
+        
+        {/* Panneau coulissant pour les détails de création */}
+        <SlidingPanel 
+          isOpen={selectedCreation !== null}
+          onClose={closeCreationDetails}
+          title={selectedCreation?.title}
+        >
+          {selectedCreation && (
+            <SlidingCreationDetail
+              creation={selectedCreation}
+              onClose={closeCreationDetails}
+              openLightbox={handleOpenLightbox}
+            />
+          )}
+        </SlidingPanel>
       </section>
 
       {/* FAQ Section */}

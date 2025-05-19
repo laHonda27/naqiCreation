@@ -19,11 +19,12 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
   editingCreation,
   categories
 }) => {
-  const [activeTab, setActiveTab] = useState('basic');
-
+  const [activeTab, setActiveTab] = useState<string>('general');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
   // Onglets du formulaire
   const tabs = [
-    { id: 'basic', label: 'Informations de base' },
+    { id: 'general', label: 'Informations générales' },
     { id: 'details', label: 'Détails techniques' },
     { id: 'customization', label: 'Options de personnalisation' },
     { id: 'process', label: 'Processus de commande' },
@@ -35,6 +36,7 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
     title: '',
     description: '',
     price: 0,
+    customPrice: '',
     image: '',
     category: '',
     featured: false,
@@ -64,6 +66,7 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
         title: '',
         description: '',
         price: 0,
+        customPrice: '',
         image: '',
         category: '',
         featured: false,
@@ -96,7 +99,7 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
     } else if (name === 'price') {
       setFormData(prev => ({
         ...prev,
-        [name]: parseFloat(value) || 0
+        [name]: value === '' ? undefined : parseFloat(value) || 0
       }));
     } else {
       setFormData(prev => ({
@@ -292,6 +295,19 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
   // Soumettre le formulaire
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation : vérifier qu'au moins un des deux champs (prix ou prix personnalisé) est renseigné
+    const newErrors: Record<string, string> = {};
+    
+    if ((formData.price === undefined || formData.price <= 0) && !formData.customPrice) {
+      newErrors.price = 'Veuillez spécifier un prix ou un message de prix personnalisé';
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
     onSubmit(formData);
   };
 
@@ -317,21 +333,66 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
           ))}
         </div>
 
-        {/* Contenu de l'onglet "Informations de base" */}
-        {activeTab === 'basic' && (
+        {/* Contenu de l'onglet "Informations générales" */}
+        {activeTab === 'general' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Titre</label>
-                <input
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="col-span-1 md:col-span-2">
+                <label htmlFor="title" className="block text-sm font-medium mb-1">Titre de la création</label>
+                <input 
                   type="text"
+                  id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   className="input-field"
-                  placeholder="Titre de la création"
                   required
+                  placeholder="Nom de la création"
                 />
+              </div>
+
+              <div className="col-span-1 md:col-span-2">
+                <label htmlFor="description" className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="input-field min-h-[100px]"
+                  required
+                  placeholder="Description détaillée de la création"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="price" className="block text-sm font-medium mb-1">Prix (en €)</label>
+                <input 
+                  type="number"
+                  id="price"
+                  name="price"
+                  value={formData.price === undefined ? '' : formData.price}
+                  onChange={handleChange}
+                  className={`input-field ${errors.price ? 'border-red-500' : ''}`}
+                  min="0"
+                  step="0.01"
+                  placeholder="Laisser vide pour un prix personnalisé"
+                />
+                {errors.price && (
+                  <p className="text-red-500 text-xs mt-1">{errors.price}</p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="customPrice" className="block text-sm font-medium mb-1">Prix personnalisé (texte)</label>
+                <input 
+                  type="text"
+                  id="customPrice"
+                  name="customPrice"
+                  value={formData.customPrice || ''}
+                  onChange={handleChange}
+                  className="input-field"
+                  placeholder="Ex: Sur devis, Nous consulter"
+                />
+                <p className="text-xs text-taupe-500 mt-1">Si renseigné, remplace le prix numérique</p>
               </div>
               
               <div>
@@ -352,22 +413,7 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Prix (€)</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="Prix en euros"
-                  step="0.01"
-                  min="0"
-                  required
-                />
-              </div>
-
-              <div>
+              <div className="col-span-1 md:col-span-2">
                 <div className="flex items-center h-full pt-6">
                   <input
                     type="checkbox"

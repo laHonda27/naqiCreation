@@ -112,7 +112,13 @@ const CustomizationsManager: React.FC = () => {
                               En vedette
                             </span>
                           )}
-                          <span className="text-rose-500 font-medium">{item.price}€</span>
+                          <span className="text-rose-500 font-medium">
+                            {item.customPrice 
+                              ? item.customPrice 
+                              : item.price !== undefined 
+                                ? `${item.price}€` 
+                                : 'Prix non défini'}
+                          </span>
                           <span className="text-taupe-500 text-xs ml-1">min. {item.minQuantity} pièces</span>
                         </p>
                         <p className="text-taupe-700 text-sm line-clamp-2">{item.shortDescription}</p>

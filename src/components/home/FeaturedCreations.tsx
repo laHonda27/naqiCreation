@@ -67,7 +67,13 @@ const FeaturedCreations: React.FC = () => {
                   <div className="p-6">
                     <h3 className="text-xl font-display font-semibold mb-2">{creation.title}</h3>
                     <p className="text-taupe-600 mb-4">{creation.description}</p>
-                    <p className="text-rose-400 font-medium">À partir de {creation.price}€</p>
+                    <p className="text-rose-400 font-medium">
+                      {creation.customPrice 
+                        ? creation.customPrice 
+                        : creation.price !== undefined 
+                          ? `À partir de ${creation.price}€` 
+                          : 'Nous consulter'}
+                    </p>
                   </div>
                 </motion.div>
               ))

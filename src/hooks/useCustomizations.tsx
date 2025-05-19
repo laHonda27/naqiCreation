@@ -11,7 +11,8 @@ export interface CustomItem {
   title: string;
   shortDescription: string;
   fullDescription: string;
-  price: number;
+  price?: number;
+  customPrice?: string;
   minQuantity: number;
   priceInfo: string;
   materials: string[];

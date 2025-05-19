@@ -107,7 +107,13 @@ const CreationsManager: React.FC = () => {
                         )}
                       </p>
                       <p className="text-taupe-700 text-sm line-clamp-2">{creation.description}</p>
-                      <p className="text-rose-500 font-medium mt-1">{creation.price}€</p>
+                      <p className="text-rose-500 font-medium mt-1">
+                        {creation.customPrice 
+                          ? creation.customPrice 
+                          : creation.price !== undefined 
+                            ? `${creation.price}€` 
+                            : 'Prix non défini'}
+                      </p>
                     </div>
                     
                     <div className="flex space-x-2">

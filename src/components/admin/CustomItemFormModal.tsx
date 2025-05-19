@@ -21,6 +21,7 @@ const CustomItemFormModal: React.FC<CustomItemFormModalProps> = ({
     shortDescription: '',
     fullDescription: '',
     price: 0,
+    customPrice: '',
     minQuantity: 1,
     priceInfo: '',
     materials: [''],
@@ -45,6 +46,7 @@ const CustomItemFormModal: React.FC<CustomItemFormModalProps> = ({
         shortDescription: '',
         fullDescription: '',
         price: 0,
+        customPrice: '',
         minQuantity: 1,
         priceInfo: '',
         materials: [''],
@@ -66,7 +68,7 @@ const CustomItemFormModal: React.FC<CustomItemFormModalProps> = ({
       [name]: type === 'checkbox' 
         ? (e.target as HTMLInputElement).checked 
         : type === 'number' 
-          ? parseFloat(value) 
+          ? value === '' ? undefined : parseFloat(value) || 0
           : value
     }));
     
@@ -139,20 +141,21 @@ const CustomItemFormModal: React.FC<CustomItemFormModalProps> = ({
       newErrors.title = 'Le titre est requis';
     }
     
+    // Validation du prix : soit un prix numérique > 0, soit un prix personnalisé
+    if ((formData.price === undefined || formData.price <= 0) && !formData.customPrice) {
+      newErrors.price = 'Veuillez spécifier un prix ou un message de prix personnalisé';
+    }
+    
+    if (formData.minQuantity <= 0) {
+      newErrors.minQuantity = 'La quantité minimale doit être supérieure à 0';
+    }
+    
     if (!formData.shortDescription.trim()) {
       newErrors.shortDescription = 'La description courte est requise';
     }
     
     if (!formData.fullDescription.trim()) {
       newErrors.fullDescription = 'La description complète est requise';
-    }
-    
-    if (formData.price <= 0) {
-      newErrors.price = 'Le prix doit être supérieur à 0';
-    }
-    
-    if (formData.minQuantity <= 0) {
-      newErrors.minQuantity = 'La quantité minimale doit être supérieure à 0';
     }
     
     if (!formData.priceInfo.trim()) {
@@ -173,6 +176,7 @@ const CustomItemFormModal: React.FC<CustomItemFormModalProps> = ({
     
     if (validateForm()) {
       onSubmit(formData);
+      onClose();
     }
   };
 
@@ -196,10 +200,10 @@ const CustomItemFormModal: React.FC<CustomItemFormModalProps> = ({
         
         <form onSubmit={handleSubmit} className="overflow-y-auto p-4 max-h-[calc(90vh-120px)]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Titre */}
             <div>
               <label className="block text-sm font-medium text-taupe-700 mb-1">
                 Titre
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -207,34 +211,12 @@ const CustomItemFormModal: React.FC<CustomItemFormModalProps> = ({
                 value={formData.title}
                 onChange={handleChange}
                 className={`input-field ${errors.title ? 'border-red-500' : ''}`}
-                placeholder="Étiquettes de bouteilles"
+                placeholder="Étiquettes personnalisées"
                 required
               />
               {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
             </div>
             
-            {/* Prix */}
-            <div>
-              <label className="block text-sm font-medium text-taupe-700 mb-1">
-                Prix (€)
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                className={`input-field ${errors.price ? 'border-red-500' : ''}`}
-                placeholder="2.50"
-                step="0.01"
-                min="0"
-                required
-              />
-              {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Quantité minimale */}
             <div>
               <label className="block text-sm font-medium text-taupe-700 mb-1">
                 Quantité minimale
@@ -244,30 +226,64 @@ const CustomItemFormModal: React.FC<CustomItemFormModalProps> = ({
                 name="minQuantity"
                 value={formData.minQuantity}
                 onChange={handleChange}
-                className={`input-field ${errors.minQuantity ? 'border-red-500' : ''}`}
+                className="input-field"
                 placeholder="10"
                 min="1"
                 required
               />
-              {errors.minQuantity && <p className="text-red-500 text-xs mt-1">{errors.minQuantity}</p>}
+            </div>
+          </div>
+          
+          {/* Prix et prix personnalisé */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium text-taupe-700 mb-1">
+                Prix (en €)
+              </label>
+              <input
+                type="number"
+                name="price"
+                id="price"
+                value={formData.price === undefined ? '' : formData.price}
+                onChange={handleChange}
+                className={`input-field ${errors.price ? 'border-red-500' : ''}`}
+                placeholder="Laisser vide pour un prix personnalisé"
+                min="0"
+                step="0.01"
+              />
+              {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
             </div>
             
-            {/* Informations de prix */}
             <div>
-              <label className="block text-sm font-medium text-taupe-700 mb-1">
-                Informations de prix
+              <label htmlFor="customPrice" className="block text-sm font-medium text-taupe-700 mb-1">
+                Prix personnalisé (texte)
               </label>
               <input
                 type="text"
-                name="priceInfo"
-                value={formData.priceInfo}
+                name="customPrice"
+                id="customPrice"
+                value={formData.customPrice || ''}
                 onChange={handleChange}
-                className={`input-field ${errors.priceInfo ? 'border-red-500' : ''}`}
-                placeholder="Prix par unité, commande minimum de 10 pièces."
-                required
+                className="input-field"
+                placeholder="Ex: Sur devis, Nous consulter"
               />
-              {errors.priceInfo && <p className="text-red-500 text-xs mt-1">{errors.priceInfo}</p>}
+              <p className="text-xs text-taupe-500 mt-1">Si renseigné, remplace le prix numérique</p>
             </div>
+          </div>
+          
+          {/* Informations de prix */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-taupe-700 mb-1">
+              Informations de prix
+            </label>
+            <input
+              type="text"
+              name="priceInfo"
+              value={formData.priceInfo}
+              onChange={handleChange}
+              className="input-field"
+              placeholder="À partir de 10 pièces"
+            />
           </div>
           
           {/* Description courte */}
