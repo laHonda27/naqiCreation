@@ -56,7 +56,12 @@
         ]
       },
       "date": "2025-05-18",
-      "exampleImages": [],
+      "exampleImages": [
+        {
+          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747610919/naqi-creation/IMG-20250510-WA0007.jpg",
+          "alt": "test"
+        }
+      ],
       "customPrice": ""
     },
     {
