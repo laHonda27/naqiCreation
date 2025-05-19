@@ -55,7 +55,17 @@
           "Emballage sécurisé pour la livraison"
         ]
       },
-      "date": "2025-05-18"
+      "date": "2025-05-18",
+      "exampleImages": [
+        {
+          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747598538/naqi-creation/Snapchat-665417030.jpg",
+          "alt": "jespere"
+        },
+        {
+          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747674665/naqi-creation/IMG-20250510-WA0008.jpg",
+          "alt": "test"
+        }
+      ]
     },
     {
       "id": "2",
