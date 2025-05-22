@@ -288,6 +288,38 @@
           "Emballage sécurisé pour la livraison"
         ]
       }
+    },
+    {
+      "title": "TEST",
+      "description": "TEST",
+      "price": 20,
+      "customPrice": "",
+      "image": "",
+      "category": "mariage",
+      "featured": true,
+      "technicalDetails": [
+        ""
+      ],
+      "customizationOptions": [
+        ""
+      ],
+      "orderProcess": [
+        {
+          "step": 1,
+          "title": "",
+          "description": ""
+        }
+      ],
+      "specifications": {
+        "standardSize": "",
+        "deliveryTime": "",
+        "material": "",
+        "additionalInfo": [
+          ""
+        ]
+      },
+      "exampleImages": [],
+      "id": "3e693ad2-0815-46de-a53f-9a1403435ce5"
     }
   ]
 }
