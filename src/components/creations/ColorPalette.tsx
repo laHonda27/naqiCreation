@@ -3,7 +3,6 @@ import React from 'react';
 const ColorPalette: React.FC = () => {
   return (
     <div className="bg-white rounded-lg shadow-soft p-6 md:p-8">
-      <h2 className="text-2xl font-display font-semibold mb-6">Nuancier de couleurs</h2>
       
       <div className="mb-8">
         <h3 className="text-xl font-display mb-4">Couleurs pour le fond du panneau</h3>

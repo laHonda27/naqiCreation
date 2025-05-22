@@ -39,7 +39,10 @@ const GalleryPage: React.FC = () => {
             </div>
           ) : (
             <>
-              <Gallery images={galleryData.images} />
+              <Gallery 
+                images={galleryData.images} 
+                categories={galleryData.categories} 
+              />
               
               <div className="mt-16 text-center">
                 <p className="text-lg text-taupe-600 mb-6">

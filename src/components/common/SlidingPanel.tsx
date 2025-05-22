@@ -54,13 +54,13 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
             onClick={onClose}
           />
           
-          {/* Panneau latéral - Conteneur principal avec arrondi */}
+          {/* Panneau latéral - Conteneur principal sans arrondi */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-4/5 md:w-3/5 lg:w-1/2 overflow-hidden rounded-l-3xl"
+            className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-4/5 md:w-3/5 lg:w-1/2 overflow-hidden"
           >
             {/* Conteneur interne avec défilement */}
             <div className="absolute inset-0 bg-white shadow-xl flex flex-col">

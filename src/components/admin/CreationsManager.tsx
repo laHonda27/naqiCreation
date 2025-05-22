@@ -4,12 +4,17 @@ import { useContentManager } from '../../hooks/useContentManager';
 import type { Creation } from '../../hooks/useContentManager';
 import CreationFormModal from './CreationFormModal';
 import GlobalSaveButton from './GlobalSaveButton';
+import ConfirmationModal from './ConfirmationModal';
 
 const CreationsManager: React.FC = () => {
   const { creations, categories, addCreation, updateCreation, deleteCreation } = useContentManager();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCreation, setEditingCreation] = useState<Creation | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // État pour la modal de confirmation
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [creationToDelete, setCreationToDelete] = useState<string | null>(null);
   
   // Ouvrir le modal pour ajouter une création
   const handleAddNew = () => {
@@ -49,12 +54,19 @@ const CreationsManager: React.FC = () => {
     }
   };
   
-  // Supprimer une création
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette création ?')) {
+  // Ouvrir la modal de confirmation pour supprimer une création
+  const confirmDelete = (id: string) => {
+    setCreationToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+  
+  // Supprimer une création après confirmation
+  const handleDelete = async () => {
+    if (creationToDelete) {
       try {
-        await deleteCreation(id);
+        await deleteCreation(creationToDelete);
         setHasUnsavedChanges(true);
+        setCreationToDelete(null);
       } catch (error) {
         console.error("Erreur lors de la suppression de la création:", error);
       }
@@ -89,7 +101,7 @@ const CreationsManager: React.FC = () => {
                     alt={creation.title} 
                     className="w-full h-full object-cover" 
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Image+non+disponible';
+                      (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
                     }}
                   />
                 </div>
@@ -125,7 +137,7 @@ const CreationsManager: React.FC = () => {
                         <Edit size={18} />
                       </button>
                       <button
-                        onClick={() => handleDelete(creation.id)}
+                        onClick={() => confirmDelete(creation.id)}
                         className="text-red-500 hover:text-red-600 p-1"
                         aria-label="Supprimer"
                       >
@@ -153,6 +165,18 @@ const CreationsManager: React.FC = () => {
       <GlobalSaveButton 
         hasUnsavedChanges={hasUnsavedChanges}
         onSaveComplete={() => setHasUnsavedChanges(false)}
+      />
+      
+      {/* Modal de confirmation pour la suppression */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirmer la suppression"
+        message="Êtes-vous sûr de vouloir supprimer cette création ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
       />
     </div>
   );

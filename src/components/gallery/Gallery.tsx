@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import Masonry from 'react-masonry-css';
 
 interface GalleryImage {
   id: string;
@@ -11,12 +12,19 @@ interface GalleryImage {
 
 interface GalleryProps {
   images: GalleryImage[];
+  categories?: string[];
   className?: string;
 }
 
-const Gallery: React.FC<GalleryProps> = ({ images, className = "" }) => {
+const Gallery: React.FC<GalleryProps> = ({ images, categories = [], className = "" }) => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  
+  // Filtrer les images par catégorie
+  const filteredImages = activeCategory
+    ? images.filter(image => image.category === activeCategory)
+    : images;
   
   const openLightbox = (image: GalleryImage, index: number) => {
     setSelectedImage(image);
@@ -31,16 +39,18 @@ const Gallery: React.FC<GalleryProps> = ({ images, className = "" }) => {
   
   const goToPrevious = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newIndex = (currentIndex - 1 + images.length) % images.length;
+    const imagesArray = activeCategory ? filteredImages : images;
+    const newIndex = (currentIndex - 1 + imagesArray.length) % imagesArray.length;
     setCurrentIndex(newIndex);
-    setSelectedImage(images[newIndex]);
+    setSelectedImage(imagesArray[newIndex]);
   };
   
   const goToNext = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newIndex = (currentIndex + 1) % images.length;
+    const imagesArray = activeCategory ? filteredImages : images;
+    const newIndex = (currentIndex + 1) % imagesArray.length;
     setCurrentIndex(newIndex);
-    setSelectedImage(images[newIndex]);
+    setSelectedImage(imagesArray[newIndex]);
   };
   
   // Handle keyboard navigation
@@ -51,13 +61,15 @@ const Gallery: React.FC<GalleryProps> = ({ images, className = "" }) => {
       if (e.key === 'Escape') {
         closeLightbox();
       } else if (e.key === 'ArrowLeft') {
-        const newIndex = (currentIndex - 1 + images.length) % images.length;
+        const imagesArray = activeCategory ? filteredImages : images;
+        const newIndex = (currentIndex - 1 + imagesArray.length) % imagesArray.length;
         setCurrentIndex(newIndex);
-        setSelectedImage(images[newIndex]);
+        setSelectedImage(imagesArray[newIndex]);
       } else if (e.key === 'ArrowRight') {
-        const newIndex = (currentIndex + 1) % images.length;
+        const imagesArray = activeCategory ? filteredImages : images;
+        const newIndex = (currentIndex + 1) % imagesArray.length;
         setCurrentIndex(newIndex);
-        setSelectedImage(images[newIndex]);
+        setSelectedImage(imagesArray[newIndex]);
       }
     };
     
@@ -67,30 +79,91 @@ const Gallery: React.FC<GalleryProps> = ({ images, className = "" }) => {
   
   return (
     <>
-      <div className={`gallery-grid ${className}`}>
-        {images.map((image, index) => (
-          <motion.div 
-            key={image.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="aspect-[3/4] overflow-hidden rounded-lg cursor-pointer relative group"
-            onClick={() => openLightbox(image, index)}
-          >
-            <img 
-              src={image.src} 
-              alt={image.alt} 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-            />
-            <div className="absolute inset-0 bg-taupe-900/0 group-hover:bg-taupe-900/20 transition-all duration-300 flex items-end justify-start p-4">
-              <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <p className="font-medium">{image.alt}</p>
-                {image.category && <p className="text-sm text-beige-100">{image.category}</p>}
+      {categories.length > 0 && (
+        <div className="filter-container mb-10">
+          <div className="bg-white rounded-lg shadow-sm p-8 border border-beige-100">
+            <div className="mb-6">
+              <h3 className="text-xl font-display font-semibold text-taupe-900 relative after:content-[''] after:absolute after:w-16 after:h-0.5 after:bg-rose-400 after:-bottom-3 after:left-0 mb-6">Filtrer par catégorie</h3>
+            </div>
+            
+            <div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => setActiveCategory(null)}
+                  className={`px-5 py-2.5 rounded-md text-sm font-medium transition-all duration-300 ${
+                    !activeCategory
+                      ? 'bg-rose-500 text-white shadow-md'
+                      : 'bg-white text-taupe-700 border border-beige-200 hover:border-rose-300'
+                  }`}
+                >
+                  Tous
+                </button>
+                
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`px-5 py-2.5 rounded-md text-sm font-medium transition-all duration-300 ${
+                      activeCategory === category
+                        ? 'bg-rose-500 text-white shadow-md'
+                        : 'bg-white text-taupe-700 border border-beige-200 hover:border-rose-300'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-6 text-center">
+                <p className="text-sm text-taupe-500 italic">
+                  {activeCategory 
+                    ? `${filteredImages.length} création${filteredImages.length > 1 ? 's' : ''} dans la catégorie "${activeCategory}"` 
+                    : `Toutes les créations (${images.length})`}
+                </p>
               </div>
             </div>
-          </motion.div>
-        ))}
-      </div>
+          </div>
+        </div>
+      )}
+      
+      {filteredImages.length === 0 ? (
+        <div className="text-center p-10 bg-beige-50 rounded-lg shadow-inner w-full min-h-[200px] flex items-center justify-center">
+          <p className="text-taupe-700 text-lg">Aucune création trouvée dans cette catégorie.</p>
+        </div>
+      ) : (
+        <Masonry
+          breakpointCols={{
+            default: 3,
+            1100: 3,
+            700: 2,
+            500: 1
+          }}
+          className={`masonry-grid ${className}`}
+          columnClassName="masonry-grid_column"
+        >
+          {filteredImages.map((image: GalleryImage, index: number) => (
+            <motion.div 
+              key={image.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="mb-4 overflow-hidden rounded-lg cursor-pointer relative group"
+              onClick={() => openLightbox(image, index)}
+            >
+              <img 
+                src={image.src} 
+                alt={image.alt} 
+                className="w-full object-cover transition-transform duration-500 group-hover:scale-105" 
+              />
+              <div className="absolute inset-0 bg-taupe-900/0 md:group-hover:bg-taupe-900/40 bg-taupe-900/40 md:bg-taupe-900/0 transition-all duration-300 flex items-end justify-start p-4">
+                <div className="text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="font-medium">{image.alt}</p>
+                  {image.category && <p className="text-sm text-beige-100">{image.category}</p>}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </Masonry>
+      )}
       
       {/* Fullscreen Lightbox */}
       <AnimatePresence>
@@ -142,7 +215,7 @@ const Gallery: React.FC<GalleryProps> = ({ images, className = "" }) => {
             
             {/* Thumbnails at bottom */}
             <div className="absolute bottom-4 left-0 right-0 flex justify-center overflow-x-auto px-4 py-2 space-x-2">
-              {images.map((img, idx) => (
+              {(activeCategory ? filteredImages : images).map((img, idx) => (
                 <div 
                   key={img.id}
                   className={`w-16 h-16 rounded overflow-hidden flex-shrink-0 border-2 cursor-pointer

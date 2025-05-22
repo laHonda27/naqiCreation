@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, Plus, Trash2, X } from 'lucide-react';
 import Modal from './Modal';
 import ImageUploader from './ImageUploader';
-import type { Creation, Category, OrderProcess, CreationImage } from '../../hooks/useCreations';
+import type { Creation, Category, OrderProcess } from '../../hooks/useCreations';
 
 interface CreationFormModalProps {
   isOpen: boolean;
@@ -317,6 +317,7 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
       onClose={onClose}
       title={editingCreation ? 'Modifier la création' : 'Ajouter une création'} 
       size="lg"
+      preventCloseOnContentClick={true}
     >
       <form onSubmit={handleFormSubmit} className="space-y-6">
         {/* Navigation par onglets - version mobile optimisée */}
@@ -405,7 +406,9 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
                   required
                 >
                   <option value="">Sélectionner une catégorie</option>
-                  {categories.map(category => (
+                  {categories
+                    .filter(category => category.id !== 'all')
+                    .map(category => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
@@ -430,17 +433,7 @@ const CreationFormModal: React.FC<CreationFormModalProps> = ({
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange as any}
-                className="input-field min-h-[6rem]"
-                placeholder="Description de la création"
-                required
-              />
-            </div>
+            {/* Le champ description a été déplacé dans la section au-dessus */}
 
             <ImageUploader
               value={formData.image}

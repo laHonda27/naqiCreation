@@ -3,7 +3,6 @@ import React from 'react';
 const AvailableShapes: React.FC = () => {
   return (
     <div className="bg-white rounded-lg shadow-soft p-6 md:p-8">
-      <h2 className="text-2xl font-display font-semibold mb-6">Formes et tailles de plexiglass</h2>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-beige-50 p-4 rounded-lg text-center">

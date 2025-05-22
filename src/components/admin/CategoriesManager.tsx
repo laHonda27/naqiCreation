@@ -3,12 +3,18 @@ import { Trash2, Edit, Plus } from 'lucide-react';
 import { useCreations, Category } from '../../hooks/useCreations';
 import CategoryFormModal from './CategoryFormModal';
 import GlobalSaveButton from './GlobalSaveButton';
+import ConfirmationModal from './ConfirmationModal';
 
 const CategoriesManager: React.FC = () => {
   const { categories, addCategory, updateCategory, deleteCategory } = useCreations();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // État pour la modal de confirmation
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Ouvrir le modal pour ajouter une catégorie
   const handleAddNew = () => {
@@ -42,17 +48,26 @@ const CategoriesManager: React.FC = () => {
     }
   };
 
-  // Supprimer une catégorie
-  const handleDelete = async (id: string) => {
+  // Ouvrir la modal de confirmation pour supprimer une catégorie
+  const confirmDelete = (id: string) => {
     if (id === 'all') {
-      alert('La catégorie "Tous" ne peut pas être supprimée');
+      setErrorMessage('La catégorie "Tous" ne peut pas être supprimée');
+      setIsConfirmModalOpen(true);
       return;
     }
-
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ? Les créations associées seront déplacées dans la catégorie "Tous".')) {
+    
+    setCategoryToDelete(id);
+    setErrorMessage(null);
+    setIsConfirmModalOpen(true);
+  };
+  
+  // Supprimer une catégorie après confirmation
+  const handleDelete = async () => {
+    if (categoryToDelete) {
       try {
-        await deleteCategory(id);
+        await deleteCategory(categoryToDelete);
         setHasUnsavedChanges(true);
+        setCategoryToDelete(null);
       } catch (error) {
         console.error("Erreur lors de la suppression de la catégorie:", error);
       }
@@ -106,7 +121,7 @@ const CategoriesManager: React.FC = () => {
                           <Edit size={18} />
                         </button>
                         <button
-                          onClick={() => handleDelete(category.id)}
+                          onClick={() => confirmDelete(category.id)}
                           className="text-red-500 hover:text-red-600 p-1"
                           aria-label="Supprimer"
                           disabled={category.id === 'all'}
@@ -135,6 +150,22 @@ const CategoriesManager: React.FC = () => {
       <GlobalSaveButton 
         hasUnsavedChanges={hasUnsavedChanges}
         onSaveComplete={() => setHasUnsavedChanges(false)}
+      />
+      
+      {/* Modal de confirmation pour la suppression */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => {
+          setIsConfirmModalOpen(false);
+          setCategoryToDelete(null);
+          setErrorMessage(null);
+        }}
+        onConfirm={errorMessage ? () => setIsConfirmModalOpen(false) : handleDelete}
+        title={errorMessage ? "Action impossible" : "Confirmer la suppression"}
+        message={errorMessage || "\u00cates-vous s\u00fbr de vouloir supprimer cette cat\u00e9gorie ? Les cr\u00e9ations associ\u00e9es seront d\u00e9plac\u00e9es dans la cat\u00e9gorie \"Tous\"."}
+        confirmText={errorMessage ? "J'ai compris" : "Supprimer"}
+        cancelText={errorMessage ? undefined : "Annuler"}
+        type={errorMessage ? "warning" : "danger"}
       />
     </div>
   );

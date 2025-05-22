@@ -93,11 +93,11 @@ const CustomizationsManager: React.FC = () => {
                 <div className="flex space-x-4">
                   <div className="w-24 h-24 rounded-md overflow-hidden bg-beige-100 flex-shrink-0">
                     <img 
-                      src={item.images[0]?.src || 'https://via.placeholder.com/150?text=Image+non+disponible'} 
+                      src={item.images[0]?.src || '/images/placeholder.jpg'} 
                       alt={item.images[0]?.alt || item.title} 
                       className="w-full h-full object-cover" 
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Image+non+disponible';
+                        (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
                       }}
                     />
                   </div>

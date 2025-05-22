@@ -3,6 +3,7 @@ import { Trash2, Edit, Plus } from 'lucide-react';
 import { useFaqs, FaqPageType, Faq } from '../../hooks/useFaqs';
 import FaqFormModal from './FaqFormModal';
 import GlobalSaveButton from './GlobalSaveButton';
+import ConfirmationModal from './ConfirmationModal';
 
 const FaqsManager: React.FC = () => {
   const { getFaqsByPage, addFaq, updateFaq, deleteFaq } = useFaqs();
@@ -10,6 +11,10 @@ const FaqsManager: React.FC = () => {
   const [editingFaq, setEditingFaq] = useState<Faq | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [activePage, setActivePage] = useState<FaqPageType>('home');
+  
+  // État pour la modal de confirmation
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [faqToDelete, setFaqToDelete] = useState<string | null>(null);
   
   // Ouvrir le modal pour ajouter une FAQ
   const handleAddNew = () => {
@@ -46,13 +51,20 @@ const FaqsManager: React.FC = () => {
     }
   };
   
-  // Supprimer une FAQ
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette FAQ ?')) {
+  // Ouvrir la modal de confirmation pour supprimer une FAQ
+  const confirmDelete = (id: string) => {
+    setFaqToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+  
+  // Supprimer une FAQ après confirmation
+  const handleDelete = async () => {
+    if (faqToDelete) {
       try {
         setHasUnsavedChanges(true);
-        await deleteFaq(activePage, id);
+        await deleteFaq(activePage, faqToDelete);
         setHasUnsavedChanges(false);
+        setFaqToDelete(null);
       } catch (error) {
         console.error('Erreur lors de la suppression de la FAQ:', error);
       }
@@ -150,7 +162,7 @@ const FaqsManager: React.FC = () => {
                     <Edit size={18} />
                   </button>
                   <button
-                    onClick={() => handleDelete(faq.id)}
+                    onClick={() => confirmDelete(faq.id)}
                     className="p-1 text-taupe-500 hover:text-rose-400 transition-colors"
                     title="Supprimer"
                   >
@@ -170,6 +182,18 @@ const FaqsManager: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
         editingFaq={editingFaq}
+      />
+      
+      {/* Modal de confirmation pour la suppression */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirmer la suppression"
+        message="Êtes-vous sûr de vouloir supprimer cette FAQ ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
       />
     </div>
   );

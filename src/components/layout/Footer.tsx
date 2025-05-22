@@ -11,17 +11,14 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-beige-100 pt-16 pb-8">
       <div className="container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Logo and description */}
           <div className="lg:col-span-1">
             <Logo className="h-16 w-auto mb-4" />
             <p className="text-taupe-700 mt-4">
               Des créations sur mesure pour vos moments inoubliables. Panneaux personnalisés pour mariages, fiançailles et tous types d'événements.
             </p>
-            <div className="flex items-center mb-3">
-              <MapPin size={20} className="text-rose-400 mr-2" />
-              <h3 className="text-lg font-semibold text-taupe-800">Nos produits</h3>
-            </div>
+
             {/* Social Media */}
             <div className="mb-6">
               <div className="flex space-x-3">
@@ -66,6 +63,11 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/avis" className="text-taupe-700 hover:text-rose-400 transition-colors">
+                  Avis
+                </Link>
+              </li>
+              <li>
                 <Link to="/contact" className="text-taupe-700 hover:text-rose-400 transition-colors">
                   Contact
                 </Link>
@@ -102,24 +104,7 @@ const Footer: React.FC = () => {
             </ul>
           </div>
           
-          {/* Newsletter */}
-          <div className="lg:col-span-1">
-            <h4 className="text-lg font-display font-semibold mb-4">Newsletter</h4>
-            <p className="text-taupe-700 mb-4">
-              Abonnez-vous pour recevoir nos actualités et promotions.
-            </p>
-            <form className="space-y-3">
-              <input 
-                type="email" 
-                placeholder="Votre email" 
-                className="input-field text-sm" 
-                required 
-              />
-              <button type="submit" className="btn-primary w-full">
-                S'abonner
-              </button>
-            </form>
-          </div>
+
         </div>
         
         <div className="border-t border-beige-200 mt-12 pt-8 text-center text-taupe-600">

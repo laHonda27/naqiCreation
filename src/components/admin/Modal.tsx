@@ -7,6 +7,7 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  preventCloseOnContentClick?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({ 
@@ -14,14 +15,15 @@ const Modal: React.FC<ModalProps> = ({
   onClose, 
   title, 
   children, 
-  size = 'md' 
+  size = 'md',
+  preventCloseOnContentClick = false
 }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Fermer le modal en cliquant à l'extérieur
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === overlayRef.current) {
+    if (e.target === overlayRef.current && !preventCloseOnContentClick) {
       onClose();
     }
   };
@@ -70,7 +72,7 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <div 
       ref={overlayRef}
-      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-hidden"
       onClick={handleOverlayClick}
     >
       <div 
@@ -86,7 +88,7 @@ const Modal: React.FC<ModalProps> = ({
             <X size={20} />
           </button>
         </div>
-        <div className="overflow-y-auto p-3 sm:p-6 max-h-[calc(90vh-8rem)] overflow-x-hidden">
+        <div className="overflow-y-auto p-3 sm:p-6 max-h-[calc(90vh-8rem)] overflow-x-hidden w-full">
           {children}
         </div>
       </div>

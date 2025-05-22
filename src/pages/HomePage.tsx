@@ -19,8 +19,7 @@ import {
   Box,
   Users,
   Clock,
-  Award,
-  Check
+  Award
 } from 'lucide-react';
 
 // Données pour le flux Instagram (simulées)
@@ -189,7 +188,7 @@ const HomePage: React.FC = () => {
   const [animating, setAnimating] = useState(false);
   
   // Récupération des témoignages depuis le hook
-  const { testimonials, loading } = useTestimonials();
+  const { testimonials } = useTestimonials();
   
   // Sélection des 5 témoignages les plus récents
   const recentTestimonials = useMemo(() => {
@@ -214,7 +213,6 @@ const HomePage: React.FC = () => {
   const [eventsRef, eventsInView] = useInView(inViewOptions);
   const [instagramRef, instagramInView] = useInView(inViewOptions);
   const [testimonialsRef, testimonialsInView] = useInView(inViewOptions);
-  const [advantagesRef, advantagesInView] = useInView(inViewOptions);
   const [highlightsRef, highlightsInView] = useInView(inViewOptions);
   const [ctaRef, ctaInView] = useInView(inViewOptions);
   const [faqRef] = useInView(inViewOptions);
@@ -985,85 +983,6 @@ const HomePage: React.FC = () => {
             ))}
           </div>
         </motion.div>
-      </section>
-      
-      {/* Section des avantages */}
-      <section ref={advantagesRef} className="py-20 bg-beige-50">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={advantagesInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2">
-              <div className="bg-taupe-800 text-white p-8 md:p-10 flex flex-col justify-center">
-                <h2 className="text-3xl font-display font-semibold mb-4">Pourquoi choisir Naqi Création ?</h2>
-                <p className="mb-6">
-                  Des créations uniques, personnalisées et de qualité pour tous vos événements spéciaux. 
-                  Notre passion et notre expertise font toute la différence.
-                </p>
-                <ul className="space-y-3">
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-rose-400 flex items-center justify-center mr-3">
-                      <Check size={14} className="text-white" />
-                    </div>
-                    <span>Matériaux de qualité supérieure</span>
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-rose-400 flex items-center justify-center mr-3">
-                      <Check size={14} className="text-white" />
-                    </div>
-                    <span>Designs sur mesure et exclusifs</span>
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-rose-400 flex items-center justify-center mr-3">
-                      <Check size={14} className="text-white" />
-                    </div>
-                    <span>Accompagnement personnalisé</span>
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-rose-400 flex items-center justify-center mr-3">
-                      <Check size={14} className="text-white" />
-                    </div>
-                    <span>Livraison dans toute la France</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div className="p-8 md:p-10">
-                <h3 className="text-2xl font-display font-semibold mb-4 text-taupe-900">Notre expertise à votre service</h3>
-                <p className="text-taupe-700 mb-6">
-                  Chez Naqi Création, nous mettons notre savoir-faire et notre créativité au service de vos événements
-                  les plus importants, pour créer des souvenirs mémorables qui vous ressemblent.
-                </p>
-                
-                <div className="space-y-4">
-                  <div className="bg-beige-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-taupe-800 mb-1">Production artisanale</h4>
-                    <p className="text-sm text-taupe-600">
-                      Chaque panneau est réalisé à la main avec une attention particulière aux détails et aux finitions.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-beige-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-taupe-800 mb-1">Délais respectés</h4>
-                    <p className="text-sm text-taupe-600">
-                      Nous nous engageons à livrer vos créations dans les délais convenus pour que tout soit parfait le jour J.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-beige-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-taupe-800 mb-1">Satisfaction garantie</h4>
-                    <p className="text-sm text-taupe-600">
-                      Votre satisfaction est notre priorité. Nous travaillons avec vous jusqu'à ce que le résultat soit parfait.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
       </section>
       
       {/* Section FAQ */}

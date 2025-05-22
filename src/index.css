@@ -73,6 +73,18 @@
     @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6;
   }
   
+  /* Masonry Grid Styles */
+  .masonry-grid {
+    display: flex;
+    width: 100%;
+    margin-left: -16px; /* Ajustement pour le gap */
+  }
+  
+  .masonry-grid_column {
+    padding-left: 16px; /* Espacement entre les colonnes */
+    background-clip: padding-box;
+  }
+  
   .fullscreen-overlay {
     @apply fixed inset-0 bg-taupe-900/90 z-50 flex items-center justify-center;
   }

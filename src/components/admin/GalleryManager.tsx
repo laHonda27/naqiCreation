@@ -3,6 +3,7 @@ import { Trash2, Edit, Plus } from 'lucide-react';
 import { useGallery, GalleryImage } from '../../hooks/useGallery';
 import GalleryFormModal from './GalleryFormModal';
 import GlobalSaveButton from './GlobalSaveButton';
+import ConfirmationModal from './ConfirmationModal';
 
 const GalleryManager: React.FC = () => {
   const { galleryData, loading, error, addImage, updateImage, deleteImage, addCategory } = useGallery();
@@ -10,6 +11,10 @@ const GalleryManager: React.FC = () => {
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  
+  // État pour la modal de confirmation
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   
   // Ouvrir le modal pour ajouter une image
   const handleAddNew = () => {
@@ -52,13 +57,20 @@ const GalleryManager: React.FC = () => {
     }
   };
   
-  // Supprimer une image
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
+  // Ouvrir la modal de confirmation pour supprimer une image
+  const confirmDelete = (id: string) => {
+    setImageToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+  
+  // Supprimer une image après confirmation
+  const handleDelete = async () => {
+    if (imageToDelete) {
       try {
         setHasUnsavedChanges(true);
-        await deleteImage(id);
+        await deleteImage(imageToDelete);
         setHasUnsavedChanges(false);
+        setImageToDelete(null);
       } catch (error) {
         console.error('Erreur lors de la suppression de l\'image:', error);
       }
@@ -173,7 +185,7 @@ const GalleryManager: React.FC = () => {
                       <Edit size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(image.id)}
+                      onClick={() => confirmDelete(image.id)}
                       className="p-2 bg-white/80 hover:bg-white text-taupe-600 hover:text-rose-400 rounded-full transition-colors"
                       title="Supprimer"
                     >
@@ -198,6 +210,18 @@ const GalleryManager: React.FC = () => {
         onSubmit={handleFormSubmit}
         editingImage={editingImage}
         categories={galleryData.categories}
+      />
+      
+      {/* Modal de confirmation pour la suppression */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirmer la suppression"
+        message="Êtes-vous sûr de vouloir supprimer cette image de la galerie ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
       />
     </div>
   );

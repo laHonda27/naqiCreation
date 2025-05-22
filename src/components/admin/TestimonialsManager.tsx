@@ -3,6 +3,7 @@ import { Trash2, Edit, Plus, Star } from 'lucide-react';
 import { useTestimonials, Testimonial, TextTestimonial, ScreenshotTestimonial } from '../../hooks/useTestimonials';
 import TestimonialFormModal from './TestimonialFormModal';
 import GlobalSaveButton from './GlobalSaveButton';
+import ConfirmationModal from './ConfirmationModal';
 import Masonry from 'react-masonry-css';
 import '../testimonials/TestimonialGrid.css';
 
@@ -11,6 +12,10 @@ const TestimonialsManager: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // État pour la modal de confirmation
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [testimonialToDelete, setTestimonialToDelete] = useState<string | null>(null);
   
   // Ouvrir le modal pour ajouter un témoignage
   const handleAddNew = () => {
@@ -44,12 +49,19 @@ const TestimonialsManager: React.FC = () => {
     }
   };
   
-  // Supprimer un témoignage
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce témoignage ?')) {
+  // Ouvrir la modal de confirmation pour supprimer un témoignage
+  const confirmDelete = (id: string) => {
+    setTestimonialToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+  
+  // Supprimer un témoignage après confirmation
+  const handleDelete = async () => {
+    if (testimonialToDelete) {
       try {
-        await deleteTestimonial(id);
+        await deleteTestimonial(testimonialToDelete);
         setHasUnsavedChanges(true);
+        setTestimonialToDelete(null);
       } catch (error) {
         console.error("Erreur lors de la suppression du témoignage:", error);
       }
@@ -96,7 +108,7 @@ const TestimonialsManager: React.FC = () => {
                             alt={testimonial.name} 
                             className="w-full h-full object-cover" 
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Avatar';
+                              (e.target as HTMLImageElement).src = '/images/placeholder-avatar.jpg';
                             }}
                           />
                         ) : (
@@ -156,7 +168,7 @@ const TestimonialsManager: React.FC = () => {
                             alt={`Capture d'écran du témoignage de ${testimonial.name}`}
                             className="w-full h-auto" 
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=Image+non+disponible';
+                              (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
                             }}
                           />
                         </div>
@@ -179,7 +191,7 @@ const TestimonialsManager: React.FC = () => {
                     <Edit size={18} />
                   </button>
                   <button
-                    onClick={() => handleDelete(testimonial.id)}
+                    onClick={() => confirmDelete(testimonial.id)}
                     className="text-red-500 hover:text-red-600 p-1"
                     aria-label="Supprimer"
                   >
@@ -204,6 +216,18 @@ const TestimonialsManager: React.FC = () => {
       <GlobalSaveButton 
         hasUnsavedChanges={hasUnsavedChanges}
         onSaveComplete={() => setHasUnsavedChanges(false)}
+      />
+      
+      {/* Modal de confirmation pour la suppression */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirmer la suppression"
+        message="Êtes-vous sûr de vouloir supprimer ce témoignage ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
       />
     </div>
   );

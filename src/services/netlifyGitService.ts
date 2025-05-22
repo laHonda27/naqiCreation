@@ -118,7 +118,7 @@ export const netlifyGitService = {
           break;
       }
       
-      console.log(`Appel de la fonction ${functionName} avec l'action ${actionName}`, params);
+      // Appel de la fonction
       
       const response = await fetch(`${BASE_URL}/${functionName}`, {
         method: 'POST',
@@ -135,13 +135,10 @@ export const netlifyGitService = {
 
       const result = await response.json();
       
-      if (!response.ok) {
-        console.error(`Erreur lors de l'appel à la fonction Netlify (${action}):`, result);
-      }
+      // Traitement silencieux des erreurs
       
       return result;
     } catch (error: any) {
-      console.error(`Erreur lors de l'appel à la fonction Netlify (${action}):`, error);
       return {
         success: false,
         error: error.message || 'Erreur inconnue'
