@@ -352,6 +352,38 @@
       },
       "exampleImages": [],
       "id": "7d7f8432-5ebd-4bfd-8ec8-9f18c5a059af"
+    },
+    {
+      "title": "test",
+      "description": "test",
+      "price": 50,
+      "customPrice": "",
+      "image": "",
+      "category": "fiancailles",
+      "featured": false,
+      "technicalDetails": [
+        ""
+      ],
+      "customizationOptions": [
+        ""
+      ],
+      "orderProcess": [
+        {
+          "step": 1,
+          "title": "",
+          "description": ""
+        }
+      ],
+      "specifications": {
+        "standardSize": "",
+        "deliveryTime": "",
+        "material": "",
+        "additionalInfo": [
+          ""
+        ]
+      },
+      "exampleImages": [],
+      "id": "30aee7cb-99d9-4853-a006-c72ead44580b"
     }
   ]
 }
