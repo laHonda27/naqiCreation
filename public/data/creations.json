@@ -384,6 +384,38 @@
       },
       "exampleImages": [],
       "id": "30aee7cb-99d9-4853-a006-c72ead44580b"
+    },
+    {
+      "title": "test",
+      "description": "test",
+      "price": 11.99,
+      "customPrice": "",
+      "image": "",
+      "category": "babyshower",
+      "featured": false,
+      "technicalDetails": [
+        ""
+      ],
+      "customizationOptions": [
+        ""
+      ],
+      "orderProcess": [
+        {
+          "step": 1,
+          "title": "",
+          "description": ""
+        }
+      ],
+      "specifications": {
+        "standardSize": "",
+        "deliveryTime": "",
+        "material": "",
+        "additionalInfo": [
+          ""
+        ]
+      },
+      "exampleImages": [],
+      "id": "e2b1ffa8-3e1c-4758-9fb9-c6dca6f0b0dc"
     }
   ]
 }
