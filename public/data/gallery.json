@@ -2,10 +2,11 @@
   "images": [
     {
       "id": "g1",
-      "src": "https://images.pexels.com/photos/1024981/pexels-photo-1024981.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747610919/naqi-creation/IMG-20250510-WA0007.jpg",
       "alt": "Panneau de bienvenue mariage",
       "category": "Mariage",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-22T18:46:16.635Z"
     },
     {
       "id": "g2",
