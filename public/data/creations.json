@@ -125,7 +125,7 @@
       "id": "3",
       "title": "Panneau Anniversaire",
       "description": "Célébrez votre anniversaire avec un panneau personnalisé coloré et festif.",
-      "price": 6500,
+      "price": 50,
       "image": "https://images.pexels.com/photos/8153830/pexels-photo-8153830.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
       "category": "anniversaire",
       "featured": true,
@@ -174,62 +174,6 @@
           "Couleurs vives recommandées",
           "Support en bois inclus",
           "Parfait pour les tables d'accueil"
-        ]
-      }
-    },
-    {
-      "id": "4",
-      "title": "Panneau Baby Shower",
-      "description": "Annoncez la venue de bébé avec ce panneau adorable et personnalisé.",
-      "price": 7000,
-      "image": "https://images.pexels.com/photos/6387828/pexels-photo-6387828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "category": "babyshower",
-      "featured": false,
-      "technicalDetails": [
-        "Support en bois inclus pour une présentation élégante",
-        "Polissage des bords pour une finition parfaite",
-        "Résistant aux rayures et durables dans le temps",
-        "Film protecteur à retirer avant utilisation",
-        "Entretien facile avec un chiffon doux et de l'eau savonneuse"
-      ],
-      "customizationOptions": [
-        "Choix de la couleur du fond (pastels recommandés)",
-        "Choix de la couleur des inscriptions (doré, blanc, argenté, noir)",
-        "Texte personnalisable (noms, dates, messages)",
-        "Motifs spéciaux baby shower (biberons, chaussons, etc.)",
-        "Possibilité d'annoncer le sexe du bébé"
-      ],
-      "orderProcess": [
-        {
-          "step": 1,
-          "title": "Consultation",
-          "description": "Discussion de vos besoins"
-        },
-        {
-          "step": 2,
-          "title": "Validation",
-          "description": "Approbation du design"
-        },
-        {
-          "step": 3,
-          "title": "Création",
-          "description": "Réalisation sur mesure"
-        },
-        {
-          "step": 4,
-          "title": "Livraison",
-          "description": "Réception et installation"
-        }
-      ],
-      "specifications": {
-        "standardSize": "40 x 50 cm",
-        "deliveryTime": "2 semaines",
-        "material": "Plexiglass 3mm",
-        "additionalInfo": [
-          "Formes de nuage ou rondes populaires",
-          "Peut servir ensuite pour la chambre du bébé",
-          "Support en bois inclus",
-          "Emballage sécurisé pour la livraison"
         ]
       }
     },
