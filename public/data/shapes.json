@@ -3,21 +3,21 @@
     {
       "id": "arche-orientale",
       "name": "Arche orientale",
-      "image": "/images/formes/arche-orientale.png",
+      "image": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748201416/naqi-creation/IMG_9490.jpg",
       "size": "50x70 cm",
       "description": "Forme en arche avec pointe orientale"
     },
     {
       "id": "arche-classique",
       "name": "Arche classique",
-      "image": "/images/formes/arche-classique.png",
+      "image": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748201482/naqi-creation/IMG_9491.jpg",
       "size": "50x70 cm",
       "description": "Forme en arche arrondie classique"
     },
     {
       "id": "rectangle",
       "name": "Rectangle",
-      "image": "/images/formes/rectangle.png",
+      "image": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748201507/naqi-creation/IMG_9492.jpg",
       "size": "50x70 cm",
       "description": "Forme rectangulaire standard"
     },
@@ -52,7 +52,7 @@
     {
       "id": "cercle",
       "name": "Cercle",
-      "image": "/images/formes/cercle.png",
+      "image": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748201496/naqi-creation/IMG_9493.jpg",
       "size": "50x50 cm",
       "description": "Forme circulaire élégante"
     }
