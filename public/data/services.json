@@ -1,19 +1,6 @@
 {
   "services": [
     {
-      "id": "custom",
-      "iconType": "Palette",
-      "title": "Personnalisation complète",
-      "description": "Choisissez parmi une large gamme de couleurs, polices et designs pour créer des panneaux qui correspondent parfaitement à l'esthétique de votre événement.",
-      "features": [
-        "Plus de 15 couleurs disponibles",
-        "Polices variées et élégantes",
-        "Motifs exclusifs",
-        "Formes personnalisables"
-      ],
-      "link": "/prestations"
-    },
-    {
       "id": "welcome",
       "iconType": "PenTool",
       "title": "Panneaux de bienvenu",
@@ -25,6 +12,19 @@
         "Design sur mesure"
       ],
       "link": "/prestations"
+    },
+    {
+      "id": "custom",
+      "iconType": "Palette",
+      "title": "Personnalisation complète",
+      "description": "Choisissez parmi une large gamme de couleurs, polices et designs pour créer des panneaux qui correspondent parfaitement à l'esthétique de votre événement.",
+      "features": [
+        "Plus de 15 couleurs disponibles",
+        "Polices variées et élégantes",
+        "Motifs exclusifs",
+        "Formes personnalisables"
+      ],
+      "link": "/prestations#informations-techniques"
     },
     {
       "id": "accessories",
