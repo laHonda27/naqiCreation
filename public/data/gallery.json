@@ -26,10 +26,11 @@
     },
     {
       "id": "g5",
-      "src": "https://images.pexels.com/photos/1120575/pexels-photo-1120575.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Étiquettes de bouteille",
-      "category": "Personnalisation",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193363/naqi-creation/IMG_9479.jpg",
+      "alt": "Panneau de bienvenue",
+      "category": "Mariage",
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:16:20.733Z"
     },
     {
       "id": "g6",
