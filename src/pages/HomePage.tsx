@@ -230,22 +230,25 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Image en premier sur mobile, mais à droite sur desktop */}
             <div className="lg:col-span-6 order-1 lg:order-2 relative min-h-[350px] lg:min-h-[600px] mt-0 mb-8 lg:mb-0 lg:mt-0">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={heroInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.7, delay: 0.4 }}
-                className="absolute top-0 right-0 w-full h-full flex justify-center items-center"
-              >
-                <div className="relative shadow-2xl rounded-2xl overflow-hidden w-full max-w-lg transform rotate-1">
-                  <img 
-                    src={siteSettings?.hero?.useCustomImage && siteSettings.hero.customImageUrl 
-                      ? siteSettings.hero.customImageUrl 
-                      : "https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} 
-                    alt="Panneau personnalisé élégant" 
-                    className="w-full h-[400px] lg:h-[500px] object-cover"
-                  />
-                </div>
-              </motion.div>
+              {/* N'afficher le contenu que lorsque les paramètres du site sont chargés */}
+              {(siteSettings !== null) && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={heroInView ? { opacity: 1, scale: 1 } : {}}
+                  transition={{ duration: 0.7, delay: 0.4 }}
+                  className="absolute top-0 right-0 w-full h-full flex justify-center items-center"
+                >
+                  <div className="relative shadow-2xl rounded-2xl overflow-hidden w-full max-w-lg transform rotate-1">
+                    <img 
+                      src={siteSettings?.hero?.useCustomImage && siteSettings.hero.customImageUrl 
+                        ? siteSettings.hero.customImageUrl 
+                        : "https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} 
+                      alt="Panneau personnalisé élégant" 
+                      className="w-full h-[400px] lg:h-[500px] object-cover"
+                    />
+                  </div>
+                </motion.div>
+              )}
               
               <motion.div
                 initial={{ opacity: 0, x: 80, y: -40 }}
