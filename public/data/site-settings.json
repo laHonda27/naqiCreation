@@ -8,8 +8,8 @@
     "customFaviconUrl": ""
   },
   "siteIcon": {
-    "useCustomIcon": false,
-    "customIconUrl": ""
+    "useCustomIcon": true,
+    "customIconUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748204709/naqi-creation/formesR.jpg"
   },
   "hero": {
     "useCustomImage": false,
