@@ -1,7 +1,7 @@
 {
   "favicon": {
-    "useCustomFavicon": false,
-    "customFaviconUrl": ""
+    "useCustomFavicon": true,
+    "customFaviconUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748211050/naqi-creation/algeria.png"
   },
   "logo": {
     "useCustomLogo": true,
