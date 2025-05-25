@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { PenTool, Palette, Box, Edit, Trash, Plus, X, Check, AlertCircle } from 'lucide-react';
+import { Edit, Trash, Plus, AlertCircle } from 'lucide-react';
 import { netlifyGitService } from '../../services/netlifyGitService';
-import { ServiceDetail } from '../../hooks/useServiceDetails';
+import { ServiceDetail, getIconComponent } from '../../hooks/useServiceDetails';
+import GlobalSaveButton from './GlobalSaveButton';
+import ServiceFormModal from './ServiceFormModal';
+import ConfirmationModal from './ConfirmationModal';
 
-// Icônes disponibles pour les services
-const availableIcons = [
-  { id: 'PenTool', label: 'Stylo', component: <PenTool size={20} /> },
-  { id: 'Palette', label: 'Palette', component: <Palette size={20} /> },
-  { id: 'Box', label: 'Boîte', component: <Box size={20} /> }
-];
+
 
 const ServicesManager: React.FC = () => {
   const [services, setServices] = useState<ServiceDetail[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  
+  // États pour les modals
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingService, setEditingService] = useState<ServiceDetail | null>(null);
-  const [isCreating, setIsCreating] = useState<boolean>(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
+  const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
 
   // Charger les services au démarrage
   useEffect(() => {
@@ -85,177 +86,114 @@ const ServicesManager: React.FC = () => {
   };
 
   // Sauvegarder les services dans le fichier JSON
-  const saveServices = async () => {
+  const saveServices = async (): Promise<boolean> => {
     try {
-      setSaving(true);
-      
       // Limiter à 3 services maximum pour la section d'accueil
       const servicesData = {
         services: services.slice(0, 3)
       };
       
-      const result = await netlifyGitService.updateFile('services.json', servicesData);
+      // Utiliser writeJsonFile pour écrire le fichier avec un message de commit
+      const writeResult = await netlifyGitService.writeJsonFile(
+        'services.json',
+        servicesData,
+        'Mise à jour des services sur la page d\'accueil'
+      );
       
-      if (result.success) {
-        setSuccess("Les services ont été enregistrés avec succès!");
-        setTimeout(() => setSuccess(null), 3000);
+      if (!writeResult.success) {
+        setError(writeResult.error || "Erreur lors de l'enregistrement");
+        setTimeout(() => setError(null), 5000);
+        return false;
+      }
+      
+      // Forcer un push explicite pour s'assurer que les modifications sont envoyées au dépôt distant
+      const pushResult = await netlifyGitService.pushChanges();
+      
+      if (pushResult.success) {
+        return true;
       } else {
-        throw new Error(result.error || "Erreur lors de l'enregistrement");
+        setError(pushResult.error || "Erreur lors du push vers Git");
+        setTimeout(() => setError(null), 5000);
+        return false;
       }
     } catch (err) {
-      console.error('Erreur lors de la sauvegarde des services:', err);
-      setError("Impossible d'enregistrer les services. Veuillez réessayer plus tard.");
+      console.error("Erreur lors de l'enregistrement des services:", err);
+      setError("Erreur lors de l'enregistrement. Veuillez réessayer.");
       setTimeout(() => setError(null), 5000);
-    } finally {
-      setSaving(false);
+      return false;
     }
   };
 
-  // Commencer l'édition d'un service
-  const startEditing = (service: ServiceDetail) => {
+  // Ouvrir le modal pour ajouter un service
+  const handleAddNew = () => {
+    setEditingService(null);
+    setIsModalOpen(true);
+  };
+
+  // Ouvrir le modal pour modifier un service
+  const handleEdit = (service: ServiceDetail) => {
     setEditingService({...service});
-    setIsCreating(false);
+    setIsModalOpen(true);
+  };
+  
+  // Ouvrir la modal de confirmation pour supprimer un service
+  const confirmDelete = (id: string) => {
+    setServiceToDelete(id);
+    setIsConfirmModalOpen(true);
   };
 
-  // Commencer la création d'un nouveau service
-  const startCreating = () => {
-    setEditingService({
-      id: `service_${Date.now()}`,
-      iconType: 'PenTool',
-      title: "",
-      description: "",
-      features: [""],
-      link: "/prestations"
-    });
-    setIsCreating(true);
-  };
 
-  // Annuler l'édition
-  const cancelEditing = () => {
-    setEditingService(null);
-    setIsCreating(false);
-  };
 
-  // Mettre à jour un champ du service en édition
-  const updateEditingField = (field: keyof ServiceDetail, value: any) => {
-    if (!editingService) return;
-    
-    setEditingService({
-      ...editingService,
-      [field]: value
-    });
-  };
-
-  // Ajouter ou mettre à jour une fonctionnalité dans le service en édition
-  const updateFeature = (index: number, value: string) => {
-    if (!editingService) return;
-    
-    const newFeatures = [...editingService.features];
-    newFeatures[index] = value;
-    
-    setEditingService({
-      ...editingService,
-      features: newFeatures
-    });
-  };
-
-  // Ajouter une nouvelle fonctionnalité vide
-  const addFeature = () => {
-    if (!editingService) return;
-    
-    setEditingService({
-      ...editingService,
-      features: [...editingService.features, ""]
-    });
-  };
-
-  // Supprimer une fonctionnalité
-  const removeFeature = (index: number) => {
-    if (!editingService) return;
-    
-    const newFeatures = [...editingService.features];
-    newFeatures.splice(index, 1);
-    
-    setEditingService({
-      ...editingService,
-      features: newFeatures
-    });
-  };
-
-  // Sauvegarder les modifications du service en édition
-  const saveServiceChanges = () => {
-    if (!editingService) return;
-    
-    // Validation de base
-    if (!editingService.title.trim() || !editingService.description.trim()) {
-      setError("Le titre et la description sont obligatoires.");
-      return;
+  // Gérer la soumission du formulaire (ajout ou mise à jour)
+  const handleFormSubmit = (formData: Omit<ServiceDetail, 'id'> & { id?: string }) => {
+    try {
+      if (formData.id) {
+        // Mettre à jour un service existant
+        setServices(services.map(s => 
+          s.id === formData.id ? { ...formData as ServiceDetail } : s
+        ));
+      } else {
+        // Ajouter un nouveau service avec un ID généré
+        const newService: ServiceDetail = {
+          ...formData as Omit<ServiceDetail, 'id'>,
+          id: `service_${Date.now()}`
+        };
+        setServices([...services, newService]);
+      }
+      
+      // Indiquer qu'il y a des changements non enregistrés
+      setHasUnsavedChanges(true);
+      // Fermer le modal
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement du service:", error);
+      setError("Une erreur est survenue lors de l'enregistrement du service.");
     }
-    
-    // Filtrer les fonctionnalités vides
-    const filteredFeatures = editingService.features.filter(f => f.trim() !== '');
-    if (filteredFeatures.length === 0) {
-      setError("Au moins une fonctionnalité est requise.");
-      return;
+  };
+
+  // Supprimer un service après confirmation
+  const handleDelete = () => {
+    if (serviceToDelete) {
+      if (services.length <= 1) {
+        setError("Vous devez conserver au moins un service.");
+        setIsConfirmModalOpen(false);
+        return;
+      }
+      
+      try {
+        const updatedServices = services.filter(s => s.id !== serviceToDelete);
+        setServices(updatedServices);
+        setHasUnsavedChanges(true);
+        setServiceToDelete(null);
+        setIsConfirmModalOpen(false);
+      } catch (error) {
+        console.error("Erreur lors de la suppression du service:", error);
+        setError("Une erreur est survenue lors de la suppression du service.");
+      }
     }
-    
-    // Mettre à jour les services
-    if (isCreating) {
-      setServices([...services, {...editingService, features: filteredFeatures}]);
-    } else {
-      setServices(services.map(s => 
-        s.id === editingService.id ? {...editingService, features: filteredFeatures} : s
-      ));
-    }
-    
-    // Réinitialiser l'état
-    setEditingService(null);
-    setIsCreating(false);
-    setError(null);
-    
-    // Sauvegarder les changements
-    saveServices();
   };
 
-  // Supprimer un service
-  const deleteService = (serviceId: string) => {
-    if (services.length <= 1) {
-      setError("Vous devez conserver au moins un service.");
-      return;
-    }
-    
-    const updatedServices = services.filter(s => s.id !== serviceId);
-    setServices(updatedServices);
-    saveServices();
-  };
 
-  // Déplacer un service vers le haut dans la liste
-  const moveServiceUp = (index: number) => {
-    if (index <= 0) return;
-    
-    const newServices = [...services];
-    [newServices[index], newServices[index - 1]] = [newServices[index - 1], newServices[index]];
-    
-    setServices(newServices);
-    saveServices();
-  };
-
-  // Déplacer un service vers le bas dans la liste
-  const moveServiceDown = (index: number) => {
-    if (index >= services.length - 1) return;
-    
-    const newServices = [...services];
-    [newServices[index], newServices[index + 1]] = [newServices[index + 1], newServices[index]];
-    
-    setServices(newServices);
-    saveServices();
-  };
-
-  // Obtenir le composant d'icône correspondant au type
-  const getIconById = (iconType: string) => {
-    const iconObj = availableIcons.find(icon => icon.id === iconType);
-    return iconObj ? iconObj.component : <PenTool size={20} />;
-  };
 
   if (loading) {
     return (
@@ -267,18 +205,11 @@ const ServicesManager: React.FC = () => {
 
   return (
     <div className="services-manager">
-      {/* Messages d'erreur ou de succès */}
+      {/* Messages d'erreur */}
       {error && (
         <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 flex items-start">
           <AlertCircle size={18} className="text-red-500 mr-2 mt-0.5 flex-shrink-0" />
           <p className="text-red-700">{error}</p>
-        </div>
-      )}
-      
-      {success && (
-        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 flex items-start">
-          <Check size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-          <p className="text-green-700">{success}</p>
         </div>
       )}
       
@@ -288,8 +219,7 @@ const ServicesManager: React.FC = () => {
           <h3 className="text-lg font-semibold text-taupe-800">Services sur la page d'accueil</h3>
           {services.length < 3 && (
             <button 
-              onClick={startCreating}
-              disabled={saving || Boolean(editingService)}
+              onClick={handleAddNew}
               className="btn-primary py-2 px-4 rounded-md text-sm flex items-center"
             >
               <Plus size={16} className="mr-1" />
@@ -307,7 +237,7 @@ const ServicesManager: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
                     <div className="w-10 h-10 rounded-full bg-white p-2 flex items-center justify-center border border-beige-200">
-                      {getIconById(service.iconType)}
+                      {getIconComponent(service.iconType, "w-6 h-6 text-rose-400")}
                     </div>
                     <div>
                       <h4 className="font-medium text-taupe-800">{service.title}</h4>
@@ -316,32 +246,15 @@ const ServicesManager: React.FC = () => {
                   </div>
                   <div className="flex space-x-1">
                     <button 
-                      onClick={() => moveServiceUp(index)}
-                      disabled={index === 0}
-                      className={`p-1 rounded-md ${index === 0 ? 'text-taupe-400 cursor-not-allowed' : 'text-taupe-600 hover:bg-beige-200'}`}
-                      title="Déplacer vers le haut"
-                    >
-                      ↑
-                    </button>
-                    <button 
-                      onClick={() => moveServiceDown(index)}
-                      disabled={index === services.length - 1}
-                      className={`p-1 rounded-md ${index === services.length - 1 ? 'text-taupe-400 cursor-not-allowed' : 'text-taupe-600 hover:bg-beige-200'}`}
-                      title="Déplacer vers le bas"
-                    >
-                      ↓
-                    </button>
-                    <button 
-                      onClick={() => startEditing(service)}
-                      disabled={Boolean(editingService)}
+                      onClick={() => handleEdit(service)}
                       className="p-1 rounded-md text-taupe-600 hover:bg-beige-200"
                       title="Modifier"
                     >
                       <Edit size={16} />
                     </button>
                     <button 
-                      onClick={() => deleteService(service.id)}
-                      disabled={Boolean(editingService) || services.length <= 1}
+                      onClick={() => confirmDelete(service.id)}
+                      disabled={services.length <= 1}
                       className="p-1 rounded-md text-rose-600 hover:bg-rose-100"
                       title="Supprimer"
                     >
@@ -355,123 +268,34 @@ const ServicesManager: React.FC = () => {
         )}
       </div>
       
-      {/* Formulaire d'édition */}
-      {editingService && (
-        <div className="bg-white border border-beige-200 rounded-lg p-6 shadow-md">
-          <h3 className="text-lg font-semibold text-taupe-800 mb-4">
-            {isCreating ? "Ajouter un nouveau service" : "Modifier le service"}
-          </h3>
-          
-          <div className="space-y-4">
-            {/* Sélection d'icône */}
-            <div>
-              <label className="block text-taupe-700 text-sm font-medium mb-2">Icône</label>
-              <div className="flex space-x-2">
-                {availableIcons.map(icon => (
-                  <button
-                    key={icon.id}
-                    type="button"
-                    onClick={() => updateEditingField('iconType', icon.id)}
-                    className={`p-2 rounded-md ${editingService.iconType === icon.id ? 'bg-rose-100 text-rose-500' : 'bg-beige-100 text-taupe-600'}`}
-                    title={icon.label}
-                  >
-                    {icon.component}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Titre */}
-            <div>
-              <label className="block text-taupe-700 text-sm font-medium mb-2">Titre</label>
-              <input
-                type="text"
-                value={editingService.title}
-                onChange={(e) => updateEditingField('title', e.target.value)}
-                className="w-full p-2 border border-beige-300 rounded-md"
-                placeholder="Titre du service"
-              />
-            </div>
-            
-            {/* Description */}
-            <div>
-              <label className="block text-taupe-700 text-sm font-medium mb-2">Description</label>
-              <textarea
-                value={editingService.description}
-                onChange={(e) => updateEditingField('description', e.target.value)}
-                className="w-full p-2 border border-beige-300 rounded-md"
-                rows={3}
-                placeholder="Description du service"
-              ></textarea>
-            </div>
-            
-            {/* Lien */}
-            <div>
-              <label className="block text-taupe-700 text-sm font-medium mb-2">Lien</label>
-              <input
-                type="text"
-                value={editingService.link}
-                onChange={(e) => updateEditingField('link', e.target.value)}
-                className="w-full p-2 border border-beige-300 rounded-md"
-                placeholder="/prestations"
-              />
-            </div>
-            
-            {/* Fonctionnalités */}
-            <div>
-              <label className="block text-taupe-700 text-sm font-medium mb-2">Fonctionnalités</label>
-              <div className="space-y-2">
-                {editingService.features.map((feature, index) => (
-                  <div key={index} className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={feature}
-                      onChange={(e) => updateFeature(index, e.target.value)}
-                      className="flex-1 p-2 border border-beige-300 rounded-md"
-                      placeholder="Caractéristique du service"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeFeature(index)}
-                      disabled={editingService.features.length <= 1}
-                      className={`p-2 rounded-md ${editingService.features.length <= 1 ? 'text-taupe-400 bg-beige-100 cursor-not-allowed' : 'text-rose-500 bg-rose-100 hover:bg-rose-200'}`}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addFeature}
-                  className="text-sm text-rose-500 hover:text-rose-600 flex items-center"
-                >
-                  <Plus size={16} className="mr-1" />
-                  Ajouter une fonctionnalité
-                </button>
-              </div>
-            </div>
-            
-            {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={cancelEditing}
-                className="px-4 py-2 border border-beige-300 text-taupe-700 rounded-md hover:bg-beige-100"
-              >
-                Annuler
-              </button>
-              <button
-                type="button"
-                onClick={saveServiceChanges}
-                className="px-4 py-2 bg-rose-500 text-white rounded-md hover:bg-rose-600 disabled:opacity-50"
-                disabled={saving}
-              >
-                {saving ? 'Enregistrement...' : 'Enregistrer'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
+      
+      {/* Bouton flottant pour enregistrer les modifications */}
+      <GlobalSaveButton 
+        hasUnsavedChanges={hasUnsavedChanges}
+        onSaveComplete={() => setHasUnsavedChanges(false)}
+        onSave={saveServices}
+      />
+      
+      {/* Modal pour ajouter/modifier un service */}
+      <ServiceFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleFormSubmit}
+        editingService={editingService}
+      />
+      
+      {/* Modal de confirmation pour la suppression */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirmer la suppression"
+        message="Êtes-vous sûr de vouloir supprimer ce service ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
+      />
     </div>
   );
 };

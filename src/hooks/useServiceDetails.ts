@@ -36,26 +36,47 @@ export const useServiceDetails = () => {
       try {
         setLoading(true);
         
+        // Synchroniser d'abord le dépôt pour s'assurer d'avoir les dernières données
+        await netlifyGitService.syncRepository();
+        
         // Tenter de récupérer depuis le dépôt Git
         const result = await netlifyGitService.getJsonFile('services.json');
         
-        if (result.success && result.data) {
-          setServiceDetails(result.data.services || []);
-        } else {
-          // Fallback: charger depuis le fichier statique si le Git échoue
-          const response = await fetch('/data/services.json');
-          if (!response.ok) {
-            throw new Error('Erreur lors du chargement des services');
+        // Vérifier si nous avons des données dans le résultat
+        if (result.success) {
+          let parsedData;
+          
+          if (typeof result.content === 'string') {
+            // Si nous avons une chaîne JSON, la parser
+            parsedData = JSON.parse(result.content);
+          } else if (result.data) {
+            // Si nous avons déjà un objet data, l'utiliser directement
+            parsedData = result.data;
           }
-          const data = await response.json();
-          setServiceDetails(data.services || []);
+          
+          if (parsedData && parsedData.services && Array.isArray(parsedData.services)) {
+            console.log('Services chargés depuis Git:', parsedData.services);
+            setServiceDetails(parsedData.services);
+            setLoading(false);
+            return; // Sortir de la fonction si nous avons récupéré les données
+          }
         }
+        
+        // Fallback: charger depuis le fichier statique si le Git échoue
+        console.log('Tentative de chargement depuis le fichier statique');
+        const response = await fetch('/data/services.json');
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des services');
+        }
+        const data = await response.json();
+        console.log('Services chargés depuis le fichier statique:', data.services);
+        setServiceDetails(data.services || []);
       } catch (err) {
         console.error('Erreur lors du chargement des services:', err);
         setError(err instanceof Error ? err.message : 'Une erreur est survenue');
         
         // Utiliser les données par défaut en cas d'erreur
-        setServiceDetails([
+        const defaultServices = [
           {
             id: 'welcome',
             iconType: 'PenTool',
@@ -95,7 +116,9 @@ export const useServiceDetails = () => {
             ],
             link: "/personnalisation"
           }
-        ]);
+        ];
+        console.log('Utilisation des services par défaut');
+        setServiceDetails(defaultServices);
       } finally {
         setLoading(false);
       }
