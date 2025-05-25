@@ -1,3 +1,15 @@
 {
-  "testimonials": []
+  "testimonials": [
+    {
+      "type": "text",
+      "name": "Y",
+      "comment": "Je te remercie infiniment pour les magnifiques panneaux que tu m'as fait pour mon henna et mon jour J 💕 Tu as fais ça parfaitement j'ai beaucoup aimé merci milles fois wAllah🙏🏼",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748195975461",
+      "dateAdded": "2025-05-25T17:59:35.461Z",
+      "dateModified": "2025-05-25T17:59:35.461Z"
+    }
+  ]
 }
