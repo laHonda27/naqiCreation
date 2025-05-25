@@ -10,10 +10,11 @@
     },
     {
       "id": "g3",
-      "src": "https://images.pexels.com/photos/3171815/pexels-photo-3171815.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Panneau personnalisé fiançailles",
-      "category": "Fiançailles",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193155/naqi-creation/IMG_9477.jpg",
+      "alt": "Panneau personnalisé henna",
+      "category": "Henna day",
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:12:56.033Z"
     },
     {
       "id": "g4",
@@ -63,7 +64,6 @@
     "Fiançailles",
     "Baby Shower",
     "Décoration de table",
-    "Personnalisation",
-    "Henna day"
+    "Personnalisation"
   ]
 }
