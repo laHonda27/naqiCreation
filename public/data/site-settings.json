@@ -8,8 +8,8 @@
     "customLogoUrl": ""
   },
   "hero": {
-    "useCustomImage": false,
-    "customImageUrl": "",
+    "useCustomImage": true,
+    "customImageUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748211008/naqi-creation/ChatPin_3a923d02-76d7-4354-9e63-6d142c86b415_480x480.webp",
     "title": "Sublimez vos moments avec des créations unique",
     "subtitle": "Des panneaux et accessoires sur mesure pour rendre vos mariages, fiançailles et célébrations véritablement exceptionnels."
   },
