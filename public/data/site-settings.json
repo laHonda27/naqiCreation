@@ -1,11 +1,11 @@
 {
-  "logo": {
-    "useCustomLogo": false,
-    "customLogoUrl": ""
-  },
   "favicon": {
     "useCustomFavicon": false,
     "customFaviconUrl": ""
+  },
+  "logo": {
+    "useCustomLogo": false,
+    "customLogoUrl": ""
   },
   "hero": {
     "useCustomImage": true,
