@@ -42,10 +42,11 @@
     },
     {
       "id": "g7",
-      "src": "https://images.pexels.com/photos/3171813/pexels-photo-3171813.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Plan de table mariage",
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193643/naqi-creation/IMG_9482.jpg",
+      "alt": "Panneau de bienvenue",
       "category": "Mariage",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:20:49.842Z"
     },
     {
       "id": "g8",
