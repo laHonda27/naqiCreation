@@ -9,11 +9,14 @@ interface TabsProps {
 
 interface TabsListProps {
   children: React.ReactNode;
+  className?: string;
 }
 
 interface TabsTriggerProps {
   children: React.ReactNode;
   value: string;
+  className?: string;
+  onClick?: () => void;
 }
 
 interface TabsContentProps {
@@ -36,18 +39,23 @@ export const Tabs: React.FC<TabsProps> = ({ children, value, onValueChange }) =>
   );
 };
 
-export const TabsList: React.FC<TabsListProps> = ({ children }) => {
+export const TabsList: React.FC<TabsListProps> = ({ children, className }) => {
   return (
-    <div className="flex space-x-2 border-b border-beige-200">
+    <div className={`flex space-x-2 border-b border-beige-200 ${className || ''}`}>
       {children}
     </div>
   );
 };
 
-export const TabsTrigger: React.FC<TabsTriggerProps> = ({ children, value }) => {
+export const TabsTrigger: React.FC<TabsTriggerProps> = ({ children, value, className, onClick }) => {
   const { value: selectedValue, onValueChange } = useTabsContext();
   
   const isActive = selectedValue === value;
+  
+  const handleClick = () => {
+    onValueChange(value);
+    if (onClick) onClick();
+  };
   
   return (
     <button
@@ -55,8 +63,8 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({ children, value }) => 
         isActive 
           ? 'text-rose-500' 
           : 'text-taupe-600 hover:text-taupe-800'
-      }`}
-      onClick={() => onValueChange(value)}
+      } ${className || ''}`}
+      onClick={handleClick}
     >
       {children}
       {isActive && (

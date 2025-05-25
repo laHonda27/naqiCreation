@@ -9,14 +9,13 @@ import FaqsManager from '../../components/admin/FaqsManager';
 import GalleryManager from '../../components/admin/GalleryManager';
 import ContactManager from '../../components/admin/ContactManager';
 import CustomizationsManager from '../../components/admin/CustomizationsManager';
-import { AlertCircle, CheckCircle, Info, LogOut, Home } from 'lucide-react';
+import ShapesAndColorsManager from '../../components/admin/ShapesAndColorsManager';
+import { Info, LogOut, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('creations');
-  const [syncStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [syncMessage] = useState<string>('');
   const [tabLoading, setTabLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -76,19 +75,7 @@ const AdminDashboard: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-display font-semibold">Tableau de bord</h1>
               </div>
             
-            {syncStatus === 'success' && (
-              <div className="mb-6 p-3 bg-green-100 text-green-700 rounded-md flex items-start">
-                <CheckCircle size={18} className="mr-2 mt-0.5 flex-shrink-0" />
-                <p>{syncMessage}</p>
-              </div>
-            )}
-            
-            {syncStatus === 'error' && (
-              <div className="mb-6 p-3 bg-red-100 text-red-700 rounded-md flex items-start">
-                <AlertCircle size={18} className="mr-2 mt-0.5 flex-shrink-0" />
-                <p>{syncMessage}</p>
-              </div>
-            )}
+            {/* Les messages de statut de synchronisation sont gérés par le GlobalSaveButton */}
             
             <div className="p-3 sm:p-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-md flex flex-col sm:flex-row items-start mb-4 sm:mb-6 text-sm">
               <Info size={18} className="mr-3 mt-0.5 flex-shrink-0 text-blue-600 hidden sm:block" />
@@ -112,14 +99,15 @@ const AdminDashboard: React.FC = () => {
             
             <Tabs value={activeTab} onValueChange={handleTabChange}>
               <div className="mb-6 overflow-x-auto">
-                <TabsList>
-                  <TabsTrigger value="creations">Créations</TabsTrigger>
-                  <TabsTrigger value="categories">Catégories</TabsTrigger>
-                  <TabsTrigger value="testimonials">Témoignages</TabsTrigger>
-                  <TabsTrigger value="faqs">FAQ</TabsTrigger>
-                  <TabsTrigger value="gallery">Galerie</TabsTrigger>
-                  <TabsTrigger value="customizations">Personnalisations</TabsTrigger>
-                  <TabsTrigger value="contact">Contact</TabsTrigger>
+                <TabsList className="flex flex-wrap border-b border-beige-200 mb-6">
+                  <TabsTrigger value="creations" onClick={() => handleTabChange('creations')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Créations</TabsTrigger>
+                  <TabsTrigger value="testimonials" onClick={() => handleTabChange('testimonials')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Témoignages</TabsTrigger>
+                  <TabsTrigger value="categories" onClick={() => handleTabChange('categories')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Catégories</TabsTrigger>
+                  <TabsTrigger value="faqs" onClick={() => handleTabChange('faqs')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">FAQs</TabsTrigger>
+                  <TabsTrigger value="gallery" onClick={() => handleTabChange('gallery')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Galerie</TabsTrigger>
+                  <TabsTrigger value="customizations" onClick={() => handleTabChange('customizations')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Personnalisations</TabsTrigger>
+                  <TabsTrigger value="shapes_colors" onClick={() => handleTabChange('shapes_colors')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Formes & Couleurs</TabsTrigger>
+                  <TabsTrigger value="contact" onClick={() => handleTabChange('contact')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Contact</TabsTrigger>
                 </TabsList>
               </div>
               
@@ -217,6 +205,22 @@ const AdminDashboard: React.FC = () => {
                       <p className="text-sm text-rose-700">Vous gérez les <strong>options de personnalisation</strong> qui apparaissent sur la page de personnalisation.</p>
                     </div>
                     <CustomizationsManager />
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="shapes_colors" className="pt-6 relative">
+                {tabLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="bg-rose-50 border-l-4 border-rose-400 p-3 mb-6 flex items-center">
+                      <Info size={20} className="text-rose-500 mr-2" />
+                      <p className="text-sm text-rose-700">Vous gérez les <strong>formes et couleurs</strong> qui apparaissent sur la page des services et qui sont utilisées pour les personnalisations.</p>
+                    </div>
+                    <ShapesAndColorsManager />
                   </div>
                 )}
               </TabsContent>

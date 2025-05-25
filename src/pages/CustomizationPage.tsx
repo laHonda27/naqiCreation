@@ -36,10 +36,6 @@ const CustomizationPage: React.FC = () => {
     threshold: 0.1
   });
   
-  const [secondRef, secondInView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1
-  });
 
   const { customItems } = useCustomizations();
   const [selectedItem, setSelectedItem] = useState<CustomItem | null>(null);
@@ -387,86 +383,12 @@ const CustomizationPage: React.FC = () => {
         </div>
       </section>
       
-      {/* Process Section */}
-      <section ref={secondRef} className="py-12 bg-beige-50">
-        <div className="container-custom">
-          <div className="text-center mb-12">
-            <h2 className="section-title">Notre processus de personnalisation</h2>
-            <div className="w-16 h-1 bg-rose-300 mx-auto mb-6"></div>
-            <p className="section-subtitle mx-auto">
-              De l'idée à la réalisation, découvrez comment nous travaillons pour créer vos éléments personnalisés.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={secondInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-white rounded-lg p-6 shadow-soft text-center"
-            >
-              <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="font-display text-2xl text-rose-500">1</span>
-              </div>
-              <h3 className="text-xl font-display font-semibold mb-3">Consultation</h3>
-              <p className="text-taupe-600">
-                Nous discutons de vos besoins et préférences pour comprendre votre vision.
-              </p>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={secondInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white rounded-lg p-6 shadow-soft text-center"
-            >
-              <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="font-display text-2xl text-rose-500">2</span>
-              </div>
-              <h3 className="text-xl font-display font-semibold mb-3">Proposition</h3>
-              <p className="text-taupe-600">
-                Nous vous présentons des designs et options adaptés à votre événement.
-              </p>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={secondInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-white rounded-lg p-6 shadow-soft text-center"
-            >
-              <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="font-display text-2xl text-rose-500">3</span>
-              </div>
-              <h3 className="text-xl font-display font-semibold mb-3">Création</h3>
-              <p className="text-taupe-600">
-                Nous réalisons vos créations personnalisées avec soin et attention.
-              </p>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={secondInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="bg-white rounded-lg p-6 shadow-soft text-center"
-            >
-              <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="font-display text-2xl text-rose-500">4</span>
-              </div>
-              <h3 className="text-xl font-display font-semibold mb-3">Livraison</h3>
-              <p className="text-taupe-600">
-                Nous vous livrons vos créations dans les délais convenus, prêtes pour votre événement.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-      
+
       {/* FAQ Section */}
       <FaqSection 
-        pageType="customization"
-        title="Questions fréquentes sur nos personnalisations"
-        subtitle="Vous avez des questions sur nos services de personnalisation ? Consultez nos réponses aux questions les plus fréquentes."
+        pageType="customization" 
+        title="Questions fréquentes sur nos personnalisations" 
+        subtitle="Retrouvez les réponses à vos questions concernant nos services de personnalisation, délais et processus de création."
       />
 
       {/* Panneau latéral pour les détails */}

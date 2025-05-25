@@ -1,0 +1,103 @@
+{
+  "panelColors": [
+    {
+      "id": "beige",
+      "name": "Beige",
+      "hexCode": "#F5F2E6",
+      "image": "/images/couleurs/beige.png"
+    },
+    {
+      "id": "rose-bonbon",
+      "name": "Rose bonbon",
+      "hexCode": "#FFD4DC",
+      "image": "/images/couleurs/rose-bonbon.png"
+    },
+    {
+      "id": "rose-pantone",
+      "name": "Rose pantone",
+      "hexCode": "#DEA5A4",
+      "image": "/images/couleurs/rose-pantone.png"
+    },
+    {
+      "id": "bordeaux",
+      "name": "Bordeaux",
+      "hexCode": "#722F37",
+      "image": "/images/couleurs/bordeaux.png"
+    },
+    {
+      "id": "vert-emeraude",
+      "name": "Vert émeraude",
+      "hexCode": "#00533E",
+      "image": "/images/couleurs/vert-emeraude.png"
+    },
+    {
+      "id": "bleu-clair",
+      "name": "Bleu clair",
+      "hexCode": "#D0ECF7",
+      "image": "/images/couleurs/bleu-clair.png"
+    },
+    {
+      "id": "vert-sauge",
+      "name": "Vert sauge",
+      "hexCode": "#97A595",
+      "image": "/images/couleurs/vert-sauge.png"
+    },
+    {
+      "id": "blanc",
+      "name": "Blanc",
+      "hexCode": "#FFFFFF",
+      "image": "/images/couleurs/blanc.png"
+    },
+    {
+      "id": "transparent",
+      "name": "Transparent",
+      "hexCode": "transparent",
+      "image": "/images/couleurs/transparent.png"
+    },
+    {
+      "id": "dore-miroir",
+      "name": "Doré - effet miroir",
+      "hexCode": "linear-gradient(to bottom right, #F0DC9E, #D2AF44)",
+      "image": "/images/couleurs/dore-miroir.png"
+    },
+    {
+      "id": "argente-miroir",
+      "name": "Argenté - effet miroir",
+      "hexCode": "linear-gradient(to bottom right, #E0E0E2, #AAACB1)",
+      "image": "/images/couleurs/argente-miroir.png"
+    },
+    {
+      "id": "givre",
+      "name": "Givré",
+      "hexCode": "#D4D6D8",
+      "opacity": 0.5,
+      "image": "/images/couleurs/givre.png"
+    }
+  ],
+  "textColors": [
+    {
+      "id": "dore",
+      "name": "Doré",
+      "hexCode": "#D2AF44",
+      "image": "/images/couleurs/texte-dore.png"
+    },
+    {
+      "id": "blanc",
+      "name": "Blanc",
+      "hexCode": "#FFFFFF",
+      "image": "/images/couleurs/texte-blanc.png"
+    },
+    {
+      "id": "argente",
+      "name": "Argenté",
+      "hexCode": "#C0C2C4",
+      "image": "/images/couleurs/texte-argente.png"
+    },
+    {
+      "id": "noir",
+      "name": "Noir",
+      "hexCode": "#222222",
+      "image": "/images/couleurs/texte-noir.png"
+    }
+  ]
+}

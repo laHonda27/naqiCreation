@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useCreations } from '../hooks/useCreations';
+import { useShapesAndColors } from '../hooks/useShapesAndColors';
 import type { Creation } from '../hooks/useCreations';
 import { X, ChevronRight, ChevronLeft, Search, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -12,6 +13,7 @@ import SlidingPanel from '../components/common/SlidingPanel';
 
 const ServicesPage: React.FC = () => {
   const { creations, categories, loading } = useCreations();
+  const { shapes, panelColors, textColors, loading: shapesLoading, error: shapesError } = useShapesAndColors();
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<'default' | 'price-asc' | 'price-desc' | 'title-asc' | 'title-desc'>('default');
@@ -198,14 +200,14 @@ const ServicesPage: React.FC = () => {
       
       {/* Services Section */}
       <section className="py-16">
-        <div className="container-custom max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="flex flex-col lg:flex-row gap-8 w-full">
             {loading ? (
-              <div className="flex justify-center items-center py-20">
+              <div className="flex justify-center items-center py-20 w-full">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-400"></div>
               </div>
             ) : (
-              <div>
+              <div className="w-full">
                 {/* Filtres et recherche */}
                 <div className="bg-white rounded-lg shadow-sm p-8 md:p-10 mb-6 border border-beige-100">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
@@ -426,7 +428,7 @@ const ServicesPage: React.FC = () => {
               </p>
             </div>
             
-            {/* Nuancier de couleurs - Simplifié */}
+            {/* Nuancier de couleurs */}
             <div className="mb-10">
               <h3 className="text-lg font-display font-semibold mb-3 text-center">Nuancier de couleurs</h3>
               <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
@@ -434,17 +436,33 @@ const ServicesPage: React.FC = () => {
                 <div className="mb-4">
                   <h4 className="text-lg font-display mb-3">Couleurs pour le fond du panneau</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {/* Échantillons de couleurs */}
-                    {["Beige", "Rose bonbon", "Rose pantone", "Bordeaux", "Vert émeraude", "Bleu clair", "Vert sauge", "Blanc", "Transparent", "Doré - effet miroir", "Argenté - effet miroir", "Givré"].map((color, index) => (
-                      <div key={index} className="rounded-lg overflow-hidden shadow-sm border border-beige-100">
-                        <div className={`h-16 ${index === 7 ? 'bg-white' : index === 8 ? 'bg-[#E9ECF2] flex items-center justify-center' : index === 9 ? 'bg-gradient-to-br from-[#F0DC9E] to-[#D2AF44]' : index === 10 ? 'bg-gradient-to-br from-[#E0E0E2] to-[#AAACB1]' : index === 0 ? 'bg-[#F5F2E6]' : index === 1 ? 'bg-[#FFD4DC]' : index === 2 ? 'bg-[#DEA5A4]' : index === 3 ? 'bg-[#722F37]' : index === 4 ? 'bg-[#00533E]' : index === 5 ? 'bg-[#D0ECF7]' : index === 6 ? 'bg-[#97A595]' : 'bg-[#D4D6D8] bg-opacity-50'}`}>
-                          {index === 8 && <span className="text-taupe-500 text-sm">Transparent</span>}
-                        </div>
-                        <div className="p-2 text-center bg-white">
-                          <p className="font-medium text-taupe-800 text-sm">{color}</p>
-                        </div>
+                    {loading || shapesLoading ? (
+                      <div className="col-span-4 flex justify-center py-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-rose-400"></div>
                       </div>
-                    ))}
+                    ) : shapesError ? (
+                      <div className="col-span-4 text-center py-4 text-red-500">
+                        Erreur lors du chargement des couleurs
+                      </div>
+                    ) : (
+                      panelColors.map((color) => (
+                        <div key={color.id} className="rounded-lg overflow-hidden shadow-sm border border-beige-100">
+                          <div 
+                            className="h-16 flex items-center justify-center"
+                            style={{
+                              background: color.hexCode,
+                              opacity: color.opacity || 1
+                            }}
+                          >
+                            {color.id === 'transparent' && <span className="text-taupe-500 text-sm">Transparent</span>}
+                          </div>
+                          <div className="p-2 text-center bg-white">
+                            <p className="font-medium text-taupe-800 text-sm">{color.name}</p>
+                            <p className="text-xs text-taupe-500">{color.hexCode}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
                 
@@ -452,14 +470,30 @@ const ServicesPage: React.FC = () => {
                 <div>
                   <h4 className="text-lg font-display mb-3">Couleurs pour les inscriptions</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {["Doré", "Blanc", "Argenté", "Noir"].map((color, index) => (
-                      <div key={index} className="rounded-lg overflow-hidden shadow-sm border border-beige-100">
-                        <div className={`h-16 ${index === 0 ? 'bg-[#D2AF44]' : index === 1 ? 'bg-white' : index === 2 ? 'bg-[#C0C2C4]' : 'bg-[#222222]'}`}></div>
-                        <div className="p-2 text-center bg-white">
-                          <p className="font-medium text-taupe-800 text-sm">{color}</p>
-                        </div>
+                    {loading || shapesLoading ? (
+                      <div className="col-span-4 flex justify-center py-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-rose-400"></div>
                       </div>
-                    ))}
+                    ) : shapesError ? (
+                      <div className="col-span-4 text-center py-4 text-red-500">
+                        Erreur lors du chargement des couleurs
+                      </div>
+                    ) : (
+                      textColors.map((color) => (
+                        <div key={color.id} className="rounded-lg overflow-hidden shadow-sm border border-beige-100">
+                          <div 
+                            className="h-16"
+                            style={{
+                              background: color.hexCode
+                            }}
+                          ></div>
+                          <div className="p-2 text-center bg-white">
+                            <p className="font-medium text-taupe-800 text-sm">{color.name}</p>
+                            <p className="text-xs text-taupe-500">{color.hexCode}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
                 
@@ -471,28 +505,40 @@ const ServicesPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Formes disponibles - Simplifié */}
+            {/* Formes disponibles */}
             <div className="mb-10">
               <h3 className="text-lg font-display font-semibold mb-3 text-center">Formes disponibles</h3>
               <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
-                  {[
-                    { name: "Arche orientale", style: "rounded-t-[40px]" },
-                    { name: "Arche classique", style: "rounded-t-[100px]" },
-                    { name: "Rectangle", style: "" },
-                    { name: "Ovale", style: "rounded-[100%]" },
-                    { name: "Nuage", style: "rounded-[30px]" },
-                    { name: "Rectangle (petit)", style: "", aspect: "aspect-[3/4]" },
-                    { name: "Carré", style: "", aspect: "aspect-square" },
-                    { name: "Cercle", style: "rounded-full", aspect: "aspect-square" }
-                  ].map((shape, index) => (
-                    <div key={index} className="rounded-lg overflow-hidden shadow-sm border border-beige-100 p-3 bg-beige-50">
-                      <div className={`${shape.aspect || 'aspect-[4/5]'} bg-taupe-300 mx-auto mb-3 ${shape.style} flex items-center justify-center text-white font-medium text-sm`}>
-                        <span>{index === 5 ? '30x40 cm' : index === 6 || index === 7 ? '50x50 cm' : '50x70 cm'}</span>
-                      </div>
-                      <p className="font-medium text-taupe-800 text-center text-sm">{shape.name}</p>
+                  {loading || shapesLoading ? (
+                    <div className="col-span-4 flex justify-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-rose-400"></div>
                     </div>
-                  ))}
+                  ) : shapesError ? (
+                    <div className="col-span-4 text-center py-4 text-red-500">
+                      Erreur lors du chargement des formes
+                    </div>
+                  ) : (
+                    shapes.map((shape) => (
+                      <div key={shape.id} className="rounded-lg overflow-hidden shadow-sm border border-beige-100 p-3 bg-beige-50">
+                        <div className="aspect-[4/5] mb-3 relative">
+                          <img 
+                            src={shape.image} 
+                            alt={`Forme ${shape.name}`} 
+                            className="w-full h-full object-contain" 
+                            onError={(e) => {
+                              // Fallback en cas d'image manquante
+                              (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                            }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="bg-taupe-800/70 text-white font-medium text-sm px-2 py-1 rounded-md">{shape.size}</span>
+                          </div>
+                        </div>
+                        <p className="font-medium text-taupe-800 text-center text-sm">{shape.name}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
                 
                 <div className="bg-beige-100 p-4 rounded-lg">
