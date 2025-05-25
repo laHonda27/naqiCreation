@@ -4,8 +4,8 @@
     "customFaviconUrl": ""
   },
   "logo": {
-    "useCustomLogo": false,
-    "customLogoUrl": ""
+    "useCustomLogo": true,
+    "customLogoUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1747676473/naqi-creation/morocco.png"
   },
   "hero": {
     "useCustomImage": true,
