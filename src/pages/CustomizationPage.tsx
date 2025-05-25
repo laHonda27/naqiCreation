@@ -222,7 +222,10 @@ const CustomizationPage: React.FC = () => {
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                       className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl flex flex-col h-full hover:-translate-y-2 transition-all duration-500 border border-beige-100 group"
                     >
-                      <div className="relative h-80 overflow-hidden">
+                      <div 
+                        className="relative h-80 overflow-hidden cursor-pointer"
+                        onClick={() => openItemDetails(item)}
+                      >
                         {item.featured && (
                           <div className="absolute top-3 right-3 z-10">
                             <span className="bg-rose-500 text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-md backdrop-blur-sm">

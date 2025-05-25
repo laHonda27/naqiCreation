@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
+import SEO from '../components/common/SEO';
 import FaqSection from '../components/common/FaqSection';
 import { useTestimonials } from '../hooks/useTestimonials';
+import { useCustomizations } from '../hooks/useCustomizations';
+import { useServiceDetails, getIconComponent } from '../hooks/useServiceDetails';
 import { 
   Heart, 
   ChevronRight, 
@@ -14,9 +16,6 @@ import {
   Star, 
   Sparkles,
   Send,
-  PenTool,
-  Palette,
-  Box,
   Users,
   Clock,
   Award
@@ -56,48 +55,7 @@ const instagramPosts = [
 
 // Les témoignages sont maintenant chargés dynamiquement depuis le hook useTestimonials
 
-// Services et prestations détaillés
-const servicesDetails = [
-  {
-    id: 'welcome',
-    icon: <PenTool className="w-10 h-10 text-rose-400" />,
-    title: "Panneaux de bienvenue",
-    description: "Des panneaux élégants et personnalisés pour accueillir vos invités avec style. Chaque création est unique et reflète parfaitement l'ambiance de votre événement.",
-    features: [
-      "Plexiglass premium de 3mm",
-      "Finitions soignées et polies",
-      "Support en bois inclus",
-      "Design sur mesure"
-    ],
-    link: "/prestations"
-  },
-  {
-    id: 'custom',
-    icon: <Palette className="w-10 h-10 text-rose-400" />,
-    title: "Personnalisation complète",
-    description: "Choisissez parmi une large gamme de couleurs, polices et designs pour créer des panneaux qui correspondent parfaitement à l'esthétique de votre événement.",
-    features: [
-      "Plus de 15 couleurs disponibles",
-      "Polices variées et élégantes",
-      "Motifs exclusifs",
-      "Formes personnalisables"
-    ],
-    link: "/prestations#informations-techniques"
-  },
-  {
-    id: 'accessories',
-    icon: <Box className="w-10 h-10 text-rose-400" />,
-    title: "Accessoires assortis",
-    description: "Complétez votre décoration avec des accessoires parfaitement coordonnés à vos panneaux pour une ambiance cohérente et raffinée.",
-    features: [
-      "Étiquettes de bouteilles",
-      "Menus personnalisés",
-      "Marque-places élégants",
-      "Cartons d'invitation"
-    ],
-    link: "/personnalisation"
-  }
-];
+// Les services sont maintenant chargés dynamiquement depuis le hook useServiceDetails
 
 // Caractéristiques principales
 const highlights = [
@@ -115,28 +73,6 @@ const highlights = [
     icon: "", 
     title: "Design exclusif", 
     description: "Nos designs exclusifs apportent une touche d'élégance et d'originalité à votre événement."
-  }
-];
-
-// Création pour la section Showcase
-const showcaseCreations = [
-  {
-    id: 'sc1',
-    title: 'Panneau Mariage',
-    image: 'https://images.pexels.com/photos/1024981/pexels-photo-1024981.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    tag: 'BEST-SELLER'
-  },
-  {
-    id: 'sc2',
-    title: 'Panneau Fiançailles',
-    image: 'https://images.pexels.com/photos/3171815/pexels-photo-3171815.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    tag: 'POPULAIRE'
-  },
-  {
-    id: 'sc3',
-    title: 'Menu Personnalisé',
-    image: 'https://images.pexels.com/photos/2253837/pexels-photo-2253837.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    tag: 'NOUVEAU'
   }
 ];
 
@@ -191,7 +127,42 @@ const HomePage: React.FC = () => {
   
   const [heroRef, heroInView] = useInView(inViewOptions);
   const [servicesRef, servicesInView] = useInView(inViewOptions);
-  const [showcaseRef, showcaseInView] = useInView(inViewOptions);
+  const [showcaseRef, showcaseInView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  });
+  
+  // Chargement des détails de service
+  const { serviceDetails } = useServiceDetails();
+  
+  // Récupération des données de customization
+  const { customItems } = useCustomizations();
+  
+  // Préparation des éléments à afficher dans la section "Des créations qui émerveillent"
+  const showcaseCreations = useMemo(() => {
+    // Filtrer les éléments avec featured=true
+    const featuredItems = customItems.filter(item => item.featured);
+    
+    // Si nous avons au moins 3 éléments featured, prendre les 3 derniers
+    if (featuredItems.length >= 3) {
+      return featuredItems.slice(-3).map(item => ({
+        id: item.id,
+        title: item.title,
+        image: item.images[0]?.src || 'https://images.pexels.com/photos/1024981/pexels-photo-1024981.jpeg',
+        tag: 'POPULAIRE'
+      }));
+    } 
+    // Sinon, prendre les 3 premiers éléments de la liste complète
+    else {
+      return customItems.slice(0, 3).map(item => ({
+        id: item.id,
+        title: item.title,
+        image: item.images[0]?.src || 'https://images.pexels.com/photos/1024981/pexels-photo-1024981.jpeg',
+        tag: item.featured ? 'POPULAIRE' : undefined
+      }));
+    }
+  }, [customItems]);
+
   const [eventsRef, eventsInView] = useInView(inViewOptions);
   const [instagramRef, instagramInView] = useInView(inViewOptions);
   const [testimonialsRef, testimonialsInView] = useInView(inViewOptions);
@@ -233,13 +204,12 @@ const HomePage: React.FC = () => {
   
   return (
     <>
-      <Helmet>
-        <title>Naqi Création | Panneaux Personnalisés pour Événements</title>
-        <meta 
-          name="description" 
-          content="Panneaux personnalisés pour mariages, fiançailles et événements. Créations sur mesure pour des moments inoubliables." 
-        />
-      </Helmet>
+      <SEO 
+        title="Naqi Création | Panneaux Personnalisés pour Événements" 
+        description="Panneaux personnalisés pour mariages, fiançailles et événements. Créations sur mesure pour des moments inoubliables."
+        keywords="panneaux personnalisés, décoration mariage, événements, création sur mesure, plexiglass, panneaux bienvenue"
+        url="https://naqi-creation.com"
+      />
       
       {/* Hero Section avec design asymétrique et moderne */}
       <section ref={heroRef} className="min-h-screen relative overflow-hidden bg-gradient-to-br from-beige-50 via-beige-100 to-beige-50">
@@ -422,7 +392,7 @@ const HomePage: React.FC = () => {
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
-            {servicesDetails.map((service, idx) => (
+            {serviceDetails.map((service, idx) => (
               <motion.div
                 key={service.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -431,7 +401,7 @@ const HomePage: React.FC = () => {
                 className="relative bg-white rounded-xl p-8 shadow-xl hover:shadow-2xl transition-shadow border border-beige-100"
               >
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-full shadow-lg">
-                  {service.icon}
+                  {getIconComponent(service.iconType)}
                 </div>
                 <div className="pt-8 text-center">
                   <h3 className="text-2xl font-display font-semibold mb-4 text-taupe-900">{service.title}</h3>
@@ -569,16 +539,16 @@ const HomePage: React.FC = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-display font-semibold mb-4">
-              Des créations qui <span className="relative text-rose-400">
-                émerveillent
+              Des personnalisations <span className="relative text-rose-400">
+                complémentaires
                 <svg className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 100 15" preserveAspectRatio="none">
                   <path d="M0,5 Q50,15 100,5" stroke="#f27a94" strokeWidth="3" fill="none" />
                 </svg>
               </span>
             </h2>
             <p className="text-lg text-taupe-700 max-w-3xl mx-auto mt-4">
-              Découvrez nos panneaux personnalisés qui sublimeront vos événements 
-              et créeront des souvenirs inoubliables.
+              Découvrez nos options de personnalisation complémentaires pour rendre
+              votre événement encore plus unique et mémorable.
             </p>
           </motion.div>
           
@@ -610,7 +580,7 @@ const HomePage: React.FC = () => {
                     {creation.title}
                   </h3>
                   <Link 
-                    to="/prestations" 
+                    to="/personnalisation" 
                     className="inline-flex items-center text-white mt-3 transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
                   >
                     <span>Explorer</span>
@@ -628,10 +598,10 @@ const HomePage: React.FC = () => {
             className="text-center mt-12"
           >
             <Link 
-              to="/prestations" 
+              to="/personnalisation" 
               className="inline-flex items-center px-8 py-4 bg-taupe-800 text-white rounded-full hover:bg-taupe-700 shadow-lg hover:shadow-xl transform hover:translate-y-[-2px] transition-all font-medium"
             >
-              <span>Voir toutes nos créations</span>
+              <span>Voir toutes nos personnalisations</span>
               <ChevronRight size={18} className="ml-2" />
             </Link>
           </motion.div>

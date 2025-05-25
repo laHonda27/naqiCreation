@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Interdire l'accès au dossier admin
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://naqi-creation.com/sitemap.xml

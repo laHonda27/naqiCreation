@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useCreations } from '../hooks/useCreations';
 import { useShapesAndColors } from '../hooks/useShapesAndColors';
 import type { Creation } from '../hooks/useCreations';
 import { X, ChevronRight, ChevronLeft, Search, ChevronDown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import SEO from '../components/common/SEO';
 import FaqSection from '../components/common/FaqSection';
 import SlidingCreationDetail from '../components/creations/SlidingCreationDetail';
 import SlidingPanel from '../components/common/SlidingPanel';
@@ -178,9 +177,12 @@ const ServicesPage: React.FC = () => {
   
   return (
     <>
-      <Helmet>
-        <title>Nos prestations | Naqi Création</title>
-      </Helmet>
+      <SEO 
+        title="Nos prestations" 
+        description="Découvrez notre gamme de créations personnalisées pour tous vos événements spéciaux. Panneaux sur mesure, décorations et accessoires pour mariages et célébrations."
+        keywords="panneaux personnalisés, décorations mariage, accessoires événements, créations sur mesure"
+        url="https://naqi-creation.com/services"
+      />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 bg-beige-100">
@@ -308,14 +310,20 @@ const ServicesPage: React.FC = () => {
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                         className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl flex flex-col h-full hover:-translate-y-2 transition-all duration-500 border border-beige-100 group"
                       >
-                        <div className="relative h-96 overflow-hidden">
-                          {creation.featured && (
-                            <div className="absolute top-3 right-3 z-10">
-                              <span className="bg-rose-500 text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-md backdrop-blur-sm">
+                        <div 
+                          className="relative h-96 overflow-hidden cursor-pointer"
+                          onClick={() => setSelectedCreation(creation)}
+                        >
+                          <div className="absolute top-3 left-3 right-3 z-10 flex justify-between">
+                            <span className="bg-taupe-800/90 text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-md backdrop-blur-sm">
+                              {categories.find(c => c.id === creation.category)?.name || 'Catégorie'}
+                            </span>
+                            {creation.featured && (
+                              <span className="bg-rose-500/90 text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-md backdrop-blur-sm">
                                 En vedette
                               </span>
-                            </div>
-                          )}
+                            )}
+                          </div>
                           <img
                             src={creation.image || (creation.exampleImages && creation.exampleImages.length > 0 ? creation.exampleImages[0].src : '/images/placeholder.jpg')}
                             alt={creation.title}
@@ -324,11 +332,6 @@ const ServicesPage: React.FC = () => {
                               (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
                             }}
                           />
-                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent pt-10 pb-3 px-4">
-                            <span className="inline-block bg-black/40 backdrop-blur-sm text-white font-medium text-sm px-3 py-1 rounded-md border-l-2 border-rose-400">
-                              {categories.find(c => c.id === creation.category)?.name || 'Catégorie'}
-                            </span>
-                          </div>
                         </div>
                         <div className="p-6 flex-1 flex flex-col min-h-[220px]">
                           <h3 className="text-xl font-display font-semibold mb-3 line-clamp-1">{creation.title}</h3>
@@ -561,13 +564,6 @@ const ServicesPage: React.FC = () => {
                   </ul>
                 </div>
               </div>
-            </div>
-
-            {/* Bouton vers les créations */}
-            <div className="mt-12 text-center">
-              <Link to="/creations" className="inline-flex items-center px-8 py-4 bg-rose-400 text-white rounded-full font-medium hover:bg-rose-500 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                Découvrir nos créations
-              </Link>
             </div>
           </div>
         </div>
