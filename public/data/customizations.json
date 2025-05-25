@@ -105,10 +105,10 @@
     },
     {
       "id": "flyers",
-      "title": "Flyers de remerciement",
-      "shortDescription": "Flyers de remerciement personnalisés pour exprimer votre gratitude à vos invités.",
-      "fullDescription": "Dites merci à vos invités avec nos flyers de remerciement personnalisés. Que ce soit pour un mariage, un baptême ou un anniversaire, nos cartes de remerciement sont une manière élégante de montrer votre gratitude. Possibilité d'inclure des photos de l'événement sur demande.",
-      "price": 2,
+      "title": "Enveloppe et carte d'invitation",
+      "shortDescription": "Invitations personnalisées ",
+      "fullDescription": "Invitez vos invités avec nos carte et enveloppe personnalisées. Que ce soit pour un mariage, un baptême ou un anniversaire, nos cartes de remerciement sont une manière élégante de montrer votre gratitude. Possibilité d'inclure des photos de l'événement sur demande.",
+      "price": 2.5,
       "minQuantity": 20,
       "priceInfo": "Prix par flyer, commande minimum de 20 pièces.",
       "materials": [
@@ -117,23 +117,20 @@
         "Carton recyclé"
       ],
       "dimensions": [
-        "Format standard: 10x15 cm",
-        "Format carré: 12x12 cm"
+        "Format standard: 10x15 cm"
       ],
       "images": [
         {
-          "src": "https://images.pexels.com/photos/4050356/pexels-photo-4050356.jpeg",
+          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748195253/naqi-creation/D4997481-DDBD-4822-A0D3-77FD99E39F76.jpg",
           "alt": "Flyers de remerciement élégants"
         },
         {
-          "src": "https://images.pexels.com/photos/942317/pexels-photo-942317.jpeg",
+          "src": "",
           "alt": "Cartes de remerciement mariage"
         }
       ],
       "examples": [
-        "Cartes de remerciement après mariage avec photo",
-        "Mini-cartes cadeaux pour baptême",
-        "Flyers souvenirs avec QR code vers album photo"
+        "Invitation pour un mariage"
       ],
       "featured": false
     },
