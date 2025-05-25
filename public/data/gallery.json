@@ -2,59 +2,51 @@
   "images": [
     {
       "id": "g2",
-      "src": "https://images.pexels.com/photos/949223/pexels-photo-949223.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Panneau de direction",
-      "category": "Mariage",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193038/naqi-creation/IMG_9476.jpg",
+      "alt": "Backdrop ",
+      "category": "Baptême",
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:11:09.536Z"
     },
     {
       "id": "g3",
-      "src": "https://images.pexels.com/photos/3171815/pexels-photo-3171815.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Panneau personnalisé fiançailles",
-      "category": "Fiançailles",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193155/naqi-creation/IMG_9477.jpg",
+      "alt": "Panneau personnalisé henna",
+      "category": "Henna day",
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:12:56.033Z"
     },
     {
       "id": "g4",
-      "src": "https://images.pexels.com/photos/2253833/pexels-photo-2253833.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Marque-place élégant",
-      "category": "Décoration de table",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193208/naqi-creation/IMG_9478.jpg",
+      "alt": "Panneau personnalisé",
+      "category": "Fiançailles",
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:13:53.390Z"
     },
     {
       "id": "g5",
-      "src": "https://images.pexels.com/photos/1120575/pexels-photo-1120575.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Étiquettes de bouteille",
-      "category": "Personnalisation",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193363/naqi-creation/IMG_9479.jpg",
+      "alt": "Panneau de bienvenue",
+      "category": "Mariage",
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:16:20.733Z"
     },
     {
       "id": "g6",
-      "src": "https://images.pexels.com/photos/1128782/pexels-photo-1128782.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Panneau Baby Shower",
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193596/naqi-creation/IMG_9481.jpg",
+      "alt": "Panneau de bienvenue",
       "category": "Baby Shower",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:20:09.850Z"
     },
     {
       "id": "g7",
-      "src": "https://images.pexels.com/photos/3171813/pexels-photo-3171813.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Plan de table mariage",
+      "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193643/naqi-creation/IMG_9482.jpg",
+      "alt": "Panneau de bienvenue",
       "category": "Mariage",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
-    },
-    {
-      "id": "g8",
-      "src": "https://images.pexels.com/photos/3419728/pexels-photo-3419728.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Cartons d'invitation",
-      "category": "Personnalisation",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
-    },
-    {
-      "id": "g9",
-      "src": "https://images.pexels.com/photos/2253837/pexels-photo-2253837.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      "alt": "Menu personnalisé",
-      "category": "Décoration de table",
-      "dateAdded": "2025-05-18T22:00:00.000Z"
+      "dateAdded": "2025-05-18T22:00:00.000Z",
+      "dateModified": "2025-05-25T17:20:49.842Z"
     }
   ],
   "categories": [

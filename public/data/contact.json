@@ -1,8 +1,8 @@
 {
   "contactInfo": {
-    "email": "contact@naqicreation.com",
+    "email": "naqi.creation@gmail.com",
     "phone": "+33 6 12 34 56 75",
-    "showPhone": true,
+    "showPhone": false,
     "address": "Nîmes, France",
     "instagram": "naqi.creation",
     "facebook": "naqicreation"

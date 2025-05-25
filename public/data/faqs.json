@@ -56,7 +56,7 @@
       {
         "id": "contact-5",
         "question": "Quels moyens de paiement acceptez-vous ?",
-        "answer": "Nous acceptons plusieurs moyens de paiement : virement bancaire, PayPal, et espèces (uniquement pour les retraits en personne). Un acompte de 30% est demandé à la validation du projet, le solde étant réglé avant l'expédition."
+        "answer": "Nous acceptons deux moyens de paiement : PayPal, et espèces (uniquement pour les retraits en personne). Un acompte de 30% est demandé à la validation du projet, le solde étant réglé avant l'expédition."
       },
       {
         "id": "contact-6",
@@ -88,7 +88,7 @@
       {
         "id": "services-5",
         "question": "Quelles sont les dimensions disponibles ?",
-        "answer": "Nous proposons plusieurs formats standards, mais pouvons également réaliser des dimensions sur mesure selon vos besoins. Les formats les plus demandés vont de 30x40cm à 60x80cm pour les panneaux de bienvenue."
+        "answer": "Nous proposons plusieurs formats standards, mais pouvons également réaliser des dimensions sur mesure selon vos besoins. Le format le plus demandé est de 70x50cm pour les panneaux de bienvenue."
       },
       {
         "id": "services-6",
@@ -120,7 +120,7 @@
       {
         "id": "customization-4",
         "question": "Quelles sont les méthodes de paiement acceptées ?",
-        "answer": "Nous acceptons les paiements par virement bancaire, PayPal et espèces pour les livraisons en personne. Un acompte de 50% est demandé à la commande, le solde étant réglé avant l'expédition ou la livraison."
+        "answer": "Nous acceptons les paiements par PayPal et espèces pour les livraisons en personne. Un acompte de 50% est demandé à la commande, le solde étant réglé avant l'expédition ou la livraison."
       },
       {
         "id": "customization-5",

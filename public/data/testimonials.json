@@ -1,3 +1,92 @@
 {
-  "testimonials": []
+  "testimonials": [
+    {
+      "type": "text",
+      "name": "Y",
+      "comment": "Je te remercie infiniment pour les magnifiques panneaux que tu m'as fait pour mon henna et mon jour J 💕 Tu as fais ça parfaitement j'ai beaucoup aimé merci milles fois wAllah🙏🏼",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748195975461",
+      "dateAdded": "2024-12-29",
+      "dateModified": "2025-05-25T18:09:00.827Z"
+    },
+    {
+      "type": "text",
+      "name": "L",
+      "comment": "Wouaaw ! Je suis trop contente merci beaucoup il est magnifique. C'est pile ce que je voulais même au delà de mes espérances. Merci ma belle ❤️",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748196055623",
+      "dateAdded": "2025-02-25",
+      "dateModified": "2025-05-25T18:09:18.370Z"
+    },
+    {
+      "type": "text",
+      "name": "Y",
+      "comment": "Encore milles merci ma beauté wAllah t'as géré de fou 🫶🏻\n",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748196087318",
+      "dateAdded": "2025-05-03",
+      "dateModified": "2025-05-25T18:09:32.176Z"
+    },
+    {
+      "type": "text",
+      "name": "M",
+      "comment": "Merci vraiment pour le backdrop, il a fait fureur je te remercie vraiment du fond du coeur ! ",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748196132337",
+      "dateAdded": "2025-05-18",
+      "dateModified": "2025-05-25T18:10:18.029Z"
+    },
+    {
+      "type": "text",
+      "name": "I",
+      "comment": "Mercii beaucoup j’ai offert le panneau à ma mère elle était super contente❤️\n",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748196166339",
+      "dateAdded": "2025-02-19",
+      "dateModified": "2025-05-25T18:11:41.347Z"
+    },
+    {
+      "type": "text",
+      "name": "E",
+      "comment": "Re coucou Anaë ma soeur est tombé love du cadre. Même les sages femmes ont adorés\nElle était touché et faut dire qu'il est vraiment incroyable et magnifique merci encore ma chérie 🥰",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748196205263",
+      "dateAdded": "2024-05-20",
+      "dateModified": "2025-05-25T18:10:40.879Z"
+    },
+    {
+      "type": "text",
+      "name": "E",
+      "comment": "Merci ma chérie t'es un amour\nJ'ai trop aimé ! Ça a apporté la petite touche",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748196232145",
+      "dateAdded": "2024-12-27",
+      "dateModified": "2025-05-25T18:11:21.932Z"
+    },
+    {
+      "type": "text",
+      "name": "S",
+      "comment": "Coucou je te fait un petit retour après le jour-j, que dire à part qu'il était juste parfait et c'est exactement ce que je voulais. \nMerci infiniment ma jolie 💋",
+      "rating": 5,
+      "event": "",
+      "avatar": "",
+      "id": "1748196363927",
+      "dateAdded": "2025-05-15",
+      "dateModified": "2025-05-25T18:10:52.090Z"
+    }
+  ]
 }
