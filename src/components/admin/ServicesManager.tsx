@@ -29,54 +29,92 @@ const ServicesManager: React.FC = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const result = await netlifyGitService.getJsonFile('services.json');
       
-      if (result.success && result.data) {
-        setServices(result.data.services || []);
-      } else {
-        // Fallback sur les données par défaut si le fichier n'existe pas encore
-        setServices([
-          {
-            id: 'welcome',
-            iconType: 'PenTool',
-            title: "Panneaux de bienvenue",
-            description: "Des panneaux élégants et personnalisés pour accueillir vos invités avec style. Chaque création est unique et reflète parfaitement l'ambiance de votre événement.",
-            features: [
-              "Plexiglass premium de 3mm",
-              "Finitions soignées et polies",
-              "Support en bois inclus",
-              "Design sur mesure"
-            ],
-            link: "/prestations"
-          },
-          {
-            id: 'custom',
-            iconType: 'Palette',
-            title: "Personnalisation complète",
-            description: "Choisissez parmi une large gamme de couleurs, polices et designs pour créer des panneaux qui correspondent parfaitement à l'esthétique de votre événement.",
-            features: [
-              "Plus de 15 couleurs disponibles",
-              "Polices variées et élégantes",
-              "Motifs exclusifs",
-              "Formes personnalisables"
-            ],
-            link: "/prestations#informations-techniques"
-          },
-          {
-            id: 'accessories',
-            iconType: 'Box',
-            title: "Accessoires assortis",
-            description: "Complétez votre décoration avec des accessoires parfaitement coordonnés à vos panneaux pour une ambiance cohérente et raffinée.",
-            features: [
-              "Étiquettes de bouteilles",
-              "Menus personnalisés",
-              "Marque-places élégants",
-              "Cartons d'invitation"
-            ],
-            link: "/personnalisation"
-          }
-        ]);
+      // Synchroniser d'abord le dépôt pour s'assurer d'avoir les dernières données
+      await netlifyGitService.syncRepository();
+      
+      // Tenter de récupérer depuis le dépôt Git
+      const result = await netlifyGitService.getJsonFile('services.json');
+      console.log('Résultat de getJsonFile:', result);
+      
+      // Vérifier si nous avons des données dans le résultat
+      if (result.success) {
+        let parsedData;
+        
+        if (typeof result.content === 'string') {
+          // Si nous avons une chaîne JSON, la parser
+          console.log('Parsing du contenu JSON:', result.content);
+          parsedData = JSON.parse(result.content);
+        } else if (result.data) {
+          // Si nous avons déjà un objet data, l'utiliser directement
+          console.log('Utilisation directe des données:', result.data);
+          parsedData = result.data;
+        }
+        
+        if (parsedData && parsedData.services && Array.isArray(parsedData.services)) {
+          console.log('Services chargés depuis Git:', parsedData.services);
+          setServices(parsedData.services);
+          return; // Sortir de la fonction si nous avons récupéré les données
+        }
       }
+      
+      // Essayer de charger depuis le fichier statique
+      console.log('Tentative de chargement depuis le fichier statique');
+      try {
+        const response = await fetch('/data/services.json');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Services chargés depuis le fichier statique:', data.services);
+          setServices(data.services || []);
+          return;
+        }
+      } catch (staticErr) {
+        console.error('Erreur lors du chargement du fichier statique:', staticErr);
+      }
+      
+      // Fallback sur les données par défaut si aucune méthode ne fonctionne
+      console.log('Utilisation des services par défaut');
+      setServices([
+        {
+          id: 'welcome',
+          iconType: 'PenTool',
+          title: "Panneaux de bienvenue",
+          description: "Des panneaux élégants et personnalisés pour accueillir vos invités avec style. Chaque création est unique et reflète parfaitement l'ambiance de votre événement.",
+          features: [
+            "Plexiglass premium de 3mm",
+            "Finitions soignées et polies",
+            "Support en bois inclus",
+            "Design sur mesure"
+          ],
+          link: "/prestations"
+        },
+        {
+          id: 'custom',
+          iconType: 'Palette',
+          title: "Personnalisation complète",
+          description: "Choisissez parmi une large gamme de couleurs, polices et designs pour créer des panneaux qui correspondent parfaitement à l'esthétique de votre événement.",
+          features: [
+            "Plus de 15 couleurs disponibles",
+            "Polices variées et élégantes",
+            "Motifs exclusifs",
+            "Formes personnalisables"
+          ],
+          link: "/prestations#informations-techniques"
+        },
+        {
+          id: 'accessories',
+          iconType: 'Box',
+          title: "Accessoires assortis",
+          description: "Complétez votre décoration avec des accessoires parfaitement coordonnés à vos panneaux pour une ambiance cohérente et raffinée.",
+          features: [
+            "Étiquettes de bouteilles",
+            "Menus personnalisés",
+            "Marque-places élégants",
+            "Cartons d'invitation"
+          ],
+          link: "/personnalisation"
+        }
+      ]);
     } catch (err) {
       console.error('Erreur lors du chargement des services:', err);
       setError("Impossible de charger les services. Veuillez réessayer plus tard.");

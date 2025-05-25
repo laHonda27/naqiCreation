@@ -7,6 +7,7 @@ import FaqSection from '../components/common/FaqSection';
 import { useTestimonials } from '../hooks/useTestimonials';
 import { useCustomizations } from '../hooks/useCustomizations';
 import { useServiceDetails, getIconComponent } from '../hooks/useServiceDetails';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import { 
   Heart, 
   ChevronRight, 
@@ -61,18 +62,18 @@ const instagramPosts = [
 const highlights = [
   { 
     icon: "", 
-    title: "Création sur mesure", 
-    description: "Chaque création est unique et personnalisée selon vos goûts et vos envies."
+    title: "Artisanat français", 
+    description: "Toutes nos créations sont fabriquées à la main en France, dans notre atelier parisien."
   },
   { 
     icon: "", 
-    title: "Matériaux premium", 
-    description: "Nous utilisons uniquement des matériaux de qualité supérieure pour des créations durables."
+    title: "Expertise reconnue", 
+    description: "Notre expérience nous permet de sublimer vos événements avec des créations uniques et raffinées."
   },
   { 
     icon: "", 
-    title: "Design exclusif", 
-    description: "Nos designs exclusifs apportent une touche d'élégance et d'originalité à votre événement."
+    title: "Accompagnement complet", 
+    description: "Nous suivons nos clients jusqu'au bout de leur projet pour garantir une satisfaction totale."
   }
 ];
 
@@ -107,6 +108,9 @@ const HomePage: React.FC = () => {
   
   // Récupération des créations mises en avant
   const { featuredCreations, loading, error } = useFeaturedCreations();
+  
+  // Récupération des paramètres du site
+  const { settings: siteSettings, loading: settingsLoading } = useSiteSettings();
   
   // Sélection des 5 témoignages les plus récents
   const recentTestimonials = useMemo(() => {
@@ -245,12 +249,29 @@ const HomePage: React.FC = () => {
                   transition={{ duration: 0.6, delay: 0.4 }}
                   className="text-4xl md:text-6xl font-display font-semibold !leading-tight"
                 >
-                  Sublimez vos <span className="text-rose-400 relative">
-                    moments
-                    <svg className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 100 15" preserveAspectRatio="none">
-                      <path d="M0,5 Q50,15 100,5" stroke="#f27a94" strokeWidth="3" fill="none" />
-                    </svg>
-                  </span> avec des créations uniques
+                  {siteSettings?.hero?.title ? (
+                    <>
+                      {siteSettings.hero.title.split(' moments ').length > 1 ? (
+                        <>
+                          {siteSettings.hero.title.split(' moments ')[0]} <span className="text-rose-400 relative">
+                            moments
+                            <svg className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 100 15" preserveAspectRatio="none">
+                              <path d="M0,5 Q50,15 100,5" stroke="#f27a94" strokeWidth="3" fill="none" />
+                            </svg>
+                          </span> {siteSettings.hero.title.split(' moments ')[1]}
+                        </>
+                      ) : (
+                        siteSettings.hero.title
+                      )}
+                    </>
+                  ) : (
+                    <>Sublimez vos <span className="text-rose-400 relative">
+                      moments
+                      <svg className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 100 15" preserveAspectRatio="none">
+                        <path d="M0,5 Q50,15 100,5" stroke="#f27a94" strokeWidth="3" fill="none" />
+                      </svg>
+                    </span> avec des créations uniques</>
+                  )}
                 </motion.h1>
                 
                 <motion.p
@@ -259,7 +280,7 @@ const HomePage: React.FC = () => {
                   transition={{ duration: 0.6, delay: 0.6 }}
                   className="text-lg text-taupe-700 mt-6"
                 >
-                  Des panneaux et accessoires sur mesure pour rendre vos mariages, fiançailles et célébrations véritablement exceptionnels. Créations artisanales, designs uniques, souvenirs éternels.
+                  {siteSettings?.hero?.subtitle || 'Des panneaux et accessoires sur mesure pour rendre vos mariages, fiançailles et célébrations véritablement exceptionnels. Créations artisanales, designs uniques, souvenirs éternels.'}
                 </motion.p>
                 
                 <motion.div 
@@ -322,7 +343,9 @@ const HomePage: React.FC = () => {
               >
                 <div className="relative shadow-2xl rounded-2xl overflow-hidden w-full max-w-lg transform rotate-1">
                   <img 
-                    src="https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
+                    src={siteSettings?.hero?.useCustomImage && siteSettings.hero.customImageUrl 
+                      ? siteSettings.hero.customImageUrl 
+                      : "https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} 
                     alt="Panneau personnalisé élégant" 
                     className="w-full h-[500px] object-cover"
                   />

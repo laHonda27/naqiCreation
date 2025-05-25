@@ -2,14 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Check, Plus, X } from 'lucide-react';
 import Modal from './Modal';
 import { ServiceDetail } from '../../hooks/useServiceDetails';
-import { PenTool, Palette, Box } from 'lucide-react';
-
-// Icônes disponibles pour les services
-const availableIcons = [
-  { id: 'PenTool', label: 'Stylo', component: <PenTool size={20} /> },
-  { id: 'Palette', label: 'Palette', component: <Palette size={20} /> },
-  { id: 'Box', label: 'Boîte', component: <Box size={20} /> }
-];
 
 interface ServiceFormModalProps {
   isOpen: boolean;
@@ -122,24 +114,6 @@ const ServiceFormModal: React.FC<ServiceFormModalProps> = ({
       size="lg"
     >
       <form onSubmit={handleFormSubmit} className="space-y-6">
-        {/* Sélection d'icône */}
-        <div>
-          <label className="block text-sm font-medium text-taupe-700 mb-2">Icône</label>
-          <div className="flex space-x-2">
-            {availableIcons.map(icon => (
-              <button
-                key={icon.id}
-                type="button"
-                onClick={() => setFormData({...formData, iconType: icon.id})}
-                className={`p-2 rounded-md ${formData.iconType === icon.id ? 'bg-rose-100 text-rose-500' : 'bg-beige-100 text-taupe-600'}`}
-                title={icon.label}
-              >
-                {icon.component}
-              </button>
-            ))}
-          </div>
-        </div>
-        
         {/* Titre */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-taupe-700 mb-1">

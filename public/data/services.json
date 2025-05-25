@@ -3,39 +3,39 @@
     {
       "id": "welcome",
       "iconType": "PenTool",
-      "title": "Panneaux de bienven",
-      "description": "Des panneaux élégants et personnalisés pour accueillir vos invités avec style. Chaque création est unique et reflète parfaitement l'ambiance de votre événement.",
+      "title": "Panneaux de bienvenue",
+      "description": "Accueillez vos invités avec élégance grâce à nos panneaux de bienvenue en plexiglass. Idéal pour les mariages, anniversaires et tous vos événements spéciaux.",
       "features": [
-        "Plexiglass premium de 3mm",
-        "Finitions soignées et polies",
-        "Support en bois inclus",
-        "Design sur mesure"
+        "Dimensions sur mesure jusqu'à 100x70cm",
+        "Livraison express possible sous 72h",
+        "Modèles exclusifs pour chaque saison",
+        "Emballage sécurisé anti-casse"
       ],
       "link": "/prestations"
     },
     {
       "id": "custom",
       "iconType": "Palette",
-      "title": "Personnalisation complète",
-      "description": "Choisissez parmi une large gamme de couleurs, polices et designs pour créer des panneaux qui correspondent parfaitement à l'esthétique de votre événement.",
+      "title": "Offres spéciales événements",
+      "description": "Découvrez nos packs complets spécialement conçus pour les mariages, baptêmes et fêtes d'entreprise avec des réductions exclusives.",
       "features": [
-        "Plus de 15 couleurs disponibles",
-        "Polices variées et élégantes",
-        "Motifs exclusifs",
-        "Formes personnalisables"
+        "Pack Mariage : économisez 15%",
+        "Pack Baptême : menu + déco offerts",
+        "Pack Entreprise : livraison gratuite",
+        "Garantie satisfaction ou remboursé"
       ],
       "link": "/prestations#informations-techniques"
     },
     {
       "id": "accessories",
       "iconType": "Box",
-      "title": "Accessoires assortis",
-      "description": "Complétez votre décoration avec des accessoires parfaitement coordonnés à vos panneaux pour une ambiance cohérente et raffinée.",
+      "title": "Nouveautés 2025",
+      "description": "Découvrez nos toutes dernières créations et innovations pour rendre votre événement encore plus unique et mémorable.",
       "features": [
-        "Étiquettes de bouteilles",
-        "Menus personnalisés",
-        "Marque-places élégants",
-        "Cartons d'invitation"
+        "Panneaux LED personnalisables",
+        "Collection éco-responsable en bois",
+        "Accessoires photo interactifs",
+        "Service de conception 3D"
       ],
       "link": "/personnalisation"
     }

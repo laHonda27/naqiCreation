@@ -11,6 +11,7 @@ import ContactManager from '../../components/admin/ContactManager';
 import CustomizationsManager from '../../components/admin/CustomizationsManager';
 import ShapesAndColorsManager from '../../components/admin/ShapesAndColorsManager';
 import ServicesManager from '../../components/admin/ServicesManager';
+import SiteCustomizationManager from '../../components/admin/SiteCustomizationManager';
 import { Info, LogOut, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
@@ -109,6 +110,7 @@ const AdminDashboard: React.FC = () => {
                   <TabsTrigger value="customizations" onClick={() => handleTabChange('customizations')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Personnalisations</TabsTrigger>
                   <TabsTrigger value="shapes_colors" onClick={() => handleTabChange('shapes_colors')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Formes & Couleurs</TabsTrigger>
                   <TabsTrigger value="services" onClick={() => handleTabChange('services')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Services d'accueil</TabsTrigger>
+                  <TabsTrigger value="site_settings" onClick={() => handleTabChange('site_settings')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Apparence du site</TabsTrigger>
                   <TabsTrigger value="contact" onClick={() => handleTabChange('contact')} className="px-4 py-2 font-medium text-taupe-600 border-b-2 border-transparent hover:text-rose-500 hover:border-rose-300 data-[state=active]:text-rose-500 data-[state=active]:border-rose-500">Contact</TabsTrigger>
                 </TabsList>
               </div>
@@ -255,6 +257,22 @@ const AdminDashboard: React.FC = () => {
                       <p className="text-sm text-rose-700">Vous gérez les <strong>informations de contact</strong> qui apparaissent sur la page contact et dans le pied de page.</p>
                     </div>
                     <ContactManager />
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="site_settings" className="pt-6 relative">
+                {tabLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="bg-rose-50 border-l-4 border-rose-400 p-3 mb-6 flex items-center">
+                      <Info size={20} className="text-rose-500 mr-2" />
+                      <p className="text-sm text-rose-700">Vous modifiez l'<strong>apparence du site</strong>, notamment le logo, l'image du hero et les textes principaux.</p>
+                    </div>
+                    <SiteCustomizationManager />
                   </div>
                 )}
               </TabsContent>
