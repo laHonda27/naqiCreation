@@ -98,6 +98,34 @@
       "name": "Noir",
       "hexCode": "#222222",
       "image": "/images/couleurs/texte-noir.png"
+    },
+    {
+      "name": "Rose",
+      "hexCode": "#fbdced",
+      "image": "",
+      "opacity": 1,
+      "id": "rose"
+    },
+    {
+      "name": "Bleu ",
+      "hexCode": "#85d7fa",
+      "image": "",
+      "opacity": 1,
+      "id": "bleu"
+    },
+    {
+      "name": "Vert henna",
+      "hexCode": "#2c5c1a",
+      "image": "",
+      "opacity": 1,
+      "id": "vert-henna"
+    },
+    {
+      "name": "Bordeaux",
+      "hexCode": "#791144",
+      "image": "",
+      "opacity": 1,
+      "id": "bordeaux"
     }
   ]
 }
