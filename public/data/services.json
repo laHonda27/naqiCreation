@@ -1,19 +1,6 @@
 {
   "services": [
     {
-      "id": "welcome",
-      "iconType": "PenTool",
-      "title": "Panneaux de bienvenue",
-      "description": "Des panneaux élégants et personnalisés pour accueillir vos invités avec style. Chaque création est unique et reflète parfaitement l'ambiance de votre événement.",
-      "features": [
-        "Plexiglass premium de 3mm",
-        "Finitions soignées et polies",
-        "Support en bois inclus",
-        "Design sur mesure"
-      ],
-      "link": "/prestations"
-    },
-    {
       "id": "custom",
       "iconType": "Palette",
       "title": "Personnalisation complète",
@@ -25,6 +12,19 @@
         "Formes personnalisables"
       ],
       "link": "/prestations#informations-techniques"
+    },
+    {
+      "id": "welcome",
+      "iconType": "PenTool",
+      "title": "Panneaux de bienvenu",
+      "description": "Des panneaux élégants et personnalisés pour accueillir vos invités avec style. Chaque création est unique et reflète parfaitement l'ambiance de votre événement.",
+      "features": [
+        "Plexiglass premium de 3mm",
+        "Finitions soignées et polies",
+        "Support en bois inclus",
+        "Design sur mesure"
+      ],
+      "link": "/prestations"
     },
     {
       "id": "accessories",
