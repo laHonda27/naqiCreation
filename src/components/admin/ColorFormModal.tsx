@@ -178,12 +178,6 @@ const ColorFormModal: React.FC<ColorFormModalProps> = ({
             placeholder="URL de l'image"
             defaultMode="upload"
           />
-          <p className="text-xs text-taupe-500 mt-1">
-            Les images seront automatiquement enregistrées dans le dossier <code>/images/couleurs/</code>.
-            {isTextColor ? 
-              "Utilisez le préfixe 'texte-' pour les couleurs de texte." : 
-              "Format recommandé : JPG ou PNG, dimensions ~300x200px."}
-          </p>
         </div>
         
         <div className="mt-4 p-3 bg-beige-50 rounded-lg border border-beige-200">

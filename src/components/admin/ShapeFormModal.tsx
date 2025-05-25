@@ -120,10 +120,6 @@ const ShapeFormModal: React.FC<ShapeFormModalProps> = ({
             defaultMode="upload"
           />
           {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
-          <p className="text-xs text-taupe-500 mt-1">
-            Les images seront automatiquement enregistrées dans le dossier <code>/images/formes/</code>.
-            Format recommandé : PNG avec transparence, dimensions ~500x500px.
-          </p>
         </div>
         
         <div>

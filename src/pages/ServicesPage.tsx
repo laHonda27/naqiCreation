@@ -415,7 +415,7 @@ const ServicesPage: React.FC = () => {
       </section>
 
       {/* Section Informations Techniques - Complètement séparée des prestations */}
-      <section className="py-6 bg-beige-50 mt-2">
+      <section id="informations-techniques" className="py-6 bg-beige-50 mt-2">
         <div className="container-custom">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-6">
@@ -448,7 +448,7 @@ const ServicesPage: React.FC = () => {
                       panelColors.map((color) => (
                         <div key={color.id} className="rounded-lg overflow-hidden shadow-sm border border-beige-100">
                           <div 
-                            className="h-16 flex items-center justify-center"
+                            className="h-36 flex items-center justify-center"
                             style={{
                               background: color.hexCode,
                               opacity: color.opacity || 1
@@ -458,7 +458,6 @@ const ServicesPage: React.FC = () => {
                           </div>
                           <div className="p-2 text-center bg-white">
                             <p className="font-medium text-taupe-800 text-sm">{color.name}</p>
-                            <p className="text-xs text-taupe-500">{color.hexCode}</p>
                           </div>
                         </div>
                       ))
@@ -482,14 +481,13 @@ const ServicesPage: React.FC = () => {
                       textColors.map((color) => (
                         <div key={color.id} className="rounded-lg overflow-hidden shadow-sm border border-beige-100">
                           <div 
-                            className="h-16"
+                            className="h-36"
                             style={{
                               background: color.hexCode
                             }}
                           ></div>
                           <div className="p-2 text-center bg-white">
                             <p className="font-medium text-taupe-800 text-sm">{color.name}</p>
-                            <p className="text-xs text-taupe-500">{color.hexCode}</p>
                           </div>
                         </div>
                       ))
@@ -565,10 +563,10 @@ const ServicesPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Bouton de contact */}
+            {/* Bouton vers les créations */}
             <div className="mt-12 text-center">
-              <Link to="/contact" className="inline-flex items-center px-8 py-4 bg-rose-400 text-white rounded-full font-medium hover:bg-rose-500 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                Contactez-nous pour un devis
+              <Link to="/creations" className="inline-flex items-center px-8 py-4 bg-rose-400 text-white rounded-full font-medium hover:bg-rose-500 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                Découvrir nos créations
               </Link>
             </div>
           </div>

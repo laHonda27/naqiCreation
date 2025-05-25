@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { contentUpdateService } from '../services/contentUpdateService';
 
 // Types pour les formes
 export interface Shape {
@@ -31,22 +32,22 @@ export function useShapesAndColors() {
         setLoading(true);
         setError(null);
 
-        // Charger les formes
-        const shapesResponse = await fetch('/data/shapes.json');
-        if (!shapesResponse.ok) {
-          throw new Error(`Erreur lors du chargement des formes: ${shapesResponse.status}`);
+        // Charger les formes depuis le dépôt Git
+        const shapesResult = await contentUpdateService.getFile('shapes.json');
+        if (shapesResult.success && shapesResult.data) {
+          setShapes(shapesResult.data.shapes || []);
+        } else {
+          throw new Error(shapesResult.error || 'Erreur lors du chargement des formes');
         }
-        const shapesData = await shapesResponse.json();
-        setShapes(shapesData.shapes || []);
 
-        // Charger les couleurs
-        const colorsResponse = await fetch('/data/colors.json');
-        if (!colorsResponse.ok) {
-          throw new Error(`Erreur lors du chargement des couleurs: ${colorsResponse.status}`);
+        // Charger les couleurs depuis le dépôt Git
+        const colorsResult = await contentUpdateService.getFile('colors.json');
+        if (colorsResult.success && colorsResult.data) {
+          setPanelColors(colorsResult.data.panelColors || []);
+          setTextColors(colorsResult.data.textColors || []);
+        } else {
+          throw new Error(colorsResult.error || 'Erreur lors du chargement des couleurs');
         }
-        const colorsData = await colorsResponse.json();
-        setPanelColors(colorsData.panelColors || []);
-        setTextColors(colorsData.textColors || []);
       } catch (err: any) {
         console.error('Erreur lors du chargement des données:', err);
         setError(err.message || 'Une erreur est survenue lors du chargement des données');

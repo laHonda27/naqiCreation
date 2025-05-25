@@ -82,7 +82,7 @@ const servicesDetails = [
       "Motifs exclusifs",
       "Formes personnalisables"
     ],
-    link: "/personnalisation"
+    link: "/prestations#informations-techniques"
   },
   {
     id: 'accessories',
@@ -140,29 +140,8 @@ const showcaseCreations = [
   }
 ];
 
-// Types d'événements couverts
-const eventTypes = [
-  {
-    name: "Mariages",
-    image: "https://images.pexels.com/photos/1024981/pexels-photo-1024981.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    description: "Sublimez votre jour J avec nos panneaux de bienvenue, plans de table et décorations assorties."
-  },
-  {
-    name: "Fiançailles",
-    image: "https://images.pexels.com/photos/3585798/pexels-photo-3585798.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    description: "Annoncez votre engagement avec élégance grâce à nos créations personnalisées."
-  },
-  {
-    name: "Baby Showers",
-    image: "https://images.pexels.com/photos/6387828/pexels-photo-6387828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    description: "Célébrez l'arrivée de bébé avec nos panneaux adorables et accessoires coordonnés."
-  },
-  {
-    name: "Anniversaires",
-    image: "https://images.pexels.com/photos/8153830/pexels-photo-8153830.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    description: "Marquez cette journée spéciale avec des créations uniques et mémorables."
-  }
-];
+// Hook pour récupérer les créations mises en avant
+import { useFeaturedCreations } from '../hooks/useFeaturedCreations';
 
 // Avantages de nos services
 const advantages = [
@@ -189,6 +168,9 @@ const HomePage: React.FC = () => {
   
   // Récupération des témoignages depuis le hook
   const { testimonials } = useTestimonials();
+  
+  // Récupération des créations mises en avant
+  const { featuredCreations, loading, error } = useFeaturedCreations();
   
   // Sélection des 5 témoignages les plus récents
   const recentTestimonials = useMemo(() => {
@@ -497,7 +479,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
       
-      {/* Section des types d'événements */}
+      {/* Section des créations mises en avant */}
       <section ref={eventsRef} className="py-24 bg-beige-50">
         <div className="container-custom">
           <motion.div
@@ -506,43 +488,42 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.7 }}
             className="text-center mb-16"
           >
-            <span className="inline-block px-4 py-1 bg-rose-100 text-rose-500 rounded-full text-sm font-medium mb-4">Pour tous vos moments spéciaux</span>
+            <span className="inline-block px-4 py-1 bg-rose-100 text-rose-500 rounded-full text-sm font-medium mb-4">Nos créations populaires</span>
             <h2 className="text-4xl md:text-5xl font-display font-semibold mb-4">
               Des créations adaptées à chaque <span className="text-rose-400">événement</span>
             </h2>
             <p className="text-lg text-taupe-700 max-w-3xl mx-auto mt-4">
-              Que vous célébriez un mariage, des fiançailles, une naissance ou un anniversaire,
-              nos créations personnalisées sublimeront votre événement.
+              Découvrez une sélection de nos créations les plus appréciées pour sublimer vos événements spéciaux.
             </p>
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {eventTypes.map((event, idx) => (
+            {featuredCreations.map((creation, idx) => (
               <motion.div
-                key={event.name}
+                key={creation.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={eventsInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: idx * 0.15 }}
                 className="group relative overflow-hidden rounded-xl shadow-xl"
               >
-                <div className="relative h-72">
+                <div className="relative h-[28rem]">
                   <div className="absolute inset-0">
                     <img 
-                      src={event.image} 
-                      alt={event.name} 
+                      src={creation.image} 
+                      alt={creation.title} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
                   </div>
                   
                   <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                    <h3 className="text-2xl font-display font-semibold mb-2">{event.name}</h3>
-                    <p className="text-white/90 mb-4">{event.description}</p>
+                    <h3 className="text-2xl font-display font-semibold mb-2 text-white">{creation.title}</h3>
+                    <p className="text-white/90 mb-4">{creation.description}</p>
                     <Link 
                       to="/prestations" 
                       className="inline-flex items-center text-white border-b border-white/60 pb-1 self-start hover:border-white hover:text-white transition-colors"
                     >
-                      <span>Explorer</span>
+                      <span>Découvrir</span>
                       <ChevronRight size={16} className="ml-1" />
                     </Link>
                   </div>
