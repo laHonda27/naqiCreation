@@ -2,12 +2,18 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
+import { useTestimonials } from '../../hooks/useTestimonials';
+import { Star } from 'lucide-react';
 
 const Hero: React.FC = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
   });
+  
+  // Récupérer le témoignage mis en avant
+  const { getFeaturedTestimonial } = useTestimonials();
+  const featuredTestimonial = getFeaturedTestimonial();
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -88,11 +94,45 @@ const Hero: React.FC = () => {
                 alt="Panneau personnalisé pour mariage" 
                 className="rounded-lg shadow-showcase object-cover w-full h-[500px]" 
               />
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-medium">
-                <p className="font-display italic text-lg text-taupe-800">
-                  "Personnalisez à votre image !"
-                </p>
-              </div>
+              {featuredTestimonial ? (
+                <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-medium max-w-[300px]">
+                  <div className="flex items-center mb-2">
+                    <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center font-semibold mr-2">
+                      {featuredTestimonial.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-taupe-800">{featuredTestimonial.name}</p>
+                      <div className="flex">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={12}
+                            className={i < featuredTestimonial.rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  {featuredTestimonial.type === 'text' && (
+                    <p className="font-display italic text-sm text-taupe-800">
+                      "{featuredTestimonial.comment}"
+                    </p>
+                  )}
+                  {featuredTestimonial.type === 'screenshot' && featuredTestimonial.caption && (
+                    <p className="font-display italic text-sm text-taupe-800">
+                      "{featuredTestimonial.caption}"
+                    </p>
+                  )}
+                  <p className="text-xs text-taupe-500 mt-2">Plus de 100 clients satisfaits</p>
+                </div>
+              ) : (
+                <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-medium">
+                  <p className="font-display italic text-lg text-taupe-800">
+                    "Personnalisez à votre image !"
+                  </p>
+                  <p className="text-xs text-taupe-500 mt-2">Plus de 100 clients satisfaits</p>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>

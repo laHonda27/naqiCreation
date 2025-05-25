@@ -242,6 +242,31 @@ const TestimonialFormModal: React.FC<TestimonialFormModalProps> = ({
             />
           </div>
         </div>
+        
+        {/* Option pour mettre en avant dans le hero */}
+        <div className="mt-4">
+          <div className="flex items-center">
+            <input
+              id="featuredInHero"
+              name="featuredInHero"
+              type="checkbox"
+              checked={formData.featuredInHero || false}
+              onChange={(e) => {
+                setFormData(prev => ({
+                  ...prev,
+                  featuredInHero: e.target.checked
+                }));
+              }}
+              className="h-4 w-4 text-rose-500 border-beige-300 rounded focus:ring-rose-500 mr-2"
+            />
+            <label htmlFor="featuredInHero" className="text-sm font-medium text-taupe-700">
+              Mettre en avant dans la section hero de la page d'accueil
+            </label>
+          </div>
+          <p className="text-xs text-taupe-500 mt-1 ml-6">
+            Un seul témoignage peut être mis en avant. Si vous sélectionnez celui-ci, il remplacera tout autre témoignage actuellement mis en avant.
+          </p>
+        </div>
 
         {/* Champs spécifiques au type de témoignage */}
         {testimonialType === 'text' ? (

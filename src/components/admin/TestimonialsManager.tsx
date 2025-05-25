@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, Edit, Plus, Star } from 'lucide-react';
+import { Trash2, Edit, Plus, Star, Home } from 'lucide-react';
 import { useTestimonials, Testimonial, TextTestimonial, ScreenshotTestimonial } from '../../hooks/useTestimonials';
 import TestimonialFormModal from './TestimonialFormModal';
 import GlobalSaveButton from './GlobalSaveButton';
@@ -96,7 +96,12 @@ const TestimonialsManager: React.FC = () => {
           columnClassName="my-masonry-grid_column"
         >
           {testimonials.map(testimonial => (
-            <div key={testimonial.id} className="masonry-item bg-white p-5 rounded-lg border border-beige-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <div key={testimonial.id} className={`masonry-item bg-white p-5 rounded-lg border ${testimonial.featuredInHero ? 'border-rose-300' : 'border-beige-200'} shadow-sm hover:shadow-md transition-all duration-300 ${testimonial.featuredInHero ? 'relative' : ''}`}>
+              {testimonial.featuredInHero && (
+                <div className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-1 shadow-md" title="Mis en avant dans le hero">
+                  <Home size={16} />
+                </div>
+              )}
               <div className="flex justify-between">
                 <div className="flex flex-grow">
                   {testimonial.type === 'text' ? (
@@ -142,11 +147,16 @@ const TestimonialsManager: React.FC = () => {
                     </>
                   ) : (
                     <div className="flex-grow">
-                      <div className="flex items-center">
+                      <div className="flex items-center flex-wrap gap-1">
                         <h3 className="font-medium">{testimonial.name}</h3>
                         <span className="ml-2 px-2 py-0.5 bg-beige-100 text-taupe-600 text-xs rounded-full">
                           Capture d'écran
                         </span>
+                        {testimonial.featuredInHero && (
+                          <span className="px-2 py-0.5 bg-rose-100 text-rose-600 text-xs rounded-full flex items-center">
+                            <Home size={12} className="mr-1" /> Hero
+                          </span>
+                        )}
                       </div>
                       {testimonial.event && testimonial.event.trim() !== '' && (
                         <p className="text-sm text-taupe-600 mb-1">{testimonial.event}</p>

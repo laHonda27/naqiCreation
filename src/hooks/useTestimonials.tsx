@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { netlifyGitService, GitServiceResult } from '../services/netlifyGitService';
+import { netlifyGitService } from '../services/netlifyGitService';
 
 export interface BaseTestimonial {
   id: string;
@@ -9,6 +9,7 @@ export interface BaseTestimonial {
   type: 'text' | 'screenshot';
   dateAdded?: string;
   dateModified?: string;
+  featuredInHero?: boolean;
 }
 
 export interface TextTestimonial extends BaseTestimonial {
@@ -35,8 +36,8 @@ export const useTestimonials = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // Utiliser cette variable pour stocker les données brutes du fichier JSON
-  const [testimonialsFile, setTestimonialsFile] = useState<{ testimonials: Testimonial[] }>({ testimonials: [] });
+  // Variable pour stocker les données brutes du fichier JSON (utilisée dans les fonctions de mise à jour)
+  const [, setTestimonialsFile] = useState<{ testimonials: Testimonial[] }>({ testimonials: [] });
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -108,8 +109,19 @@ export const useTestimonials = () => {
         dateModified: now
       } as Testimonial;
 
-      // Ajouter le nouveau témoignage à la liste locale
-      const updatedTestimonials = [...testimonials, newTestimonial] as Testimonial[];
+      let updatedTestimonials;
+      
+      // Si le nouveau témoignage est mis en avant dans le hero, désactiver cette option pour tous les autres
+      if (testimonial.featuredInHero) {
+        // Désactiver featuredInHero pour tous les témoignages existants
+        updatedTestimonials = testimonials.map(t => ({ ...t, featuredInHero: false }));
+        // Ajouter le nouveau témoignage avec featuredInHero = true
+        updatedTestimonials = [...updatedTestimonials, newTestimonial] as Testimonial[];
+      } else {
+        // Ajouter simplement le nouveau témoignage sans modifier les autres
+        updatedTestimonials = [...testimonials, newTestimonial] as Testimonial[];
+      }
+      
       setTestimonials(updatedTestimonials);
 
       // Mettre à jour le fichier testimonials.json
@@ -146,10 +158,23 @@ export const useTestimonials = () => {
         dateModified: now
       };
 
-      // Mettre à jour le témoignage localement
-      const updatedTestimonials = testimonials.map(testimonial =>
-        testimonial.id === id ? { ...testimonial, ...updates } : testimonial
-      ) as Testimonial[];
+      // Si ce témoignage est mis en avant dans le hero, désactiver cette option pour tous les autres
+      let updatedTestimonials;
+      if (updatedTestimonial.featuredInHero) {
+        updatedTestimonials = testimonials.map(testimonial => {
+          if (testimonial.id === id) {
+            return { ...testimonial, ...updates };
+          } else {
+            // Désactiver featuredInHero pour tous les autres témoignages
+            return { ...testimonial, featuredInHero: false };
+          }
+        }) as Testimonial[];
+      } else {
+        // Mise à jour normale sans changer le statut featuredInHero des autres témoignages
+        updatedTestimonials = testimonials.map(testimonial =>
+          testimonial.id === id ? { ...testimonial, ...updates } : testimonial
+        ) as Testimonial[];
+      }
 
       setTestimonials(updatedTestimonials);
 
@@ -212,12 +237,18 @@ export const useTestimonials = () => {
     }
   };
 
+  // Fonction pour récupérer le témoignage mis en avant dans le hero
+  const getFeaturedTestimonial = () => {
+    return testimonials.find(t => t.featuredInHero) || null;
+  };
+
   return {
     testimonials,
     loading,
     error,
     addTestimonial,
     updateTestimonial,
-    deleteTestimonial
+    deleteTestimonial,
+    getFeaturedTestimonial
   };
 };

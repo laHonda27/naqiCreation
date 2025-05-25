@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { netlifyGitService } from '../services/netlifyGitService';
+import { contentUpdateService } from '../services/contentUpdateService';
 
 export interface SiteSettings {
   logo?: {
@@ -33,17 +33,23 @@ export const useSiteSettings = () => {
     const loadSettings = async () => {
       try {
         setLoading(true);
-        const result = await netlifyGitService.getJsonFile('site-settings.json');
+        console.log('Chargement des paramètres du site via contentUpdateService...');
+        
+        // Utiliser contentUpdateService au lieu de netlifyGitService
+        const result = await contentUpdateService.getFile('site-settings.json');
+        console.log('Résultat du chargement:', result);
+        
         if (result.success && result.data) {
+          console.log('Données chargées avec succès:', result.data);
           setSettings(result.data);
           setError(null);
         } else {
-          setError(result.error || 'Erreur lors du chargement des paramètres du site');
           console.error('Erreur lors du chargement des paramètres du site:', result.error);
+          setError(result.error || 'Erreur lors du chargement des paramètres du site');
         }
       } catch (err: any) {
+        console.error('Exception lors du chargement des paramètres du site:', err);
         setError(err.message || 'Erreur lors du chargement des paramètres du site');
-        console.error('Erreur lors du chargement des paramètres du site:', err);
       } finally {
         setLoading(false);
       }
@@ -55,20 +61,29 @@ export const useSiteSettings = () => {
   const updateSettings = async (newSettings: SiteSettings) => {
     try {
       setLoading(true);
-      const result = await netlifyGitService.updateFile('site-settings.json', newSettings);
+      console.log('Mise à jour des paramètres du site via contentUpdateService...');
+      
+      // Utiliser contentUpdateService au lieu de netlifyGitService
+      const result = await contentUpdateService.updateFile(
+        'site-settings.json', 
+        newSettings, 
+        'Mise à jour des paramètres du site depuis le panneau d\'administration'
+      );
+      
       if (result.success) {
+        console.log('Paramètres mis à jour avec succès');
         setSettings(newSettings);
         setError(null);
         return { success: true };
       } else {
-        setError(result.error || 'Erreur lors de la mise à jour des paramètres du site');
         console.error('Erreur lors de la mise à jour des paramètres du site:', result.error);
+        setError(result.error || 'Erreur lors de la mise à jour des paramètres du site');
         return { success: false, error: result.error };
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de la mise à jour des paramètres du site';
+      console.error('Exception lors de la mise à jour des paramètres du site:', err);
       setError(errorMessage);
-      console.error('Erreur lors de la mise à jour des paramètres du site:', err);
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);

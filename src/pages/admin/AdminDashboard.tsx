@@ -11,7 +11,7 @@ import ContactManager from '../../components/admin/ContactManager';
 import CustomizationsManager from '../../components/admin/CustomizationsManager';
 import ShapesAndColorsManager from '../../components/admin/ShapesAndColorsManager';
 import ServicesManager from '../../components/admin/ServicesManager';
-import SiteCustomizationManager from '../../components/admin/SiteCustomizationManager';
+import SiteCustomizationManagerV2 from '../../components/admin/SiteCustomizationManagerV2';
 import { Info, LogOut, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
@@ -272,7 +272,7 @@ const AdminDashboard: React.FC = () => {
                       <Info size={20} className="text-rose-500 mr-2" />
                       <p className="text-sm text-rose-700">Vous modifiez l'<strong>apparence du site</strong>, notamment le logo, l'image du hero et les textes principaux.</p>
                     </div>
-                    <SiteCustomizationManager />
+                    <SiteCustomizationManagerV2 />
                   </div>
                 )}
               </TabsContent>

@@ -104,13 +104,14 @@ const HomePage: React.FC = () => {
   const [animating, setAnimating] = useState(false);
   
   // Récupération des témoignages depuis le hook
-  const { testimonials } = useTestimonials();
+  const { testimonials, getFeaturedTestimonial } = useTestimonials();
+  const featuredTestimonial = getFeaturedTestimonial();
   
   // Récupération des créations mises en avant
-  const { featuredCreations, loading, error } = useFeaturedCreations();
+  const { featuredCreations } = useFeaturedCreations();
   
   // Récupération des paramètres du site
-  const { settings: siteSettings, loading: settingsLoading } = useSiteSettings();
+  const { settings: siteSettings } = useSiteSettings();
   
   // Sélection des 5 témoignages les plus récents
   const recentTestimonials = useMemo(() => {
@@ -227,6 +228,73 @@ const HomePage: React.FC = () => {
         
         <div className="container-custom relative z-10 pt-36 pb-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Image en premier sur mobile, mais à droite sur desktop */}
+            <div className="lg:col-span-6 order-1 lg:order-2 relative min-h-[350px] lg:min-h-[600px] mt-0 mb-8 lg:mb-0 lg:mt-0">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={heroInView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="absolute top-0 right-0 w-full h-full flex justify-center items-center"
+              >
+                <div className="relative shadow-2xl rounded-2xl overflow-hidden w-full max-w-lg transform rotate-1">
+                  <img 
+                    src={siteSettings?.hero?.useCustomImage && siteSettings.hero.customImageUrl 
+                      ? siteSettings.hero.customImageUrl 
+                      : "https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} 
+                    alt="Panneau personnalisé élégant" 
+                    className="w-full h-[400px] lg:h-[500px] object-cover"
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, x: 80, y: -40 }}
+                animate={heroInView ? { opacity: 1, x: 0, y: 0 } : {}}
+                transition={{ duration: 0.7, delay: 0.8 }}
+                className="absolute -bottom-8 -left-4 md:bottom-16 md:left-0 bg-white p-4 rounded-xl shadow-xl max-w-[250px] z-10 rotate-3"
+              >
+                {featuredTestimonial ? (
+                  <>
+                    <div className="flex items-center mb-2">
+                      <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center font-semibold mr-2">
+                        {featuredTestimonial.name.charAt(0)}
+                      </div>
+                      <div className="flex">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={12}
+                            className={i < featuredTestimonial.rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    {featuredTestimonial.type === 'text' && (
+                      <p className="font-display italic text-sm text-taupe-800">
+                        "{featuredTestimonial.comment}"
+                      </p>
+                    )}
+                    {featuredTestimonial.type === 'screenshot' && featuredTestimonial.caption && (
+                      <p className="font-display italic text-sm text-taupe-800">
+                        "{featuredTestimonial.caption}"
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} size={14} className="text-rose-400 fill-rose-400" />
+                      ))}
+                    </div>
+                    <p className="text-sm font-display italic">"Un travail exceptionnel ! Merci pour ce superbe panneau !"</p>
+
+                  </>
+                )}
+              </motion.div>
+            </div>
+            
+            {/* Texte en second sur mobile, mais à gauche sur desktop */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={heroInView ? { opacity: 1 } : {}}
@@ -238,7 +306,7 @@ const HomePage: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={heroInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.2 }}
-                  className="inline-block px-4 py-2 bg-rose-100 text-rose-500 rounded-full text-sm font-medium mb-2"
+                  className="inline-block px-3 py-2 bg-rose-100 text-rose-500 rounded-full text-xs sm:text-sm font-medium mb-2"
                 >
                   Créations personnalisées pour chaque instant de bonheur
                 </motion.span>
@@ -287,17 +355,17 @@ const HomePage: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={heroInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.8 }}
-                  className="pt-8 flex flex-wrap gap-4"
+                  className="pt-8 flex flex-col sm:flex-row w-full gap-4"
                 >
                   <Link 
                     to="/prestations" 
-                    className="btn-primary px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:translate-y-[-2px] transition-all"
+                    className="btn-primary px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:translate-y-[-2px] transition-all w-full text-center"
                   >
                     Découvrir nos créations
                   </Link>
                   <Link 
                     to="/galerie" 
-                    className="btn-outline px-8 py-4 rounded-full hover:bg-white/50 transform hover:translate-y-[-2px] transition-all"
+                    className="btn-outline px-8 py-4 rounded-full hover:bg-white/50 transform hover:translate-y-[-2px] transition-all w-full text-center"
                   >
                     Voir notre galerie
                   </Link>
@@ -307,78 +375,30 @@ const HomePage: React.FC = () => {
                   initial={{ opacity: 0 }}
                   animate={heroInView ? { opacity: 1 } : {}}
                   transition={{ duration: 0.6, delay: 1 }}
-                  className="flex items-center space-x-4 mt-8 pt-4"
+                  className="flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-4 mt-8 pt-4"
                 >
                   <div className="flex -space-x-2">
-                    {[1, 2, 3].map((item) => (
-                      <div key={item} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
-                        <img 
-                          src={`https://images.pexels.com/photos/${1987301 + item}/pexels-photo-${1987301 + item}.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&dpr=1`} 
-                          alt="Client heureux" 
-                          className="w-full h-full object-cover"
-                        />
+                    {['M', 'J', 'S'].map((letter, index) => (
+                      <div key={index} className="w-10 h-10 rounded-full border-2 border-white bg-rose-400 flex items-center justify-center">
+                        <span className="text-white font-medium">{letter}</span>
                       </div>
                     ))}
                   </div>
-                  <div>
-                    <div className="flex items-center">
+                  <div className="text-center sm:text-left">
+                    <div className="flex items-center justify-center sm:justify-start">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star key={star} size={16} className="text-rose-400 fill-rose-400" />
                       ))}
                     </div>
                     <p className="text-sm text-taupe-600 mt-1">
-                      Plus de <span className="font-medium">150</span> clients satisfaits
+                      Plus de <span className="font-medium">100</span> clients satisfaits
                     </p>
                   </div>
                 </motion.div>
               </div>
             </motion.div>
             
-            <div className="lg:col-span-6 order-1 lg:order-2 relative min-h-[400px] lg:min-h-[600px]">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={heroInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.7, delay: 0.4 }}
-                className="absolute top-0 right-0 w-full h-full flex justify-center items-center"
-              >
-                <div className="relative shadow-2xl rounded-2xl overflow-hidden w-full max-w-lg transform rotate-1">
-                  <img 
-                    src={siteSettings?.hero?.useCustomImage && siteSettings.hero.customImageUrl 
-                      ? siteSettings.hero.customImageUrl 
-                      : "https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} 
-                    alt="Panneau personnalisé élégant" 
-                    className="w-full h-[500px] object-cover"
-                  />
-                </div>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, x: 80, y: -40 }}
-                animate={heroInView ? { opacity: 1, x: 0, y: 0 } : {}}
-                transition={{ duration: 0.7, delay: 0.8 }}
-                className="absolute -bottom-8 -left-4 md:bottom-16 md:left-0 bg-white p-4 rounded-xl shadow-xl max-w-[200px] z-10 rotate-3"
-              >
-                <div className="flex items-center mb-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} size={14} className="text-rose-400 fill-rose-400" />
-                  ))}
-                </div>
-                <p className="text-sm font-display italic">"Un travail exceptionnel ! Merci pour ce superbe panneau !"</p>
-                <p className="text-xs text-taupe-600 mt-2">- Marie L.</p>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, x: -40, y: 60 }}
-                animate={heroInView ? { opacity: 1, x: 0, y: 0 } : {}}
-                transition={{ duration: 0.7, delay: 1 }}
-                className="hidden md:block absolute top-20 right-0 md:-right-8 bg-white p-3 rounded-lg shadow-xl -rotate-6"
-              >
-                <div className="flex items-center space-x-2">
-                  <Heart className="text-rose-400" size={22} />
-                  <span className="text-sm font-medium">249 J'aime</span>
-                </div>
-              </motion.div>
-            </div>
+              {/* Élément visuel du nombre de j'aime supprimé */}
           </div>
         </div>
         

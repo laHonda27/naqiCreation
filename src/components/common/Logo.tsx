@@ -1,43 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { netlifyGitService } from '../../services/netlifyGitService';
+import React from 'react';
+import { useSiteSettings } from '../../hooks/useSiteSettings';
 
 interface LogoProps {
   className?: string;
 }
 
-interface SiteSettings {
-  logo?: {
-    useCustomLogo: boolean;
-    customLogoUrl: string;
-  };
-  favicon?: {
-    useCustomFavicon: boolean;
-    customFaviconUrl: string;
-  };
-  siteTitle?: string;
-  siteDescription?: string;
-}
+// Utilisation de l'interface SiteSettings du hook useSiteSettings
 
 const Logo: React.FC<LogoProps> = ({ className = "h-12 w-auto" }) => {
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const result = await netlifyGitService.getJsonFile('site-settings.json');
-        if (result.success && result.data) {
-          setSettings(result.data);
-        }
-      } catch (err) {
-        console.error('Erreur lors du chargement des paramètres du site:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadSettings();
-  }, []);
+  // Utilisation du hook useSiteSettings pour récupérer les paramètres du site
+  const { settings, loading } = useSiteSettings();
   
   // Si un logo personnalisé est configuré, l'utiliser
   if (!loading && settings?.logo?.useCustomLogo && settings.logo.customLogoUrl) {

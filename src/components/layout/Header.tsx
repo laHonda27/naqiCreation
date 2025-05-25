@@ -12,16 +12,29 @@ const Header: React.FC = () => {
   // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
+      // Utilisation d'un seuil plus bas pour les appareils mobiles
+      const scrollThreshold = window.innerWidth < 768 ? 20 : 50;
+      
+      if (window.scrollY > scrollThreshold) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
     };
     
-    handleScroll(); // Check initial scroll position
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Vérifier la position initiale du défilement
+    handleScroll();
+    
+    // Ajouter l'écouteur d'événement avec passive: true pour améliorer les performances sur mobile
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Vérifier à nouveau après un court délai pour s'assurer que la valeur est correcte
+    const timer = setTimeout(handleScroll, 100);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(timer);
+    };
   }, []);
   
   // Close mobile menu when route changes
