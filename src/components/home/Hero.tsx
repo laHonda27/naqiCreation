@@ -44,6 +44,49 @@ const Hero: React.FC = () => {
       </div>
       
       <div className="container-custom relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Avis client en haut de la page */}
+        <div className="flex justify-end mb-8">
+          {featuredTestimonial ? (
+            <div className="bg-white p-4 rounded-lg shadow-xl max-w-[300px]">
+              <div className="flex items-center mb-2">
+                <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center font-semibold mr-2">
+                  {featuredTestimonial.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-medium text-sm text-taupe-800">{featuredTestimonial.name}</p>
+                  <div className="flex">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={12}
+                        className={i < featuredTestimonial.rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {featuredTestimonial.type === 'text' && (
+                <p className="font-display italic text-sm text-taupe-800">
+                  "{featuredTestimonial.comment}"
+                </p>
+              )}
+              {featuredTestimonial.type === 'screenshot' && featuredTestimonial.caption && (
+                <p className="font-display italic text-sm text-taupe-800">
+                  "{featuredTestimonial.caption}"
+                </p>
+              )}
+              <p className="text-xs text-taupe-500 mt-2">Plus de 100 clients satisfaits</p>
+            </div>
+          ) : (
+            <div className="bg-white p-4 rounded-lg shadow-xl">
+              <p className="font-display italic text-lg text-taupe-800">
+                "Personnalisez à votre image !"
+              </p>
+              <p className="text-xs text-taupe-500 mt-2">Plus de 100 clients satisfaits</p>
+            </div>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Text content */}
           <motion.div
@@ -88,51 +131,14 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="lg:pl-8"
           >
-            <div className="relative">
-              <img 
-                src="https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
-                alt="Panneau personnalisé pour mariage" 
-                className="rounded-lg shadow-showcase object-cover w-full h-[500px]" 
-              />
-              {featuredTestimonial ? (
-                <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-medium max-w-[300px]">
-                  <div className="flex items-center mb-2">
-                    <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center font-semibold mr-2">
-                      {featuredTestimonial.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm text-taupe-800">{featuredTestimonial.name}</p>
-                      <div className="flex">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            size={12}
-                            className={i < featuredTestimonial.rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  {featuredTestimonial.type === 'text' && (
-                    <p className="font-display italic text-sm text-taupe-800">
-                      "{featuredTestimonial.comment}"
-                    </p>
-                  )}
-                  {featuredTestimonial.type === 'screenshot' && featuredTestimonial.caption && (
-                    <p className="font-display italic text-sm text-taupe-800">
-                      "{featuredTestimonial.caption}"
-                    </p>
-                  )}
-                  <p className="text-xs text-taupe-500 mt-2">Plus de 100 clients satisfaits</p>
-                </div>
-              ) : (
-                <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-medium">
-                  <p className="font-display italic text-lg text-taupe-800">
-                    "Personnalisez à votre image !"
-                  </p>
-                  <p className="text-xs text-taupe-500 mt-2">Plus de 100 clients satisfaits</p>
-                </div>
-              )}
+            <div className="rounded-lg shadow-showcase overflow-hidden" style={{ height: '500px', width: '100%' }}>
+              <div className="w-full h-full bg-beige-50 flex items-center justify-center">
+                <img 
+                  src="https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
+                  alt="Panneau personnalisé pour mariage" 
+                  className="h-auto w-auto max-h-[480px] max-w-[90%]" 
+                />
+              </div>
             </div>
           </motion.div>
         </div>

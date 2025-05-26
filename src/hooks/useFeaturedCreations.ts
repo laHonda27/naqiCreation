@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { contentUpdateService } from '../services/contentUpdateService';
 
 interface Creation {
   id: string;
@@ -19,11 +20,14 @@ export const useFeaturedCreations = () => {
   useEffect(() => {
     const fetchCreations = async () => {
       try {
-        const response = await fetch('/data/creations.json');
-        if (!response.ok) {
-          throw new Error('Erreur lors du chargement des créations');
+        // Utiliser contentUpdateService au lieu de fetch local
+        const result = await contentUpdateService.getFile('creations.json');
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Erreur lors du chargement des créations');
         }
-        const data = await response.json();
+        
+        const data = result.data;
         
         // Récupérer d'abord les créations en vedette, puis compléter si nécessaire
         let creations = data.creations || [];

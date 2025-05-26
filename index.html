@@ -12,6 +12,17 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Formulaire caché pour Netlify Forms avec captcha -->
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden data-netlify-recaptcha="true">
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <select name="eventType"></select>
+      <textarea name="message"></textarea>
+      <div data-netlify-recaptcha="true"></div>
+    </form>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

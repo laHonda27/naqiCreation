@@ -22,37 +22,7 @@ import {
   Award
 } from 'lucide-react';
 
-// Données pour le flux Instagram (simulées)
-const instagramPosts = [
-  {
-    id: 'post1',
-    imageUrl: 'https://images.pexels.com/photos/2253833/pexels-photo-2253833.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    likes: 124,
-    caption: 'Panneau personnalisé pour le mariage de Sophie et Thomas #naqicreation #mariage',
-    date: '2 jours'
-  },
-  {
-    id: 'post2',
-    imageUrl: 'https://images.pexels.com/photos/3171813/pexels-photo-3171813.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    likes: 98,
-    caption: 'Nouvelle création pour une baby shower pastel #babyshower #naqicreation',
-    date: '5 jours'
-  },
-  {
-    id: 'post3',
-    imageUrl: 'https://images.pexels.com/photos/1128782/pexels-photo-1128782.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    likes: 156,
-    caption: 'Panneau de bienvenue pour les fiançailles de Marie et Antoine #fiancailles',
-    date: '1 semaine'
-  },
-  {
-    id: 'post4',
-    imageUrl: 'https://images.pexels.com/photos/3419728/pexels-photo-3419728.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    likes: 87,
-    caption: 'Cartons d\'invitation élégants pour un anniversaire chic #anniversaire',
-    date: '2 semaines'
-  }
-];
+// Flux Instagram supprimé
 
 // Les témoignages sont maintenant chargés dynamiquement depuis le hook useTestimonials
 
@@ -63,7 +33,7 @@ const highlights = [
   { 
     icon: "", 
     title: "Artisanat français", 
-    description: "Toutes nos créations sont fabriquées à la main en France, dans notre atelier parisien."
+    description: "Toutes nos créations sont fabriquées à la main en France, avec passion et savoir-faire."
   },
   { 
     icon: "", 
@@ -229,7 +199,7 @@ const HomePage: React.FC = () => {
         <div className="container-custom relative z-10 pt-36 pb-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Image en premier sur mobile, mais à droite sur desktop */}
-            <div className="lg:col-span-6 order-1 lg:order-2 relative min-h-[350px] lg:min-h-[600px] mt-0 mb-8 lg:mb-0 lg:mt-0">
+            <div className="lg:col-span-6 order-1 lg:order-2 relative min-h-[400px] lg:min-h-[650px] mt-0 mb-12 lg:mb-0 lg:mt-0">
               {/* N'afficher le contenu que lorsque les paramètres du site sont chargés */}
               {(siteSettings !== null) && (
                 <motion.div
@@ -244,17 +214,18 @@ const HomePage: React.FC = () => {
                         ? siteSettings.hero.customImageUrl 
                         : "https://images.pexels.com/photos/6267516/pexels-photo-6267516.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} 
                       alt="Panneau personnalisé élégant" 
-                      className="w-full h-[400px] lg:h-[500px] object-cover"
+                      className="w-full h-[450px] lg:h-[550px] object-cover"
                     />
                   </div>
                 </motion.div>
               )}
               
+              {/* Version desktop de la carte d'avis (visible uniquement sur grand écran) */}
               <motion.div
-                initial={{ opacity: 0, x: 80, y: -40 }}
+                initial={{ opacity: 0, x: -40, y: 40 }}
                 animate={heroInView ? { opacity: 1, x: 0, y: 0 } : {}}
                 transition={{ duration: 0.7, delay: 0.8 }}
-                className="absolute -bottom-8 -left-4 md:bottom-16 md:left-0 bg-white p-4 rounded-xl shadow-xl max-w-[250px] z-10 rotate-3"
+                className="absolute -bottom-10 left-4 bg-white p-4 rounded-xl shadow-xl max-w-[280px] z-10 rotate-[-2deg] hidden lg:block"
               >
                 {featuredTestimonial ? (
                   <>
@@ -292,6 +263,52 @@ const HomePage: React.FC = () => {
                     </div>
                     <p className="text-sm font-display italic">"Un travail exceptionnel ! Merci pour ce superbe panneau !"</p>
 
+                  </>
+                )}
+              </motion.div>
+              
+              {/* Version mobile de la carte d'avis (visible uniquement sur petit écran) */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.7, delay: 0.8 }}
+                className="mt-6 bg-white p-4 rounded-xl shadow-xl max-w-[280px] z-10 rotate-[-2deg] mx-auto lg:hidden"
+              >
+                {featuredTestimonial ? (
+                  <>
+                    <div className="flex items-center mb-2">
+                      <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center font-semibold mr-2">
+                        {featuredTestimonial.name.charAt(0)}
+                      </div>
+                      <div className="flex">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={12}
+                            className={i < featuredTestimonial.rating ? "text-rose-400 fill-rose-400" : "text-beige-300"}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    {featuredTestimonial.type === 'text' && (
+                      <p className="font-display italic text-sm text-taupe-800">
+                        "{featuredTestimonial.comment}"
+                      </p>
+                    )}
+                    {featuredTestimonial.type === 'screenshot' && featuredTestimonial.caption && (
+                      <p className="font-display italic text-sm text-taupe-800">
+                        "{featuredTestimonial.caption}"
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} size={14} className="text-rose-400 fill-rose-400" />
+                      ))}
+                    </div>
+                    <p className="text-sm font-display italic">"Un travail exceptionnel ! Merci pour ce superbe panneau !"</p>
                   </>
                 )}
               </motion.div>
@@ -408,6 +425,8 @@ const HomePage: React.FC = () => {
         <div className="absolute bottom-6 left-0 right-0 flex justify-center animate-bounce">
           <ChevronRight size={30} className="text-taupe-400 rotate-90" />
         </div>
+        {/* Espace supplémentaire pour éviter le chevauchement avec la carte d'avis sur mobile */}
+        <div className="h-40 sm:h-36 md:h-28 lg:h-16"></div>
       </section>
       
       {/* Section détaillée des services et prestations */}
@@ -896,91 +915,7 @@ const HomePage: React.FC = () => {
         </motion.div>
       </section>
       
-      {/* Section flux Instagram */}
-      <section ref={instagramRef} className="py-20 bg-white">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={instagramInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.7 }}
-          className="container-custom"
-        >
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
-            <div>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={instagramInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.6 }}
-                className="flex items-center mb-4"
-              >
-                <Instagram size={24} className="text-rose-500 mr-3" />
-                <h2 className="text-2xl font-display font-semibold">@naqi.creation</h2>
-              </motion.div>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={instagramInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-taupe-600"
-              >
-                Suivez-nous sur Instagram pour plus d'inspiration et de créations
-              </motion.p>
-            </div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={instagramInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <a 
-                href="https://www.instagram.com/naqi.creation/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-rose-500 hover:text-rose-600 font-medium"
-              >
-                <span>Nous suivre</span>
-                <ArrowRight size={18} className="ml-2" />
-              </a>
-            </motion.div>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {instagramPosts.map((post, idx) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={instagramInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
-              >
-                <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={post.imageUrl} 
-                    alt="Instagram post" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                  />
-                </div>
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end">
-                  <p className="text-white text-sm line-clamp-2">{post.caption}</p>
-                  
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="flex items-center text-white">
-                      <Heart size={16} className="mr-1" />
-                      <span className="text-xs">{post.likes}</span>
-                    </div>
-                    <span className="text-xs text-white/80">{post.date}</span>
-                  </div>
-                </div>
-                
-                <div className="absolute top-3 right-3">
-                  <div className="bg-white/90 backdrop-blur-sm w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
-                    <Instagram size={16} className="text-rose-500" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
+      {/* Section flux Instagram supprimée */}
       
       {/* Section FAQ */}
       <section ref={faqRef} className="py-20 bg-white">

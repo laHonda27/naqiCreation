@@ -35,6 +35,19 @@ const ServicesPage: React.FC = () => {
     initialInView: false
   });
   
+  // Déterminer les catégories qui ont des créations associées
+  const availableCategories = useMemo(() => {
+    // Récupérer toutes les catégories présentes dans les créations
+    const categoriesInCreations = creations
+      .map(creation => creation.category)
+      .filter((category, index, self) => category && self.indexOf(category) === index);
+    
+    // Filtrer les catégories pour ne garder que celles qui ont des créations
+    return categories.filter(category => 
+      categoriesInCreations.includes(category.id)
+    );
+  }, [creations, categories]);
+  
   // Filtrer et trier les créations en fonction de la catégorie, de la recherche et du tri
   const filteredCreations = useMemo(() => {
     // D'abord, filtrer par catégorie
@@ -169,8 +182,8 @@ const ServicesPage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lightboxOpen, lightboxImages.length]);
   
-  // Gérer la sélection de catégorie
-  const handleCategorySelect = (categoryId: string) => {
+  // Fonction pour changer de catégorie
+  const changeCategory = (categoryId: string) => {
     setActiveCategory(categoryId);
     setCurrentPage(1); // Réinitialiser la pagination lors du changement de catégorie
   };
@@ -258,10 +271,21 @@ const ServicesPage: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-taupe-700 mb-3">Catégorie</label>
                     <div className="flex flex-wrap gap-3">
-                      {categories.map(category => (
+                      <button
+                        onClick={() => changeCategory('all')}
+                        className={`px-5 py-2.5 rounded-md text-sm font-medium transition-all duration-300 ${
+                          activeCategory === 'all'
+                            ? 'bg-rose-500 text-white shadow-md'
+                            : 'bg-white text-taupe-700 border border-beige-200 hover:border-rose-300'
+                        }`}
+                      >
+                        Tous
+                      </button>
+                      
+                      {availableCategories.map(category => (
                         <button
                           key={category.id}
-                          onClick={() => setActiveCategory(category.id)}
+                          onClick={() => changeCategory(category.id)}
                           className={`px-5 py-2.5 rounded-md text-sm font-medium transition-all duration-300 ${
                             activeCategory === category.id
                               ? 'bg-rose-500 text-white shadow-md'
@@ -282,7 +306,7 @@ const ServicesPage: React.FC = () => {
                     <button
                       onClick={() => {
                         setSearchQuery('');
-                        setActiveCategory('all');
+                        changeCategory('all');
                         setSortOrder('default');
                       }}
                       className="px-4 py-2 bg-rose-400 text-white rounded-full hover:bg-rose-500 transition-colors"

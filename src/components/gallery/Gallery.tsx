@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import Masonry from 'react-masonry-css';
@@ -25,6 +25,19 @@ const Gallery: React.FC<GalleryProps> = ({ images, categories = [], className = 
   const filteredImages = activeCategory
     ? images.filter(image => image.category === activeCategory)
     : images;
+    
+  // Déterminer les catégories qui ont des images associées
+  const availableCategories = useMemo(() => {
+    // Récupérer toutes les catégories présentes dans les images
+    const categoriesInImages = images
+      .map(image => image.category)
+      .filter(category => category) as string[];
+    
+    // Filtrer les catégories pour ne garder que celles qui ont des images
+    return categories.filter(category => 
+      categoriesInImages.includes(category)
+    );
+  }, [images, categories]);
   
   const openLightbox = (image: GalleryImage, index: number) => {
     setSelectedImage(image);
@@ -99,7 +112,7 @@ const Gallery: React.FC<GalleryProps> = ({ images, categories = [], className = 
                   Tous
                 </button>
                 
-                {categories.map(category => (
+                {availableCategories.map(category => (
                   <button
                     key={category}
                     onClick={() => setActiveCategory(category)}

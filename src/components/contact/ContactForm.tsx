@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Check, Send, AlertCircle, Instagram } from 'lucide-react';
@@ -43,24 +43,42 @@ const ContactForm: React.FC = () => {
         annee: new Date().getFullYear()
       };
       
-      // Envoyer l'email via EmailJS
-      const response = await emailjs.send(
-        'service_cb56cus', 
-        'template_4womf8d',
-        templateParams,
-        '6xSU95yp9wK81yhxl'
-      );
-      
-      console.log('Email envoyé avec succès:', response);
-      setIsSubmitted(true);
-      reset();
-      
-      // Réinitialiser le message de succès après 5 secondes
-      setTimeout(() => {
-        setIsSubmitted(false);
-      }, 5000);
+      // 1. Soumettre le formulaire à Netlify pour la vérification du captcha
+      if (formRef.current) {
+        const formData = new FormData(formRef.current);
+        
+        // Soumettre le formulaire à Netlify
+        const netlifyResponse = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(formData as any).toString()
+        });
+        
+        if (!netlifyResponse.ok) {
+          throw new Error('Erreur lors de la vérification du captcha');
+        }
+        
+        // 2. Si la vérification du captcha est réussie, envoyer l'email via EmailJS
+        const emailResponse = await emailjs.send(
+          'service_cb56cus', 
+          'template_4womf8d',
+          templateParams,
+          '6xSU95yp9wK81yhxl'
+        );
+        
+        console.log('Email envoyé avec succès:', emailResponse);
+        setIsSubmitted(true);
+        reset();
+        
+        // Réinitialiser le message de succès après 5 secondes
+        setTimeout(() => {
+          setIsSubmitted(false);
+        }, 5000);
+      } else {
+        throw new Error('Référence au formulaire non disponible');
+      }
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'email:', error);
+      console.error('Erreur lors de l\'envoi du message:', error);
       setEmailError('Une erreur est survenue lors de l\'envoi de votre message. Veuillez réessayer plus tard.');
     } finally {
       setIsSubmitting(false);
@@ -130,7 +148,21 @@ const ContactForm: React.FC = () => {
             </div>
           </div>
           
-          <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10">
+          <form 
+            ref={formRef} 
+            onSubmit={handleSubmit(onSubmit)} 
+            className="space-y-6 relative z-10"
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+            data-netlify-recaptcha="true"
+          >
+            {/* Champs cachés nécessaires pour Netlify */}
+            <input type="hidden" name="form-name" value="contact" />
+            <div className="hidden">
+              <input name="bot-field" />
+            </div>
             {emailError && (
               <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
                 {emailError}
@@ -223,6 +255,11 @@ const ContactForm: React.FC = () => {
               {errors.message && (
                 <p className="mt-1 text-sm text-red-500">{errors.message.message}</p>
               )}
+            </div>
+            
+            {/* Netlify Recaptcha */}
+            <div className="mb-6">
+              <div data-netlify-recaptcha="true"></div>
             </div>
             
             <div>
