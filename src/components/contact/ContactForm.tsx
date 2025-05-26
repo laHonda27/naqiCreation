@@ -3,6 +3,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Check, Send, AlertCircle, Instagram } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface FormInputs {
   name: string;
@@ -16,19 +17,30 @@ const ContactForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [captchaValue, setCaptchaValue] = useState<string | null>(null);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+
   const { 
     register, 
     handleSubmit, 
     formState: { errors },
     reset
   } = useForm<FormInputs>();
-  
+
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     setIsSubmitting(true);
     setEmailError(null);
-    
+    setCaptchaError(null);
+
+    // Vérifier si le captcha a été validé
+    if (!captchaValue) {
+      setCaptchaError('Veuillez confirmer que vous n\'êtes pas un robot');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       // Préparer les données supplémentaires pour le template
       const templateParams = {
@@ -40,9 +52,10 @@ const ContactForm: React.FC = () => {
         initiales: data.name.charAt(0).toUpperCase(),
         date: new Date().toLocaleDateString('fr-FR'),
         heure: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-        annee: new Date().getFullYear()
+        annee: new Date().getFullYear(),
+        'g-recaptcha-response': captchaValue
       };
-      
+
       // Envoyer l'email via EmailJS
       const response = await emailjs.send(
         'service_cb56cus', 
@@ -50,11 +63,17 @@ const ContactForm: React.FC = () => {
         templateParams,
         '6xSU95yp9wK81yhxl'
       );
-      
+
       console.log('Email envoyé avec succès:', response);
       setIsSubmitted(true);
       reset();
-      
+      setCaptchaValue(null);
+
+      // Réinitialiser le captcha
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
+
       // Réinitialiser le message de succès après 5 secondes
       setTimeout(() => {
         setIsSubmitted(false);
@@ -62,22 +81,28 @@ const ContactForm: React.FC = () => {
     } catch (error) {
       console.error('Erreur lors de l\'envoi de l\'email:', error);
       setEmailError('Une erreur est survenue lors de l\'envoi de votre message. Veuillez réessayer plus tard.');
+
+      // Réinitialiser le captcha en cas d'erreur
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
+      setCaptchaValue(null);
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   // Initialiser EmailJS
   React.useEffect(() => {
     emailjs.init('6xSU95yp9wK81yhxl');
   }, []);
-  
+
   return (
     <div className="bg-white rounded-lg shadow-medium p-6 md:p-8 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute w-24 h-24 bg-rose-100 rounded-full -top-12 -right-12 opacity-50"></div>
       <div className="absolute w-16 h-16 bg-beige-200 rounded-full -bottom-8 -left-8 opacity-50"></div>
-      
+
       {isSubmitted ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -93,7 +118,7 @@ const ContactForm: React.FC = () => {
           <p className="text-green-700 mb-4">
             Merci pour votre message. Nous vous répondrons dans les plus brefs délais.
           </p>
-          
+
           <div className="mt-6 p-4 bg-white rounded-lg shadow-sm">
             <p className="text-taupe-600 text-sm mb-3">Pour une réponse plus rapide, n'hésitez pas à nous contacter sur Instagram :</p>
             <a 
@@ -129,14 +154,14 @@ const ContactForm: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10">
             {emailError && (
               <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
                 {emailError}
               </div>
             )}
-            
+
             <div>
               <label htmlFor="name" className="block text-taupe-800 font-medium mb-2">
                 Nom complet *
@@ -151,7 +176,7 @@ const ContactForm: React.FC = () => {
                 <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
               )}
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="email" className="block text-taupe-800 font-medium mb-2">
@@ -173,7 +198,7 @@ const ContactForm: React.FC = () => {
                   <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
                 )}
               </div>
-              
+
               <div>
                 <label htmlFor="phone" className="block text-taupe-800 font-medium mb-2">
                   Téléphone
@@ -186,7 +211,7 @@ const ContactForm: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             <div>
               <label htmlFor="eventType" className="block text-taupe-800 font-medium mb-2">
                 Type d'événement *
@@ -209,7 +234,7 @@ const ContactForm: React.FC = () => {
                 <p className="mt-1 text-sm text-red-500">{errors.eventType.message}</p>
               )}
             </div>
-            
+
             <div>
               <label htmlFor="message" className="block text-taupe-800 font-medium mb-2">
                 Message *
@@ -224,7 +249,24 @@ const ContactForm: React.FC = () => {
                 <p className="mt-1 text-sm text-red-500">{errors.message.message}</p>
               )}
             </div>
-            
+
+            <div className="mb-6">
+              <div className="flex justify-center">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey="6LcOHEorAAAAAH0Uqyn0KoQVSJnwiO437crCgkEL"
+                  onChange={(value) => {
+                    setCaptchaValue(value);
+                    setCaptchaError(null);
+                  }}
+                  onExpired={() => setCaptchaValue(null)}
+                />
+              </div>
+              {captchaError && (
+                <p className="mt-2 text-center text-sm text-red-500">{captchaError}</p>
+              )}
+            </div>
+
             <div>
               <button
                 type="submit"
