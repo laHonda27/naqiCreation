@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Check, Send, AlertCircle, Instagram } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 interface FormInputs {
   name: string;
@@ -29,48 +30,47 @@ const ContactForm: React.FC = () => {
     setEmailError(null);
     
     try {
-      // Avec Netlify Forms, nous n'avons pas besoin d'envoyer l'email manuellement
-      // Netlify gère automatiquement l'envoi des notifications par email
+      // Préparer les données supplémentaires pour le template
+      const templateParams = {
+        nom_complet: data.name,
+        email: data.email,
+        portable: data.phone || 'Non fourni',
+        type_evenement: data.eventType,
+        message: data.message,
+        initiales: data.name.charAt(0).toUpperCase(),
+        date: new Date().toLocaleDateString('fr-FR'),
+        heure: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        annee: new Date().getFullYear()
+      };
       
-      // Soumettre le formulaire à Netlify
-      if (formRef.current) {
-        const formData = new FormData(formRef.current);
-        
-        // Ajouter la date et l'heure pour plus de contexte
-        formData.append('date', new Date().toLocaleDateString('fr-FR'));
-        formData.append('heure', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
-        
-        // Soumettre le formulaire à Netlify
-        const response = await fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(formData as any).toString()
-        });
-        
-        if (!response.ok) {
-          throw new Error('Erreur lors de l\'envoi du formulaire');
-        }
-        
-        console.log('Formulaire envoyé avec succès');
-        setIsSubmitted(true);
-        reset();
-        
-        // Réinitialiser le message de succès après 5 secondes
-        setTimeout(() => {
-          setIsSubmitted(false);
-        }, 5000);
-      } else {
-        throw new Error('Référence au formulaire non disponible');
-      }
+      // Envoyer l'email via EmailJS
+      const response = await emailjs.send(
+        'service_cb56cus', 
+        'template_4womf8d',
+        templateParams,
+        '6xSU95yp9wK81yhxl'
+      );
+      
+      console.log('Email envoyé avec succès:', response);
+      setIsSubmitted(true);
+      reset();
+      
+      // Réinitialiser le message de succès après 5 secondes
+      setTimeout(() => {
+        setIsSubmitted(false);
+      }, 5000);
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
+      console.error('Erreur lors de l\'envoi de l\'email:', error);
       setEmailError('Une erreur est survenue lors de l\'envoi de votre message. Veuillez réessayer plus tard.');
     } finally {
       setIsSubmitting(false);
     }
   };
   
-  // Pas besoin d'initialiser EmailJS car nous utilisons Netlify Forms
+  // Initialiser EmailJS
+  React.useEffect(() => {
+    emailjs.init('6xSU95yp9wK81yhxl');
+  }, []);
   
   return (
     <div className="bg-white rounded-lg shadow-medium p-6 md:p-8 relative overflow-hidden">
@@ -130,21 +130,7 @@ const ContactForm: React.FC = () => {
             </div>
           </div>
           
-          <form 
-            ref={formRef} 
-            onSubmit={handleSubmit(onSubmit)} 
-            className="space-y-6 relative z-10"
-            name="contact"
-            method="POST"
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
-            data-netlify-recaptcha="true"
-          >
-            {/* Champs cachés nécessaires pour Netlify */}
-            <input type="hidden" name="form-name" value="contact" />
-            <div className="hidden">
-              <input name="bot-field" />
-            </div>
+          <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10">
             {emailError && (
               <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
                 {emailError}
@@ -237,13 +223,6 @@ const ContactForm: React.FC = () => {
               {errors.message && (
                 <p className="mt-1 text-sm text-red-500">{errors.message.message}</p>
               )}
-            </div>
-            
-            {/* Netlify Recaptcha */}
-            <div className="mb-6">
-              {/* Ajout d'un champ caché pour la réponse du captcha */}
-              <input type="hidden" name="g-recaptcha-response" />
-              <div className="g-recaptcha" data-netlify-recaptcha="true"></div>
             </div>
             
             <div>

@@ -9,23 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Script Netlify pour le captcha -->
-    <script src="https://www.google.com/recaptcha/api.js"></script>
   </head>
   <body>
     <div id="root"></div>
-    
-    <!-- Formulaire caché pour Netlify Forms avec captcha -->
-    <form name="contact" netlify netlify-honeypot="bot-field" hidden data-netlify-recaptcha="true">
-      <input type="text" name="name" />
-      <input type="email" name="email" />
-      <input type="tel" name="phone" />
-      <select name="eventType"></select>
-      <textarea name="message"></textarea>
-      <div class="g-recaptcha" data-netlify-recaptcha="true"></div>
-    </form>
-    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
