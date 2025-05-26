@@ -4,12 +4,12 @@
     "customFaviconUrl": ""
   },
   "logo": {
-    "useCustomLogo": false,
-    "customLogoUrl": ""
+    "useCustomLogo": true,
+    "customLogoUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748278711/naqi-creation/White%20Minimal%20Simple%20Motivational%20Instagram%20Post%20%281920%20x%201080%20px%29-2.png"
   },
   "hero": {
     "useCustomImage": true,
-    "customImageUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748204898/naqi-creation/illustration-livre-coloriage-kawaii-dessine-main_52683-97397.avif",
+    "customImageUrl": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748193155/naqi-creation/IMG_9477.jpg",
     "title": "Sublimez vos moments avec des créations uniques",
     "subtitle": "Des panneaux et accessoires sur mesure pour rendre vos mariages, fiançailles et célébrations véritablement exceptionnels."
   },
