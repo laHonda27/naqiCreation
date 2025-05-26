@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Check, Send, AlertCircle, Instagram } from 'lucide-react';
-import emailjs from '@emailjs/browser';
 
 interface FormInputs {
   name: string;
@@ -30,43 +29,29 @@ const ContactForm: React.FC = () => {
     setEmailError(null);
     
     try {
-      // Préparer les données supplémentaires pour le template
-      const templateParams = {
-        nom_complet: data.name,
-        email: data.email,
-        portable: data.phone || 'Non fourni',
-        type_evenement: data.eventType,
-        message: data.message,
-        initiales: data.name.charAt(0).toUpperCase(),
-        date: new Date().toLocaleDateString('fr-FR'),
-        heure: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-        annee: new Date().getFullYear()
-      };
+      // Avec Netlify Forms, nous n'avons pas besoin d'envoyer l'email manuellement
+      // Netlify gère automatiquement l'envoi des notifications par email
       
-      // 1. Soumettre le formulaire à Netlify pour la vérification du captcha
+      // Soumettre le formulaire à Netlify
       if (formRef.current) {
         const formData = new FormData(formRef.current);
         
+        // Ajouter la date et l'heure pour plus de contexte
+        formData.append('date', new Date().toLocaleDateString('fr-FR'));
+        formData.append('heure', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+        
         // Soumettre le formulaire à Netlify
-        const netlifyResponse = await fetch('/', {
+        const response = await fetch('/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams(formData as any).toString()
         });
         
-        if (!netlifyResponse.ok) {
-          throw new Error('Erreur lors de la vérification du captcha');
+        if (!response.ok) {
+          throw new Error('Erreur lors de l\'envoi du formulaire');
         }
         
-        // 2. Si la vérification du captcha est réussie, envoyer l'email via EmailJS
-        const emailResponse = await emailjs.send(
-          'service_cb56cus', 
-          'template_4womf8d',
-          templateParams,
-          '6xSU95yp9wK81yhxl'
-        );
-        
-        console.log('Email envoyé avec succès:', emailResponse);
+        console.log('Formulaire envoyé avec succès');
         setIsSubmitted(true);
         reset();
         
@@ -85,10 +70,7 @@ const ContactForm: React.FC = () => {
     }
   };
   
-  // Initialiser EmailJS
-  React.useEffect(() => {
-    emailjs.init('6xSU95yp9wK81yhxl');
-  }, []);
+  // Pas besoin d'initialiser EmailJS car nous utilisons Netlify Forms
   
   return (
     <div className="bg-white rounded-lg shadow-medium p-6 md:p-8 relative overflow-hidden">
@@ -259,7 +241,9 @@ const ContactForm: React.FC = () => {
             
             {/* Netlify Recaptcha */}
             <div className="mb-6">
-              <div data-netlify-recaptcha="true"></div>
+              {/* Ajout d'un champ caché pour la réponse du captcha */}
+              <input type="hidden" name="g-recaptcha-response" />
+              <div className="g-recaptcha" data-netlify-recaptcha="true"></div>
             </div>
             
             <div>
