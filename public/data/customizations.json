@@ -34,37 +34,6 @@
       "featured": true
     },
     {
-      "id": "flyers",
-      "title": "Enveloppes et cartes d'invitation",
-      "shortDescription": "Invitations personnalisées ",
-      "fullDescription": "Invitez vos invités avec nos carte et enveloppe personnalisées. Que ce soit pour un mariage, un baptême ou un anniversaire, nos cartes de remerciement sont une manière élégante de montrer votre gratitude. Possibilité d'inclure des photos de l'événement sur demande.",
-      "price": 2.5,
-      "minQuantity": 20,
-      "priceInfo": "Prix par flyer, commande minimum de 20 pièces.",
-      "materials": [
-        "Papier photo brillant",
-        "Papier mat premium",
-        "Carton recyclé"
-      ],
-      "dimensions": [
-        "Format standard: 10x15 cm"
-      ],
-      "images": [
-        {
-          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748195253/naqi-creation/D4997481-DDBD-4822-A0D3-77FD99E39F76.jpg",
-          "alt": "Flyers de remerciement élégants"
-        },
-        {
-          "src": "",
-          "alt": "Cartes de remerciement mariage"
-        }
-      ],
-      "examples": [
-        "Invitation pour un mariage"
-      ],
-      "featured": false
-    },
-    {
       "id": "menus",
       "title": "Menus personnalisés",
       "shortDescription": "Menus élégants pour présenter vos plats avec style lors de vos réceptions.",
