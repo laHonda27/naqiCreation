@@ -1,3 +1,30 @@
 {
-  "customItems": []
+  "customItems": [
+    {
+      "title": "Panneau de bienvenue Henna ",
+      "shortDescription": "Panneau de henna",
+      "fullDescription": "panneau de henna ",
+      "price": 79.82,
+      "customPrice": "",
+      "minQuantity": 1,
+      "priceInfo": "1",
+      "materials": [
+        "Plexiglass (3mm)"
+      ],
+      "dimensions": [
+        "Standard 70x50 cm"
+      ],
+      "images": [
+        {
+          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748281035/naqi-creation/Capture%20d%E2%80%99%C3%A9cran%202025-05-26%20%C3%A0%2019.29.57.png",
+          "alt": "panneau henna "
+        }
+      ],
+      "examples": [
+        "accueil invité"
+      ],
+      "featured": true,
+      "id": "custom-1748432562667"
+    }
+  ]
 }
