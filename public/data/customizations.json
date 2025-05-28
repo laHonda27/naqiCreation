@@ -1,37 +1,3 @@
 {
-  "customItems": [
-    {
-      "id": "etiquettes",
-      "title": "Étiquettes de bouteilles",
-      "shortDescription": "Étiquettes personnalisées pour vos bouteilles d'eau, vin ou champagne.",
-      "fullDescription": "Nos étiquettes personnalisées sont parfaites pour donner une touche unique à vos bouteilles lors de vos événements. Réalisées en papier adhésif de qualité supérieure, elles résistent aux manipulations et à la condensation. Idéales pour les mariages, baptêmes et toutes vos célébrations.",
-      "price": 2.6,
-      "minQuantity": 10,
-      "priceInfo": "Prix par unité, commande minimum de 10 pièces.",
-      "materials": [
-        "Papier adhésif premium",
-        "Finition mate ou brillante"
-      ],
-      "dimensions": [
-        "Standard: 9x12 cm",
-        "Personnalisable sur demande"
-      ],
-      "images": [
-        {
-          "src": "https://images.pexels.com/photos/1194030/pexels-photo-1194030.jpeg",
-          "alt": "Étiquettes de bouteilles personnalisées"
-        },
-        {
-          "src": "https://images.pexels.com/photos/2702805/pexels-photo-2702805.jpeg",
-          "alt": "Étiquettes de vin pour mariage"
-        }
-      ],
-      "examples": [
-        "Bouteilles d'eau pour un mariage élégant",
-        "Bouteilles de vin pour cadeaux d'invités",
-        "Champagne personnalisé pour cocktail"
-      ],
-      "featured": true
-    }
-  ]
+  "customItems": []
 }
