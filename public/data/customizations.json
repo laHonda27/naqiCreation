@@ -34,41 +34,6 @@
       "featured": true
     },
     {
-      "id": "invitations",
-      "title": "Cartons d'invitation",
-      "shortDescription": "Invitations élégantes et personnalisées pour annoncer votre événement avec style.",
-      "fullDescription": "Nos cartons d'invitation sur mesure sont la première impression que vos invités auront de votre événement. Disponibles en différents formats, papiers et finitions, ils peuvent être assortis aux couleurs et au thème de votre célébration. Chaque invitation est livrée avec son enveloppe assortie.",
-      "price": 3.5,
-      "minQuantity": 20,
-      "priceInfo": "Prix par invitation avec enveloppe, commande minimum de 20 pièces.",
-      "materials": [
-        "Papier texturé 300g",
-        "Carton premium",
-        "Options éco-responsables disponibles"
-      ],
-      "dimensions": [
-        "Standard plié: 15x15 cm",
-        "Format carte: 10x15 cm",
-        "Formats personnalisés disponibles"
-      ],
-      "images": [
-        {
-          "src": "https://images.pexels.com/photos/7319159/pexels-photo-7319159.jpeg",
-          "alt": "Cartons d'invitation élégants"
-        },
-        {
-          "src": "https://images.pexels.com/photos/636000/pexels-photo-636000.jpeg",
-          "alt": "Invitations de mariage avec enveloppes"
-        }
-      ],
-      "examples": [
-        "Invitations de mariage avec dorure à chaud",
-        "Faire-part de naissance avec ruban",
-        "Cartes d'invitation pour anniversaire"
-      ],
-      "featured": true
-    },
-    {
       "id": "marque-places",
       "title": "Marque-places",
       "shortDescription": "Marque-places originaux pour une table élégante et une organisation parfaite.",
