@@ -34,41 +34,6 @@
       "featured": true
     },
     {
-      "id": "marque-places",
-      "title": "Marque-places",
-      "shortDescription": "Marque-places originaux pour une table élégante et une organisation parfaite.",
-      "fullDescription": "Nos marque-places personnalisés ajoutent une touche d'élégance à votre décoration de table tout en guidant vos invités vers leurs places. Disponibles dans différents styles et matériaux, ils peuvent être assortis au thème de votre événement. Possibilité de créer un plan de table assorti.",
-      "price": 1.75,
-      "minQuantity": 15,
-      "priceInfo": "Prix par marque-place, commande minimum de 15 pièces.",
-      "materials": [
-        "Papier épais",
-        "Acrylique transparent",
-        "Bois",
-        "Plexiglass"
-      ],
-      "dimensions": [
-        "Format standard: 8x5 cm",
-        "Formats personnalisés sur demande"
-      ],
-      "images": [
-        {
-          "src": "https://images.pexels.com/photos/265856/pexels-photo-265856.jpeg",
-          "alt": "Marque-places élégants sur table"
-        },
-        {
-          "src": "https://images.pexels.com/photos/6332/coffee-love-heart-wedding.jpg",
-          "alt": "Marque-places originaux mariage"
-        }
-      ],
-      "examples": [
-        "Marque-places en acrylique avec noms gravés",
-        "Cartes calligraphiées avec support en bois",
-        "Marque-places origami pour un style japonais"
-      ],
-      "featured": false
-    },
-    {
       "id": "flyers",
       "title": "Enveloppes et cartes d'invitation",
       "shortDescription": "Invitations personnalisées ",
