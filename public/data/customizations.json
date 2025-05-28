@@ -1,27 +1,39 @@
 {
   "customItems": [
     {
-      "title": "Panneau de bienvenue Henna ",
-      "shortDescription": "Panneau de henna",
-      "fullDescription": "panneau de henna ",
+      "title": "Panneau de bienvenue - Henna ",
+      "shortDescription": "Panneau de bienvenue - Spécial henna",
+      "fullDescription": "Ajoutez une touche d’élégance à votre événement avec ce panneau de bienvenue personnalisé, conçu spécialement pour les célébrations de Henna. Fabriqué avec des matériaux de haute qualité, il allie esthétisme et tradition grâce à ses motifs raffinés inspirés de l’art berbère. Idéal pour accueillir vos invités et créer une ambiance chaleureuse dès leur arrivée.\n",
       "price": 84.82,
       "customPrice": "",
       "minQuantity": 1,
       "priceInfo": "1",
       "materials": [
-        "Plexiglass (3mm)"
+        "Plexiglass "
       ],
       "dimensions": [
         "Standard 70x50 cm"
       ],
       "images": [
         {
+          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748432804/naqi-creation/Capture%20d%E2%80%99%C3%A9cran%202025-05-28%20%C3%A0%2013.46.19.png",
+          "alt": "Panneau de bienvenue - Spécial henna"
+        },
+        {
           "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748281035/naqi-creation/Capture%20d%E2%80%99%C3%A9cran%202025-05-26%20%C3%A0%2019.29.57.png",
-          "alt": "panneau henna "
+          "alt": "Panneau de bienvenue - Spécial henna"
+        },
+        {
+          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748281057/naqi-creation/Capture%20d%E2%80%99%C3%A9cran%202025-05-26%20%C3%A0%2019.31.09.png",
+          "alt": "Panneau de bienvenue - Spécial henna"
+        },
+        {
+          "src": "https://res.cloudinary.com/dqo2tnjaf/image/upload/v1748432797/naqi-creation/Capture%20d%E2%80%99%C3%A9cran%202025-05-28%20%C3%A0%2013.46.06.png",
+          "alt": "Panneau de bienvenue - Spécial henna"
         }
       ],
       "examples": [
-        "accueil invité"
+        "Idéal pour accueillir vos invités"
       ],
       "featured": true,
       "id": "custom-1748432562667"
