@@ -32,40 +32,6 @@
         "Champagne personnalisé pour cocktail"
       ],
       "featured": true
-    },
-    {
-      "id": "menus",
-      "title": "Menus personnalisés",
-      "shortDescription": "Menus élégants pour présenter vos plats avec style lors de vos réceptions.",
-      "fullDescription": "Complétez votre décoration de table avec nos menus personnalisés. Imprimés sur papier de qualité, ils peuvent être assortis à vos invitations et marque-places pour une cohérence parfaite. Disponibles en format individuel ou grand format pour affichage.",
-      "price": 2.25,
-      "minQuantity": 15,
-      "priceInfo": "Prix par menu individuel, commande minimum de 15 pièces.",
-      "materials": [
-        "Papier 250g",
-        "Papier texturé",
-        "Support en plexiglass en option"
-      ],
-      "dimensions": [
-        "Format standard: 10x21 cm",
-        "Format plié: 15x15 cm"
-      ],
-      "images": [
-        {
-          "src": "https://images.pexels.com/photos/10323261/pexels-photo-10323261.jpeg",
-          "alt": "Menu élégant sur table de mariage"
-        },
-        {
-          "src": "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg",
-          "alt": "Menus personnalisés pour réception"
-        }
-      ],
-      "examples": [
-        "Menus individuels calligraphiés",
-        "Grand menu affiché sur support en bois",
-        "Menus avec options alimentaires codées par couleur"
-      ],
-      "featured": true
     }
   ]
 }
